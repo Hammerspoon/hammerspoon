@@ -10,7 +10,8 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryUIEventTracker : NSObject
 SENTRY_NO_INIT
 
-- (instancetype)initWithMode:(id<SentryUIEventTrackerMode>)mode;
+- (instancetype)initWithMode:(id<SentryUIEventTrackerMode>)mode
+    reportAccessibilityIdentifier:(BOOL)report;
 
 - (void)start;
 - (void)stop;

@@ -1,6 +1,8 @@
 #import "SentryCrashIntegration.h"
 #import "SentryCrashInstallationReporter.h"
 
+#import "SentryCrashC.h"
+#import "SentryCrashIntegrationSessionHandler.h"
 #include "SentryCrashMonitor_Signal.h"
 #import "SentryCrashWrapper.h"
 #import "SentryDispatchQueueWrapper.h"
@@ -10,19 +12,23 @@
 #import "SentryOptions.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
-#import "SentrySessionCrashedHandler.h"
+#import "SentrySpan+Private.h"
+#import "SentryTracer.h"
 #import "SentryWatchdogTerminationLogic.h"
 #import <SentryAppStateManager.h>
 #import <SentryClient+Private.h>
 #import <SentryCrashScopeObserver.h>
 #import <SentryDependencyContainer.h>
 #import <SentrySDK+Private.h>
-#import <SentrySysctl.h>
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryUIApplication.h"
 #    import <UIKit/UIKit.h>
 #endif
+
+#if TARGET_OS_OSX
+#    import "SentryUncaughtNSExceptions.h"
+#endif // TARGET_OS_OSX
 
 static dispatch_once_t installationToken = 0;
 static SentryCrashInstallationReporter *installation = nil;
@@ -30,13 +36,23 @@ static SentryCrashInstallationReporter *installation = nil;
 static NSString *const DEVICE_KEY = @"device";
 static NSString *const LOCALE_KEY = @"locale";
 
-@interface
-SentryCrashIntegration ()
+void
+sentry_finishAndSaveTransaction(void)
+{
+    SentrySpan *span = SentrySDK.currentHub.scope.span;
+
+    if (span != nil) {
+        SentryTracer *tracer = [span tracer];
+        [tracer finishForCrash];
+    }
+}
+
+@interface SentryCrashIntegration ()
 
 @property (nonatomic, weak) SentryOptions *options;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @property (nonatomic, strong) SentryCrashWrapper *crashAdapter;
-@property (nonatomic, strong) SentrySessionCrashedHandler *crashedSessionHandler;
+@property (nonatomic, strong) SentryCrashIntegrationSessionHandler *sessionHandler;
 @property (nonatomic, strong) SentryCrashScopeObserver *scopeObserver;
 
 @end
@@ -78,12 +94,12 @@ SentryCrashIntegration ()
         [[SentryWatchdogTerminationLogic alloc] initWithOptions:options
                                                    crashAdapter:self.crashAdapter
                                                 appStateManager:appStateManager];
-    self.crashedSessionHandler =
-        [[SentrySessionCrashedHandler alloc] initWithCrashWrapper:self.crashAdapter
-                                         watchdogTerminationLogic:logic];
+    self.sessionHandler =
+        [[SentryCrashIntegrationSessionHandler alloc] initWithCrashWrapper:self.crashAdapter
+                                                  watchdogTerminationLogic:logic];
 #else
-    self.crashedSessionHandler =
-        [[SentrySessionCrashedHandler alloc] initWithCrashWrapper:self.crashAdapter];
+    self.sessionHandler =
+        [[SentryCrashIntegrationSessionHandler alloc] initWithCrashWrapper:self.crashAdapter];
 #endif // SENTRY_HAS_UIKIT
 
     self.scopeObserver =
@@ -94,10 +110,22 @@ SentryCrashIntegration ()
     enableSigtermReporting = options.enableSigtermReporting;
 #endif // !TARGET_OS_WATCH
 
+    BOOL enableUncaughtNSExceptionReporting = NO;
+#if TARGET_OS_OSX
+    if (options.enableSwizzling) {
+        enableUncaughtNSExceptionReporting = options.enableUncaughtNSExceptionReporting;
+    }
+#endif // TARGET_OS_OSX
+
     [self startCrashHandler:options.cacheDirectoryPath
-        enableSigtermReporting:enableSigtermReporting];
+                   enableSigtermReporting:enableSigtermReporting
+        enableReportingUncaughtExceptions:enableUncaughtNSExceptionReporting];
 
     [self configureScope];
+
+    if (options.enablePersistingTracesWhenCrashing) {
+        [self configureTracingWhenCrashing];
+    }
 
     return YES;
 }
@@ -108,7 +136,8 @@ SentryCrashIntegration ()
 }
 
 - (void)startCrashHandler:(NSString *)cacheDirectory
-    enableSigtermReporting:(BOOL)enableSigtermReporting
+               enableSigtermReporting:(BOOL)enableSigtermReporting
+    enableReportingUncaughtExceptions:(BOOL)enableReportingUncaughtExceptions
 {
     void (^block)(void) = ^{
         BOOL canSendReports = NO;
@@ -129,6 +158,13 @@ SentryCrashIntegration ()
 
         [installation install:cacheDirectory];
 
+#if TARGET_OS_OSX
+        if (enableReportingUncaughtExceptions) {
+            [SentryUncaughtNSExceptions configureCrashOnExceptions];
+            [SentryUncaughtNSExceptions swizzleNSApplicationReportException];
+        }
+#endif // TARGET_OS_OSX
+
         // We need to send the crashed event together with the crashed session in the same envelope
         // to have proper statistics in release health. To achieve this we need both synchronously
         // in the hub. The crashed event is converted from a SentryCrashReport to an event in
@@ -142,7 +178,7 @@ SentryCrashIntegration ()
         // there and the AutoSessionTrackingIntegration can work properly.
         //
         // This is a pragmatic and not the most optimal place for this logic.
-        [self.crashedSessionHandler endCurrentSessionAsCrashedWhenCrashOrOOM];
+        [self.sessionHandler endCurrentSessionIfRequired];
 
         // We only need to send all reports on the first initialization of SentryCrash. If
         // SenryCrash was deactivated there are no new reports to send. Furthermore, the
@@ -173,6 +209,8 @@ SentryCrashIntegration ()
         [installation uninstall];
         installationToken = 0;
     }
+
+    sentrycrash_setSaveTransaction(NULL);
 
     [NSNotificationCenter.defaultCenter removeObserver:self
                                                   name:NSCurrentLocaleDidChangeNotification
@@ -222,6 +260,11 @@ SentryCrashIntegration ()
 
         [scope setContextValue:device forKey:DEVICE_KEY];
     }];
+}
+
+- (void)configureTracingWhenCrashing
+{
+    sentrycrash_setSaveTransaction(&sentry_finishAndSaveTransaction);
 }
 
 @end

@@ -14,6 +14,7 @@ static SentryCrashReplay crashReplay = { 0 };
 void
 sentrySessionReplaySync_start(const char *const path)
 {
+    SENTRY_ASYNC_SAFE_LOG_DEBUG("[Session Replay] Starting session replay with path: %s", path);
     crashReplay.lastSegmentEnd = 0;
     crashReplay.segmentId = 0;
 
@@ -21,13 +22,24 @@ sentrySessionReplaySync_start(const char *const path)
         free(crashReplay.path);
     }
 
-    crashReplay.path = malloc(strlen(path));
-    strcpy(crashReplay.path, path);
+    size_t buffer_size = sizeof(char) * (strlen(path) + 1); // Add a byte for the null-terminator.
+    crashReplay.path = malloc(buffer_size);
+
+    if (crashReplay.path == NULL) {
+        SENTRY_ASYNC_SAFE_LOG_ERROR(
+            "Failed to allocate memory for crash replay path. File path: %s", path);
+        return;
+    }
+
+    strlcpy(crashReplay.path, path, buffer_size);
 }
 
 void
 sentrySessionReplaySync_updateInfo(unsigned int segmentId, double lastSegmentEnd)
 {
+    SENTRY_ASYNC_SAFE_LOG_DEBUG(
+        "[Session Replay] Updating session info with segmentId: %u, lastSegmentEnd: %f", segmentId,
+        lastSegmentEnd);
     crashReplay.segmentId = segmentId;
     crashReplay.lastSegmentEnd = lastSegmentEnd;
 }
@@ -35,6 +47,12 @@ sentrySessionReplaySync_updateInfo(unsigned int segmentId, double lastSegmentEnd
 void
 sentrySessionReplaySync_writeInfo(void)
 {
+    SENTRY_ASYNC_SAFE_LOG_DEBUG("[Session Replay] Writing session info");
+    if (crashReplay.path == NULL) {
+        SENTRY_ASYNC_SAFE_LOG_ERROR("There is no path to write replay information");
+        return;
+    }
+
     int fd = open(crashReplay.path, O_RDWR | O_CREAT | O_TRUNC, 0644);
 
     if (fd < 1) {
@@ -63,6 +81,7 @@ sentrySessionReplaySync_writeInfo(void)
 bool
 sentrySessionReplaySync_readInfo(SentryCrashReplay *output, const char *const path)
 {
+    SENTRY_ASYNC_SAFE_LOG_DEBUG("[Session Replay] Reading session info from path: %s", path);
     int fd = open(path, O_RDONLY);
     if (fd < 0) {
         SENTRY_ASYNC_SAFE_LOG_ERROR(

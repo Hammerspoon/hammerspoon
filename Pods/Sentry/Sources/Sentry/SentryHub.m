@@ -9,10 +9,11 @@
 #import "SentryFileManager.h"
 #import "SentryHub+Private.h"
 #import "SentryInstallation.h"
+#import "SentryIntegrationProtocol.h"
 #import "SentryLevelMapper.h"
 #import "SentryLog.h"
 #import "SentryNSTimerFactory.h"
-#import "SentryOptions.h"
+#import "SentryOptions+Private.h"
 #import "SentryPerformanceTracker.h"
 #import "SentryProfilingConditionals.h"
 #import "SentrySDK+Private.h"
@@ -22,9 +23,8 @@
 #import "SentryScope+Private.h"
 #import "SentrySerialization.h"
 #import "SentrySession+Private.h"
-#import "SentryStatsdClient.h"
 #import "SentrySwift.h"
-#import "SentryTraceOrigins.h"
+#import "SentryTraceOrigin.h"
 #import "SentryTracer.h"
 #import "SentryTransaction.h"
 #import "SentryTransactionContext+Private.h"
@@ -35,8 +35,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryHub () <SentryMetricsAPIDelegate>
+@interface SentryHub ()
 
 @property (nullable, nonatomic, strong) SentryClient *client;
 @property (nullable, nonatomic, strong) SentryScope *scope;
@@ -74,18 +73,6 @@ SentryHub () <SentryMetricsAPIDelegate>
         _scope = scope;
         _crashWrapper = crashWrapper;
         _dispatchQueue = dispatchQueue;
-        SentryStatsdClient *statsdClient = [[SentryStatsdClient alloc] initWithClient:client];
-        SentryMetricsClient *metricsClient =
-            [[SentryMetricsClient alloc] initWithClient:statsdClient];
-        _metrics = [[SentryMetricsAPI alloc]
-             initWithEnabled:client.options.enableMetrics
-                      client:metricsClient
-                 currentDate:SentryDependencyContainer.sharedInstance.dateProvider
-               dispatchQueue:_dispatchQueue
-                      random:SentryDependencyContainer.sharedInstance.random
-            beforeEmitMetric:client.options.beforeEmitMetric];
-        [_metrics setDelegate:self];
-
         _sessionLock = [[NSObject alloc] init];
         _integrationsLock = [[NSObject alloc] init];
         _installedIntegrations = [[NSMutableArray alloc] init];
@@ -105,10 +92,13 @@ SentryHub () <SentryMetricsAPIDelegate>
     SentrySession *lastSession = nil;
     SentryScope *scope = self.scope;
     SentryOptions *options = [_client options];
-    if (options == nil || options.releaseName == nil) {
-        [SentryLog
-            logWithMessage:[NSString stringWithFormat:@"No option or release to start a session."]
-                  andLevel:kSentryLevelError];
+    if (options == nil) {
+        SENTRY_LOG_ERROR(@"Options of the client are nil. Not starting a session.");
+        return;
+    }
+    if (options.releaseName == nil) {
+        SENTRY_LOG_ERROR(
+            @"Release name of the options of the client is nil. Not starting a session.");
         return;
     }
 
@@ -218,10 +208,8 @@ SentryHub () <SentryMetricsAPIDelegate>
         SentryClient *client = _client;
 
         if (client.options.diagnosticLevel == kSentryLevelDebug) {
-            [SentryLog
-                logWithMessage:[NSString stringWithFormat:@"Capturing session with status: %@",
-                                         [self createSessionDebugString:session]]
-                      andLevel:kSentryLevelDebug];
+            SENTRY_LOG_DEBUG(
+                @"Capturing session with status: %@", [self createSessionDebugString:session]);
         }
         [client captureSession:session];
     }
@@ -241,9 +229,9 @@ SentryHub () <SentryMetricsAPIDelegate>
     return sessionCopy;
 }
 
-- (void)captureCrashEvent:(SentryEvent *)event
+- (void)captureFatalEvent:(SentryEvent *)event
 {
-    [self captureCrashEvent:event withScope:self.scope];
+    [self captureFatalEvent:event withScope:self.scope];
 }
 
 /**
@@ -252,9 +240,9 @@ SentryHub () <SentryMetricsAPIDelegate>
  * currently no way to know which one belongs to the crashed session, so we send the session with
  * the first crash event we receive.
  */
-- (void)captureCrashEvent:(SentryEvent *)event withScope:(SentryScope *)scope
+- (void)captureFatalEvent:(SentryEvent *)event withScope:(SentryScope *)scope
 {
-    event.isCrashEvent = YES;
+    event.isFatalEvent = YES;
 
     SentryClient *client = _client;
     if (client == nil) {
@@ -268,12 +256,48 @@ SentryHub () <SentryMetricsAPIDelegate>
     // users didn't start a manual session yet, and there is a previous crash on disk. In this case,
     // we just send the crash event.
     if (crashedSession != nil) {
-        [client captureCrashEvent:event withSession:crashedSession withScope:scope];
+        [client captureFatalEvent:event withSession:crashedSession withScope:scope];
         [fileManager deleteCrashedSession];
     } else {
-        [client captureCrashEvent:event withScope:scope];
+        [client captureFatalEvent:event withScope:scope];
     }
 }
+
+#if SENTRY_HAS_UIKIT
+
+/**
+ * This method expects an abnormal session already stored to disk. For more info checkout: @c
+ * SentryCrashIntegrationSessionHandler
+ */
+- (void)captureFatalAppHangEvent:(SentryEvent *)event
+{
+    // We treat fatal app hang events similar to crashes.
+    event.isFatalEvent = YES;
+
+    SentryClient *_Nullable client = _client;
+    if (client == nil) {
+        return;
+    }
+
+    SentryFileManager *fileManager = [client fileManager];
+    SentrySession *abnormalSession = [fileManager readAbnormalSession];
+
+    // It can occur that there is no session yet because autoSessionTracking was just enabled or
+    // users didn't start a manual session yet, and there is a previous fatal app hang on disk. In
+    // this case, we just send the fatal app hang event.
+    if (abnormalSession == nil) {
+        [client captureFatalEvent:event withScope:self.scope];
+        return;
+    }
+
+    // Users won't see the anr_foreground mechanism in the UI. The Sentry UI will present release
+    // health and session statistics as app hangs.
+    abnormalSession.abnormalMechanism = @"anr_foreground";
+    [client captureFatalEvent:event withSession:abnormalSession withScope:self.scope];
+    [fileManager deleteAbnormalSession];
+}
+
+#endif // SENTRY_HAS_UIKIT
 
 - (void)captureTransaction:(SentryTransaction *)transaction withScope:(SentryScope *)scope
 {
@@ -303,6 +327,21 @@ SentryHub () <SentryMetricsAPIDelegate>
                           withScope:scope
             additionalEnvelopeItems:additionalEnvelopeItems];
     }];
+}
+
+- (void)saveCrashTransaction:(SentryTransaction *)transaction
+{
+    SentrySampleDecision decision = transaction.trace.sampled;
+
+    if (decision != kSentrySampleDecisionYes) {
+        // No need to update client reports when we're crashing cause they get lost anyways.
+        return;
+    }
+
+    SentryClient *client = _client;
+    if (client != nil) {
+        [client saveCrashTransaction:transaction withScope:self.scope];
+    }
 }
 
 - (SentryId *)captureEvent:(SentryEvent *)event
@@ -392,8 +431,9 @@ SentryHub () <SentryMetricsAPIDelegate>
 
 - (SentryTransactionContext *)transactionContext:(SentryTransactionContext *)context
                                      withSampled:(SentrySampleDecision)sampleDecision
+                                      sampleRate:(NSNumber *)sampleRate
+                                      sampleRand:(NSNumber *)sampleRand
 {
-
     return [[SentryTransactionContext alloc] initWithName:context.name
                                                nameSource:context.nameSource
                                                 operation:context.operation
@@ -402,7 +442,11 @@ SentryHub () <SentryMetricsAPIDelegate>
                                                    spanId:context.spanId
                                              parentSpanId:context.parentSpanId
                                                   sampled:sampleDecision
-                                            parentSampled:context.parentSampled];
+                                            parentSampled:context.parentSampled
+                                               sampleRate:sampleRate
+                                         parentSampleRate:context.parentSampleRate
+                                               sampleRand:sampleRand
+                                         parentSampleRand:context.parentSampleRand];
 }
 
 - (SentryTracer *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
@@ -417,14 +461,16 @@ SentryHub () <SentryMetricsAPIDelegate>
     SentrySamplerDecision *tracesSamplerDecision
         = sentry_sampleTrace(samplingContext, self.client.options);
     transactionContext = [self transactionContext:transactionContext
-                                      withSampled:tracesSamplerDecision.decision];
-    transactionContext.sampleRate = tracesSamplerDecision.sampleRate;
+                                      withSampled:tracesSamplerDecision.decision
+                                       sampleRate:tracesSamplerDecision.sampleRate
+                                       sampleRand:tracesSamplerDecision.sampleRand];
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    SentrySamplerDecision *profilesSamplerDecision
-        = sentry_sampleTraceProfile(samplingContext, tracesSamplerDecision, self.client.options);
-
-    configuration.profilesSamplerDecision = profilesSamplerDecision;
+    if (![self.client.options isContinuousProfilingEnabled]) {
+        SentrySamplerDecision *profilesSamplerDecision = sentry_sampleTraceProfile(
+            samplingContext, tracesSamplerDecision, self.client.options);
+        configuration.profilesSamplerDecision = profilesSamplerDecision;
+    }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED"
 
     SentryTracer *tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext
@@ -500,6 +546,14 @@ SentryHub () <SentryMetricsAPIDelegate>
     SentryClient *client = _client;
     if (client != nil) {
         [client captureUserFeedback:userFeedback];
+    }
+}
+
+- (void)captureFeedback:(SentryFeedback *)feedback
+{
+    SentryClient *client = _client;
+    if (client != nil) {
+        [client captureFeedback:feedback withScope:self.scope];
     }
 }
 
@@ -680,10 +734,8 @@ SentryHub () <SentryMetricsAPIDelegate>
                     endSessionCrashedWithTimestamp:[SentryDependencyContainer.sharedInstance
                                                            .dateProvider date]];
                 if (_client.options.diagnosticLevel == kSentryLevelDebug) {
-                    [SentryLog
-                        logWithMessage:[NSString stringWithFormat:@"Ending session with status: %@",
-                                                 [self createSessionDebugString:currentSession]]
-                              andLevel:kSentryLevelDebug];
+                    SENTRY_LOG_DEBUG(@"Ending session with status: %@",
+                        [self createSessionDebugString:currentSession]);
                 }
                 if (startNewSession) {
                     // Setting _session to nil so startSession doesn't capture it again
@@ -708,7 +760,7 @@ SentryHub () <SentryMetricsAPIDelegate>
     for (SentryEnvelopeItem *item in items) {
         if ([item.header.type isEqualToString:SentryEnvelopeItemTypeEvent]) {
             // If there is no level the default is error
-            NSDictionary *eventJson =
+            NSDictionary *_Nullable eventJson =
                 [SentrySerialization deserializeDictionaryFromJsonData:item.data];
             if (eventJson == nil) {
                 return NO;
@@ -741,11 +793,8 @@ SentryHub () <SentryMetricsAPIDelegate>
 - (void)reportFullyDisplayed
 {
 #if SENTRY_HAS_UIKIT
-    if (_client.options.enableTimeToFullDisplayTracing) {
-        [SentryUIViewControllerPerformanceTracker.shared reportFullyDisplayed];
-    } else {
-        SENTRY_LOG_DEBUG(@"The options `enableTimeToFullDisplay` is disabled.");
-    }
+    [[SentryDependencyContainer.sharedInstance uiViewControllerPerformanceTracker]
+        reportFullyDisplayed];
 #endif // SENTRY_HAS_UIKIT
 }
 
@@ -763,7 +812,6 @@ SentryHub () <SentryMetricsAPIDelegate>
 
 - (void)flush:(NSTimeInterval)timeout
 {
-    [_metrics flush];
     SentryClient *client = _client;
     if (client != nil) {
         [client flush:timeout];
@@ -772,45 +820,8 @@ SentryHub () <SentryMetricsAPIDelegate>
 
 - (void)close
 {
-    [_metrics close];
     [_client close];
     SENTRY_LOG_DEBUG(@"Closed the Hub.");
-}
-
-#pragma mark - SentryMetricsAPIDelegate
-
-- (NSDictionary<NSString *, NSString *> *)getDefaultTagsForMetrics
-{
-    SentryOptions *options = [_client options];
-    if (options == nil || options.enableDefaultTagsForMetrics == NO) {
-        return @{};
-    }
-
-    NSMutableDictionary<NSString *, NSString *> *defaultTags = [NSMutableDictionary dictionary];
-
-    if (options.releaseName != nil) {
-        defaultTags[@"release"] = options.releaseName;
-    }
-
-    defaultTags[@"environment"] = options.environment;
-
-    return defaultTags;
-}
-
-- (id<SentrySpan> _Nullable)getCurrentSpan
-{
-    return _scope.span;
-}
-
-- (LocalMetricsAggregator *_Nullable)getLocalMetricsAggregatorWithSpan:(id<SentrySpan>)span
-{
-    // We don't want to add them LocalMetricsAggregator to the SentrySpan protocol and make it
-    // public. Instead, we check if the span responds to the getLocalMetricsAggregator which, every
-    // span should do.
-    if ([span isKindOfClass:SentrySpan.class]) {
-        return [(SentrySpan *)span getLocalMetricsAggregator];
-    }
-    return nil;
 }
 
 - (void)registerSessionListener:(id<SentrySessionListener>)listener

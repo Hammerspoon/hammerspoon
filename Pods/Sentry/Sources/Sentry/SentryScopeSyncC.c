@@ -47,6 +47,12 @@ sentrycrash_scopesync_setContext(const char *const jsonEncodedCString)
 }
 
 void
+sentrycrash_scopesync_setTraceContext(const char *const jsonEncodedCString)
+{
+    setField(jsonEncodedCString, &scope.traceContext);
+}
+
+void
 sentrycrash_scopesync_setEnvironment(const char *const jsonEncodedCString)
 {
     setField(jsonEncodedCString, &scope.environment);

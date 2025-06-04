@@ -3,12 +3,10 @@
 #import "SentryEvent.h"
 #import "SentryOptions.h"
 #import "SentryUserFeedback.h"
-#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryTransportAdapter ()
+@interface SentryTransportAdapter ()
 
 @property (nonatomic, strong) NSArray<id<SentryTransport>> *transports;
 @property (nonatomic, strong) SentryOptions *options;
@@ -78,6 +76,23 @@ SentryTransportAdapter ()
     [self sendEnvelope:envelope];
 }
 
+- (void)storeEvent:(SentryEvent *)event traceContext:(nullable SentryTraceContext *)traceContext
+{
+    SentryEnvelopeItem *item = [[SentryEnvelopeItem alloc] initWithEvent:event];
+
+    SentryEnvelopeHeader *envelopeHeader = [[SentryEnvelopeHeader alloc] initWithId:event.eventId
+                                                                       traceContext:traceContext];
+
+    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:envelopeHeader
+                                                                items:@[ item ]];
+
+    for (id<SentryTransport> transport in self.transports) {
+        [transport storeEnvelope:envelope];
+    }
+}
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)sendUserFeedback:(SentryUserFeedback *)userFeedback
 {
     SentryEnvelopeItem *item = [[SentryEnvelopeItem alloc] initWithUserFeedback:userFeedback];
@@ -87,6 +102,7 @@ SentryTransportAdapter ()
                                                            singleItem:item];
     [self sendEnvelope:envelope];
 }
+#pragma clang diagnostic pop
 
 - (void)sendEnvelope:(SentryEnvelope *)envelope
 {

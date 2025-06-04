@@ -1,9 +1,20 @@
-#import "SentryDefines.h"
-#import "SentrySerializable.h"
-#import "SentrySpanContext.h"
+#if __has_include(<Sentry/Sentry.h>)
+#    import <Sentry/SentryDefines.h>
+#elif __has_include(<SentryWithoutUIKit/Sentry.h>)
+#    import <SentryWithoutUIKit/SentryDefines.h>
+#else
+#    import <SentryDefines.h>
+#endif
+#import SENTRY_HEADER(SentrySerializable)
+#import SENTRY_HEADER(SentrySpanContext)
+
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentrySpanId, SentryId, SentryTraceHeader, SentryMeasurementUnit, SentryTraceContext;
+@class SentryId;
+@class SentryMeasurementUnit;
+@class SentrySpanId;
+@class SentryTraceContext;
+@class SentryTraceHeader;
 
 NS_SWIFT_NAME(Span)
 @protocol SentrySpan <SentrySerializable>

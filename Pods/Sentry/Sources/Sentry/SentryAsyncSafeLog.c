@@ -140,7 +140,7 @@ sentry_asyncLogSetFileName(const char *filename, bool overwrite)
         fd = open(filename, openMask, 0644);
         unlikely_if(fd < 0) { return 1; }
         if (filename != g_logFilename) {
-            strncpy(g_logFilename, filename, sizeof(g_logFilename));
+            strlcpy(g_logFilename, filename, sizeof(g_logFilename));
         }
     }
 

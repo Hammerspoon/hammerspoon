@@ -1,6 +1,6 @@
 #import "SentryDefines.h"
 
-@class SentryCurrentDateProvider;
+@protocol SentryCurrentDateProvider;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -16,7 +16,7 @@ NS_SWIFT_NAME(RateLimitParser)
 @interface SentryRateLimitParser : NSObject
 SENTRY_NO_INIT
 
-- (instancetype)initWithCurrentDateProvider:(SentryCurrentDateProvider *)currentDateProvider;
+- (instancetype)initWithCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider;
 
 - (NSDictionary<NSNumber *, NSDate *> *)parse:(NSString *)header;
 

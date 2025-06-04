@@ -1,4 +1,3 @@
-@_implementationOnly import _SentryPrivate
 import Foundation
 
 class SentryRRWebBreadcrumbEvent: SentryRRWebCustomEvent {

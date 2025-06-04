@@ -4,7 +4,6 @@
 
 #    import "SentryDefines.h"
 #    import "SentryProfilerDefines.h"
-#    import <Foundation/Foundation.h>
 
 @class SentryTransaction;
 

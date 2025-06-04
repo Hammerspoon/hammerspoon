@@ -91,12 +91,6 @@ getThreadList(SentryCrashMachineContext *context)
     return true;
 }
 
-int
-sentrycrashmc_contextSize(void)
-{
-    return sizeof(SentryCrashMachineContext);
-}
-
 SentryCrashThread
 sentrycrashmc_getThreadFromContext(const SentryCrashMachineContext *const context)
 {

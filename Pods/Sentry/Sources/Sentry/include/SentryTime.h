@@ -15,12 +15,6 @@ uint64_t timeIntervalToNanoseconds(double seconds);
 double nanosecondsToTimeInterval(uint64_t nanoseconds);
 
 /**
- * Returns the absolute timestamp, which has no defined reference point or unit
- * as it is platform dependent.
- */
-uint64_t getAbsoluteTime(void);
-
-/**
  * Check whether two timestamps provided as 64 bit unsigned integers are in normal
  * chronological order, as a convenience runtime check before using @c getDurationNs.
  * Equal timestamps are considered to be valid chronological order.

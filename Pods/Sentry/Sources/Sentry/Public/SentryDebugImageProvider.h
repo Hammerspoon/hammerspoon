@@ -1,6 +1,8 @@
 #import <Foundation/Foundation.h>
 
-@class SentryDebugMeta, SentryThread, SentryFrame;
+@class SentryDebugMeta;
+@class SentryFrame;
+@class SentryThread;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -31,7 +33,10 @@ NS_ASSUME_NONNULL_BEGIN
  * crash, each image's data section crash info is also included.
  */
 - (NSArray<SentryDebugMeta *> *)getDebugImagesForThreads:(NSArray<SentryThread *> *)threads
-                                                 isCrash:(BOOL)isCrash;
+                                                 isCrash:(BOOL)isCrash
+    DEPRECATED_MSG_ATTRIBUTE("This method is slow and will be removed in a future version. Use "
+                             "-[getDebugImagesFromCacheForThreads:] instead.");
+;
 
 /**
  * Returns a list of debug images that are being referenced by the given frames.
@@ -52,7 +57,9 @@ NS_ASSUME_NONNULL_BEGIN
  * crash, each image's data section crash info is also included.
  */
 - (NSArray<SentryDebugMeta *> *)getDebugImagesForFrames:(NSArray<SentryFrame *> *)frames
-                                                isCrash:(BOOL)isCrash;
+                                                isCrash:(BOOL)isCrash
+    DEPRECATED_MSG_ATTRIBUTE("This method is slow and will be removed in a future version. Use "
+                             "-[getDebugImagesFromCacheForFrames:] instead.");
 
 /**
  * Returns the current list of debug images. Be aware that the @c SentryDebugMeta is actually
@@ -71,8 +78,12 @@ NS_ASSUME_NONNULL_BEGIN
  * @param isCrash @c YES if we're collecting binary images for a crash report, @c NO if we're
  * gathering them for other backtrace information, like a performance transaction. If this is for a
  * crash, each image's data section crash info is also included.
+ *
+ * @warning This method is slow. Please consider using @c getDebugImagesFromCache.
  */
-- (NSArray<SentryDebugMeta *> *)getDebugImagesCrashed:(BOOL)isCrash;
+- (NSArray<SentryDebugMeta *> *)getDebugImagesCrashed:(BOOL)isCrash
+    DEPRECATED_MSG_ATTRIBUTE("This method is slow and will be removed in a future version. Use "
+                             "-[getDebugImagesFromCache:] instead.");
 
 @end
 

@@ -6,8 +6,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryReplayRecording;
 @class SentryClientReport;
 
-@interface
-SentryEnvelopeItem ()
+@interface SentryEnvelopeItem ()
 
 - (instancetype)initWithClientReport:(SentryClientReport *)clientReport;
 

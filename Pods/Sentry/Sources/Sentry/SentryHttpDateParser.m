@@ -1,10 +1,8 @@
 #import "SentryHttpDateParser.h"
-#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryHttpDateParser ()
+@interface SentryHttpDateParser ()
 
 @property (nonatomic, strong) NSDateFormatter *dateFormatter;
 

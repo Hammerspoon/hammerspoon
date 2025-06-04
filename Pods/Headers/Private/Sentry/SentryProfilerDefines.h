@@ -1,1 +1,1 @@
-../../../Sentry/Sources/Sentry/Profiling/SentryProfilerDefines.h
+../../../Sentry/Sources/Sentry/include/SentryProfilerDefines.h

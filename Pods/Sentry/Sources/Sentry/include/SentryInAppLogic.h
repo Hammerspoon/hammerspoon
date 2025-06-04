@@ -1,5 +1,4 @@
 #import "SentryDefines.h"
-#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -31,8 +30,6 @@ NS_ASSUME_NONNULL_BEGIN
 SENTRY_NO_INIT
 
 @property (nonnull, readonly) NSArray<NSString *> *inAppIncludes;
-
-@property (nonnull, readonly) NSArray<NSString *> *inAppExcludes;
 
 /**
  * Initializes @c SentryInAppLogic with @c inAppIncludes and @c inAppExcludes.

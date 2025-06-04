@@ -10,11 +10,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryDelayedFramesTracker ()
+@interface SentryDelayedFramesTracker ()
 
 @property (nonatomic, assign) CFTimeInterval keepDelayedFramesDuration;
-@property (nonatomic, strong, readonly) SentryCurrentDateProvider *dateProvider;
+@property (nonatomic, strong, readonly) id<SentryCurrentDateProvider> dateProvider;
 @property (nonatomic, strong) NSMutableArray<SentryDelayedFrame *> *delayedFrames;
 @property (nonatomic) uint64_t lastDelayedFrameSystemTimestamp;
 @property (nonatomic) uint64_t previousFrameSystemTimestamp;
@@ -24,7 +23,7 @@ SentryDelayedFramesTracker ()
 @implementation SentryDelayedFramesTracker
 
 - (instancetype)initWithKeepDelayedFramesDuration:(CFTimeInterval)keepDelayedFramesDuration
-                                     dateProvider:(SentryCurrentDateProvider *)dateProvider
+                                     dateProvider:(id<SentryCurrentDateProvider>)dateProvider
 {
     if (self = [super init]) {
         _keepDelayedFramesDuration = keepDelayedFramesDuration;

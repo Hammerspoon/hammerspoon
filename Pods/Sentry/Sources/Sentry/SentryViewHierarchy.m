@@ -60,8 +60,12 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
 
     void (^fetchViewHierarchy)(void) = ^{ result = [self appViewHierarchy]; };
 
+    SENTRY_LOG_INFO(@"Starting to fetch the view hierarchy from the main thread.");
+
     [[SentryDependencyContainer sharedInstance].dispatchQueueWrapper
         dispatchSyncOnMainQueue:fetchViewHierarchy];
+
+    SENTRY_LOG_INFO(@"Finished fetching the view hierarchy from the main thread.");
 
     return result;
 }
@@ -93,6 +97,8 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
     __block SentryCrashJSONEncodeContext JSONContext;
     sentrycrashjson_beginEncode(&JSONContext, NO, addJSONDataFunc, userData);
 
+    SENTRY_LOG_DEBUG(@"Processing view hierarchy.");
+
     int (^serializeJson)(void) = ^int() {
         int result;
         tryJson(sentrycrashjson_beginObject(&JSONContext, NULL));
@@ -121,6 +127,8 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
 
 - (int)viewHierarchyFromView:(UIView *)view intoContext:(SentryCrashJSONEncodeContext *)context
 {
+    SENTRY_LOG_DEBUG(@"Processing view hierarchy of view: %@", view);
+
     int result = 0;
     tryJson(sentrycrashjson_beginObject(context, NULL));
     const char *viewClassName = [[SwiftDescriptor getObjectClassName:view] UTF8String];
@@ -144,7 +152,7 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
         UIViewController *vc = (UIViewController *)view.nextResponder;
         if (vc.view == view) {
             const char *viewControllerClassName =
-                [[SwiftDescriptor getObjectClassName:vc] UTF8String];
+                [[SwiftDescriptor getViewControllerClassName:vc] UTF8String];
             tryJson(sentrycrashjson_addStringElement(context, "view_controller",
                 viewControllerClassName, SentryCrashJSON_SIZE_AUTOMATIC));
         }

@@ -3,16 +3,15 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryDateUtil ()
+@interface SentryDateUtil ()
 
-@property (nonatomic, strong) SentryCurrentDateProvider *currentDateProvider;
+@property (nonatomic, strong) id<SentryCurrentDateProvider> currentDateProvider;
 
 @end
 
 @implementation SentryDateUtil
 
-- (instancetype)initWithCurrentDateProvider:(SentryCurrentDateProvider *)currentDateProvider
+- (instancetype)initWithCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
 {
     if (self = [super init]) {
         self.currentDateProvider = currentDateProvider;

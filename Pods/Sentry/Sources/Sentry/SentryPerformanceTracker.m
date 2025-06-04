@@ -15,8 +15,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryPerformanceTracker () <SentryTracerDelegate>
+@interface SentryPerformanceTracker () <SentryTracerDelegate>
 
 @property (nonatomic, strong) NSMutableDictionary<SentrySpanId *, id<SentrySpan>> *spans;
 @property (nonatomic, strong) NSMutableArray<id<SentrySpan>> *activeSpanStack;
@@ -52,7 +51,7 @@ SentryPerformanceTracker () <SentryTracerDelegate>
         activeSpan = [self.activeSpanStack lastObject];
     }
 
-    __block id<SentrySpan> newSpan;
+    id<SentrySpan> newSpan;
     if (activeSpan != nil) {
         newSpan = [activeSpan startChildWithOperation:operation description:name];
         newSpan.origin = origin;
@@ -62,35 +61,37 @@ SentryPerformanceTracker () <SentryTracerDelegate>
                                                                                  operation:operation
                                                                                     origin:origin];
 
-        [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> span) {
-            BOOL bindToScope = NO;
-            if (span == nil) {
+        id<SentrySpan> span = SentrySDK.currentHub.scope.span;
+
+        BOOL bindToScope = NO;
+        if (span == nil) {
+            bindToScope = YES;
+        }
+#if SENTRY_HAS_UIKIT
+        else {
+            if ([SentryUIEventTracker isUIEventOperation:span.operation]) {
+                SENTRY_LOG_DEBUG(
+                    @"Cancelling previous UI event span %@", span.spanId.sentrySpanIdString);
+                [span finishWithStatus:kSentrySpanStatusCancelled];
                 bindToScope = YES;
             }
-#if SENTRY_HAS_UIKIT
-            else {
-                if ([SentryUIEventTracker isUIEventOperation:span.operation]) {
-                    SENTRY_LOG_DEBUG(
-                        @"Cancelling previous UI event span %@", span.spanId.sentrySpanIdString);
-                    [span finishWithStatus:kSentrySpanStatusCancelled];
-                    bindToScope = YES;
-                }
-            }
+        }
 #endif // SENTRY_HAS_UIKIT
 
-            SENTRY_LOG_DEBUG(@"Creating new transaction bound to scope: %d", bindToScope);
+        SENTRY_LOG_DEBUG(
+            @"Starting new transaction for %@ with bindToScope: %d", name, bindToScope);
 
-            newSpan = [SentrySDK.currentHub
-                startTransactionWithContext:context
-                                bindToScope:bindToScope
-                      customSamplingContext:@{}
-                              configuration:[SentryTracerConfiguration configurationWithBlock:^(
-                                                SentryTracerConfiguration *configuration) {
-                                  configuration.waitForChildren = YES;
-                              }]];
+        newSpan = [SentrySDK.currentHub
+            startTransactionWithContext:context
+                            bindToScope:bindToScope
+                  customSamplingContext:@{}
+                          configuration:[SentryTracerConfiguration configurationWithBlock:^(
+                                            SentryTracerConfiguration *configuration) {
+                              configuration.waitForChildren = YES;
+                              configuration.finishMustBeCalled = YES;
+                          }]];
 
-            [(SentryTracer *)newSpan setDelegate:self];
-        }];
+        [(SentryTracer *)newSpan setDelegate:self];
     }
 
     SentrySpanId *spanId = newSpan.spanId;
@@ -222,7 +223,7 @@ SentryPerformanceTracker () <SentryTracerDelegate>
     }
 }
 
-- (nullable id<SentrySpan>)activeSpanForTracer:(SentryTracer *)tracer
+- (nullable id<SentrySpan>)getActiveSpan
 {
     @synchronized(self.activeSpanStack) {
         return [self.activeSpanStack lastObject];

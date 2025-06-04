@@ -3,10 +3,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-static NSString *const SENTRY_COREDATA_FETCH_OPERATION = @"db.sql.query";
-static NSString *const SENTRY_COREDATA_SAVE_OPERATION = @"db.sql.transaction";
-
-@class SentryThreadInspector, SentryNSProcessInfoWrapper;
+@class SentryNSProcessInfoWrapper;
+@class SentryThreadInspector;
 
 @interface SentryCoreDataTracker : NSObject
 SENTRY_NO_INIT

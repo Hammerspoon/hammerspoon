@@ -47,8 +47,7 @@
 
 @end
 
-@interface
-SentryCrashReportFilterCombine ()
+@interface SentryCrashReportFilterCombine ()
 
 @property (nonatomic, readwrite, retain) NSArray *filters;
 @property (nonatomic, readwrite, retain) NSArray *keys;
@@ -192,8 +191,7 @@ SentryCrashReportFilterCombine ()
 
 @end
 
-@interface
-SentryCrashReportFilterPipeline ()
+@interface SentryCrashReportFilterPipeline ()
 
 @property (nonatomic, readwrite, retain) NSArray *filters;
 
@@ -289,8 +287,7 @@ SentryCrashReportFilterPipeline ()
 
 @end
 
-@interface
-SentryCrashReportFilterObjectForKey ()
+@interface SentryCrashReportFilterObjectForKey ()
 
 @property (nonatomic, readwrite, retain) id key;
 @property (nonatomic, readwrite, assign) BOOL allowNotFound;
@@ -344,8 +341,7 @@ SentryCrashReportFilterObjectForKey ()
 
 @end
 
-@interface
-SentryCrashReportFilterConcatenate ()
+@interface SentryCrashReportFilterConcatenate ()
 
 @property (nonatomic, readwrite, retain) NSString *separatorFmt;
 @property (nonatomic, readwrite, retain) NSArray *keys;
@@ -411,8 +407,7 @@ SentryCrashReportFilterConcatenate ()
 
 @end
 
-@interface
-SentryCrashReportFilterSubset ()
+@interface SentryCrashReportFilterSubset ()
 
 @property (nonatomic, readwrite, retain) NSArray *keyPaths;
 

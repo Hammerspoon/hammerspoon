@@ -1,8 +1,11 @@
 #import "SentryBinaryImageCache.h"
 #import "SentryCrashBinaryImageCache.h"
+#include "SentryCrashUUIDConversion.h"
 #import "SentryDependencyContainer.h"
 #import "SentryInAppLogic.h"
 #import "SentryLog.h"
+
+NS_ASSUME_NONNULL_BEGIN
 
 static void binaryImageWasAdded(const SentryCrashBinaryImage *image);
 
@@ -11,9 +14,8 @@ static void binaryImageWasRemoved(const SentryCrashBinaryImage *image);
 @implementation SentryBinaryImageInfo
 @end
 
-@interface
-SentryBinaryImageCache ()
-@property (nonatomic, strong) NSMutableArray<SentryBinaryImageInfo *> *cache;
+@interface SentryBinaryImageCache ()
+@property (nonatomic, strong, nullable) NSMutableArray<SentryBinaryImageInfo *> *cache;
 - (void)binaryImageAdded:(const SentryCrashBinaryImage *)image;
 - (void)binaryImageRemoved:(const SentryCrashBinaryImage *)image;
 @end
@@ -60,7 +62,9 @@ SentryBinaryImageCache ()
 
     SentryBinaryImageInfo *newImage = [[SentryBinaryImageInfo alloc] init];
     newImage.name = imageName;
+    newImage.UUID = [SentryBinaryImageCache convertUUID:image->uuid];
     newImage.address = image->address;
+    newImage.vmAddress = image->vmAddress;
     newImage.size = image->size;
 
     @synchronized(self) {
@@ -79,6 +83,17 @@ SentryBinaryImageCache ()
 
         [_cache insertObject:newImage atIndex:left];
     }
+}
+
++ (NSString *_Nullable)convertUUID:(const unsigned char *const)value
+{
+    if (nil == value) {
+        return nil;
+    }
+
+    char uuidBuffer[37];
+    sentrycrashdl_convertBinaryImageUUID(value, uuidBuffer);
+    return [[NSString alloc] initWithCString:uuidBuffer encoding:NSASCIIStringEncoding];
 }
 
 - (void)binaryImageRemoved:(const SentryCrashBinaryImage *)image
@@ -128,16 +143,25 @@ SentryBinaryImageCache ()
     return -1; // Address not found
 }
 
-- (nullable NSString *)pathForInAppInclude:(NSString *)inAppInclude
+- (NSSet<NSString *> *)imagePathsForInAppInclude:(NSString *)inAppInclude
 {
+    NSMutableSet<NSString *> *imagePaths = [NSMutableSet new];
+
     @synchronized(self) {
         for (SentryBinaryImageInfo *info in _cache) {
             if ([SentryInAppLogic isImageNameInApp:info.name inAppInclude:inAppInclude]) {
-                return info.name;
+                [imagePaths addObject:info.name];
             }
         }
     }
-    return nil;
+    return imagePaths;
+}
+
+- (NSArray<SentryBinaryImageInfo *> *)getAllBinaryImages
+{
+    @synchronized(self) {
+        return _cache.copy;
+    }
 }
 
 @end
@@ -153,3 +177,5 @@ binaryImageWasRemoved(const SentryCrashBinaryImage *image)
 {
     [SentryDependencyContainer.sharedInstance.binaryImageCache binaryImageRemoved:image];
 }
+
+NS_ASSUME_NONNULL_END

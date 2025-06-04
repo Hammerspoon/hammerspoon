@@ -1,5 +1,4 @@
 #import "SentryFileManager.h"
-#import <Foundation/Foundation.h>
 
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
 

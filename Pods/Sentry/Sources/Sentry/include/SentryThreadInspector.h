@@ -2,7 +2,10 @@
 #import "SentryDefines.h"
 #import <Foundation/Foundation.h>
 
-@class SentryThread, SentryStacktraceBuilder, SentryStacktrace, SentryOptions;
+@class SentryOptions;
+@class SentryStacktrace;
+@class SentryStacktraceBuilder;
+@class SentryThread;
 
 NS_ASSUME_NONNULL_BEGIN
 
