@@ -3,7 +3,6 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
 #    import "SentryDefines.h"
-#    import <Foundation/Foundation.h>
 
 @class SentryEnvelope;
 @class SentryEnvelopeItem;
@@ -11,10 +10,12 @@
 @class SentryId;
 @class SentryScreenFrames;
 @class SentryTransaction;
+@class SentryProfiler;
 
 NS_ASSUME_NONNULL_BEGIN
 
-SENTRY_EXTERN SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(
+SENTRY_EXTERN SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHub *hub,
+    SentryProfiler *profiler, NSDictionary<NSString *, id> *profilingData,
     SentryTransaction *transaction, NSDate *startTimestamp);
 
 SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(

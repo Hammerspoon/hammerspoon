@@ -7,8 +7,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryCrashInstallationReporter ()
+@interface SentryCrashInstallationReporter ()
 
 @property (nonatomic, strong) SentryInAppLogic *inAppLogic;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;

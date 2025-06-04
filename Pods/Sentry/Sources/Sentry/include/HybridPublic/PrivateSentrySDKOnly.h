@@ -1,5 +1,14 @@
-#import "PrivatesHeader.h"
-#import "SentryScreenFrames.h"
+#if __has_include(<Sentry/PrivatesHeader.h>)
+#    import <Sentry/PrivatesHeader.h>
+#else
+#    import "PrivatesHeader.h"
+#endif
+
+#if __has_include(<Sentry/SentryScreenFrames.h>)
+#    import <Sentry/SentryScreenFrames.h>
+#else
+#    import "SentryScreenFrames.h"
+#endif
 
 @class SentryDebugMeta;
 @class SentryScreenFrames;
@@ -9,10 +18,13 @@
 @class SentryUser;
 @class SentryEnvelope;
 @class SentryId;
+@class SentrySpanId;
 @class SentrySessionReplayIntegration;
+@class UIView;
 
 @protocol SentryReplayBreadcrumbConverter;
 @protocol SentryViewScreenshotProvider;
+@protocol SentryRedactOptions;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -83,9 +95,19 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 + (NSString *)getSdkVersionString;
 
 /**
+ * Add a package to the SDK packages
+ */
++ (void)addSdkPackage:(NSString *)name version:(NSString *)version;
+
+/**
  * Retrieves extra context
  */
 + (NSDictionary *)getExtraContext;
+
+/**
+ * Allows Hybrids SDKs to thread-safe set the current trace.
+ */
++ (void)setTrace:(SentryId *)traceId spanId:(SentrySpanId *)spanId;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 /**
@@ -171,6 +193,13 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 
 /**
+ * Return an instance of SentryRedactOptions with given option
+ * To be used from SentrySwiftUI, which cannot access the private
+ * `SentryRedactOptions` class.
+ */
++ (UIView *)sessionReplayMaskingOverlay:(id<SentryRedactOptions>)options;
+
+/**
  * Configure session replay with different breadcrumb converter
  * and screeshot provider. Used by the Hybrid SDKs.
  * Passing nil will keep the previous value.
@@ -182,6 +211,9 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 + (NSString *__nullable)getReplayId;
 + (void)addReplayIgnoreClasses:(NSArray<Class> *_Nonnull)classes;
 + (void)addReplayRedactClasses:(NSArray<Class> *_Nonnull)classes;
++ (void)setIgnoreContainerClass:(Class _Nonnull)containerClass;
++ (void)setRedactContainerClass:(Class _Nonnull)containerClass;
++ (void)setReplayTags:(NSDictionary<NSString *, id> *)tags;
 
 #endif
 + (nullable NSDictionary<NSString *, id> *)appStartMeasurementWithSpans;

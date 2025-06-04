@@ -2,8 +2,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryHttpStatusCodeRange ()
+@interface SentryHttpStatusCodeRange ()
 
 - (BOOL)isInRange:(NSInteger)statusCode;
 

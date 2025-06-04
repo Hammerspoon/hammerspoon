@@ -7,6 +7,7 @@
 #    import "SentryEvent+Private.h"
 #    import "SentryException.h"
 #    import "SentryHub+Private.h"
+#    import "SentryOptions.h"
 #    import "SentrySDK+Private.h"
 #    import "SentryViewHierarchy.h"
 #    if SENTRY_HAS_METRIC_KIT
@@ -27,8 +28,7 @@ saveViewHierarchy(const char *reportDirectoryPath)
     [SentryDependencyContainer.sharedInstance.viewHierarchy saveViewHierarchy:reportPath];
 }
 
-@interface
-SentryViewHierarchyIntegration ()
+@interface SentryViewHierarchyIntegration ()
 
 @property (nonatomic, strong) SentryOptions *options;
 
@@ -67,12 +67,13 @@ SentryViewHierarchyIntegration ()
     [client removeAttachmentProcessor:self];
 }
 
-- (NSArray<SentryAttachment *> *)processAttachments:(NSArray<SentryAttachment *> *)attachments
-                                           forEvent:(nonnull SentryEvent *)event
+- (nonnull NSArray<SentryAttachment *> *)processAttachments:
+                                             (nonnull NSArray<SentryAttachment *> *)attachments
+                                                   forEvent:(nonnull SentryEvent *)event
 {
     // We don't attach the view hierarchy if there is no exception/error.
     // We don't attach the view hierarchy if the event is a crash or metric kit event.
-    if ((event.exceptions == nil && event.error == nil) || event.isCrashEvent
+    if ((event.exceptions == nil && event.error == nil) || event.isFatalEvent
 #    if SENTRY_HAS_METRIC_KIT
         || [event isMetricKitEvent]
 #    endif // SENTRY_HAS_METRIC_KIT

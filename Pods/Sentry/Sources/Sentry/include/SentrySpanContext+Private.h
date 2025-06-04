@@ -2,8 +2,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentrySpanContext ()
+@interface SentrySpanContext ()
 
 - (instancetype)initWithOperation:(NSString *)operation
                            origin:(NSString *)origin

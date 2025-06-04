@@ -25,8 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 static NSString *const SentryBreadcrumbTrackerSwizzleSendAction
     = @"SentryBreadcrumbTrackerSwizzleSendAction";
 
-@interface
-SentryBreadcrumbTracker ()
+@interface SentryBreadcrumbTracker ()
 #if SENTRY_HAS_REACHABILITY
     <SentryReachabilityObserver>
 #endif // !TARGET_OS_WATCH
@@ -35,7 +34,9 @@ SentryBreadcrumbTracker ()
 
 @end
 
-@implementation SentryBreadcrumbTracker
+@implementation SentryBreadcrumbTracker {
+    BOOL _reportAccessibilityIdentifier;
+}
 
 #if SENTRY_HAS_REACHABILITY
 - (void)dealloc
@@ -43,6 +44,14 @@ SentryBreadcrumbTracker ()
     [SentryDependencyContainer.sharedInstance.reachability removeObserver:self];
 }
 #endif // !TARGET_OS_WATCH
+
+- (instancetype)initReportAccessibilityIdentifier:(BOOL)report
+{
+    if (self = [super init]) {
+        _reportAccessibilityIdentifier = report;
+    }
+    return self;
+}
 
 - (void)startWithDelegate:(id<SentryBreadcrumbDelegate>)delegate
 {
@@ -212,7 +221,9 @@ SentryBreadcrumbTracker ()
             NSDictionary *data = nil;
             for (UITouch *touch in event.allTouches) {
                 if (touch.phase == UITouchPhaseCancelled || touch.phase == UITouchPhaseEnded) {
-                    data = [SentryBreadcrumbTracker extractDataFromView:touch.view];
+                    data = [SentryBreadcrumbTracker
+                                extractDataFromView:touch.view
+                        withAccessibilityIdentifier:self->_reportAccessibilityIdentifier];
                 }
             }
 
@@ -242,12 +253,12 @@ SentryBreadcrumbTracker ()
 
     SentrySwizzleMode mode = SentrySwizzleModeOncePerClassAndSuperclasses;
 
-#    if defined(TEST) || defined(TESTCI)
+#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
     // some tests need to swizzle multiple times, once for each test case. but since they're in the
     // same process, if they set something other than "always", subsequent swizzles fail. override
     // it here for tests
     mode = SentrySwizzleModeAlways;
-#    endif // defined(TEST) || defined(TESTCI)
+#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 
     SentrySwizzleInstanceMethod(UIViewController.class, selector, SentrySWReturnType(void),
         SentrySWArguments(BOOL animated), SentrySWReplacement({
@@ -265,6 +276,7 @@ SentryBreadcrumbTracker ()
 }
 
 + (NSDictionary *)extractDataFromView:(UIView *)view
+          withAccessibilityIdentifier:(BOOL)includeIdentifier
 {
     NSMutableDictionary *result =
         @{ @"view" : [NSString stringWithFormat:@"%@", view] }.mutableCopy;
@@ -273,7 +285,8 @@ SentryBreadcrumbTracker ()
         [result setValue:[NSNumber numberWithInteger:view.tag] forKey:@"tag"];
     }
 
-    if (view.accessibilityIdentifier && ![view.accessibilityIdentifier isEqualToString:@""]) {
+    if (includeIdentifier && view.accessibilityIdentifier
+        && ![view.accessibilityIdentifier isEqualToString:@""]) {
         [result setValue:view.accessibilityIdentifier forKey:@"accessibilityIdentifier"];
     }
 
@@ -291,7 +304,7 @@ SentryBreadcrumbTracker ()
 {
     NSMutableDictionary *info = @{}.mutableCopy;
 
-    info[@"screen"] = [SwiftDescriptor getObjectClassName:controller];
+    info[@"screen"] = [SwiftDescriptor getViewControllerClassName:controller];
 
     if ([controller.navigationItem.title length] != 0) {
         info[@"title"] = controller.navigationItem.title;
@@ -303,12 +316,12 @@ SentryBreadcrumbTracker ()
 
     if (controller.presentingViewController != nil) {
         info[@"presentingViewController"] =
-            [SwiftDescriptor getObjectClassName:controller.presentingViewController];
+            [SwiftDescriptor getViewControllerClassName:controller.presentingViewController];
     }
 
     if (controller.parentViewController != nil) {
         info[@"parentViewController"] =
-            [SwiftDescriptor getObjectClassName:controller.parentViewController];
+            [SwiftDescriptor getViewControllerClassName:controller.parentViewController];
     }
 
     if (controller.view.window != nil) {
@@ -322,6 +335,7 @@ SentryBreadcrumbTracker ()
 
     return info;
 }
+
 #endif // SENTRY_HAS_UIKIT
 
 @end

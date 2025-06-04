@@ -1,1 +1,1 @@
-../../../Sentry/Sources/Sentry/include/SentrySessionReplayIntegration.h
+../../../Sentry/Sources/Sentry/include/HybridPublic/SentrySessionReplayIntegration.h

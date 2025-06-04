@@ -202,15 +202,6 @@ sentrycrashccd_unfreeze(void)
     }
 }
 
-SentryCrashThread *
-sentrycrashccd_getAllThreads(int *threadCount)
-{
-    if (threadCount != NULL) {
-        *threadCount = g_allThreadsCount;
-    }
-    return g_allMachThreads;
-}
-
 const char *
 sentrycrashccd_getThreadName(SentryCrashThread thread)
     SENTRY_DISABLE_THREAD_SANITIZER("Known data race to fix")

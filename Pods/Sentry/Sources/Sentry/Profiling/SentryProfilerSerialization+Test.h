@@ -2,11 +2,10 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 
 #        import "SentryDefines.h"
 #        import "SentryProfiler+Private.h"
-#        import <Foundation/Foundation.h>
 
 @class SentryDebugMeta;
 @class SentryHub;
@@ -36,6 +35,6 @@ SENTRY_EXTERN NSMutableDictionary<NSString *, id> *sentry_serializedTraceProfile
 
 NS_ASSUME_NONNULL_END
 
-#    endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED

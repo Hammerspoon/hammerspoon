@@ -1,7 +1,9 @@
 #import "SentryDefines.h"
-#import <Foundation/Foundation.h>
 
-@class SentryEvent, SentryOptions, SentryCurrentDateProvider, SentryNSNotificationCenterWrapper;
+@class SentryCurrentDateProvider;
+@class SentryEvent;
+@class SentryNSNotificationCenterWrapper;
+@class SentryOptions;
 
 /**
  * Tracks sessions for release health. For more info see:

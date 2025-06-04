@@ -55,7 +55,7 @@ typedef void (^SentryCrashVA_Block)(id entry);
         va_list sentrycrashva_args;                                                                \
         va_start(sentrycrashva_args, FIRST_ARG_NAME);                                              \
         for (id sentrycrashva_arg = FIRST_ARG_NAME; sentrycrashva_arg != nil;                      \
-             sentrycrashva_arg = va_arg(sentrycrashva_args, id)) {                                 \
+            sentrycrashva_arg = va_arg(sentrycrashva_args, id)) {                                  \
             sentrycrashva_block(sentrycrashva_arg);                                                \
         }                                                                                          \
         va_end(sentrycrashva_args);                                                                \

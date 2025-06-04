@@ -8,7 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)handleUIEvent:(NSString *)action
                   operation:(NSString *)operation
-    accessibilityIdentifier:(NSString *)accessibilityIdentifier;
+    accessibilityIdentifier:(nullable NSString *)accessibilityIdentifier;
 
 @end
 

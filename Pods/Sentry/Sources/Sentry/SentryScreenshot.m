@@ -1,20 +1,45 @@
 #import "SentryScreenshot.h"
 
-#if SENTRY_HAS_UIKIT
+#if SENTRY_TARGET_REPLAY_SUPPORTED
 
 #    import "SentryCompiler.h"
 #    import "SentryDependencyContainer.h"
 #    import "SentryDispatchQueueWrapper.h"
+#    import "SentrySwift.h"
 #    import "SentryUIApplication.h"
-#    import <UIKit/UIKit.h>
 
-@implementation SentryScreenshot
+@implementation SentryScreenshot {
+    SentryViewPhotographer *photographer;
+}
 
-- (NSArray<NSData *> *)appScreenshotsFromMainThread
+- (instancetype)init
 {
-    __block NSArray *result;
+    if (self = [super init]) {
+        photographer = [[SentryViewPhotographer alloc]
+                initWithRenderer:[[SentryDefaultViewRenderer alloc] init]
+                   redactOptions:[[SentryRedactDefaultOptions alloc] init]
+            enableMaskRendererV2:false];
+    }
+    return self;
+}
+
+- (NSArray<UIImage *> *)appScreenshotsFromMainThread
+{
+    __block NSArray<UIImage *> *result;
 
     void (^takeScreenShot)(void) = ^{ result = [self appScreenshots]; };
+
+    [[SentryDependencyContainer sharedInstance].dispatchQueueWrapper
+        dispatchSyncOnMainQueue:takeScreenShot];
+
+    return result;
+}
+
+- (NSArray<NSData *> *)appScreenshotDatasFromMainThread
+{
+    __block NSArray<NSData *> *result;
+
+    void (^takeScreenShot)(void) = ^{ result = [self appScreenshotsData]; };
 
     [[SentryDependencyContainer sharedInstance].dispatchQueueWrapper
         dispatchSyncOnMainQueue:takeScreenShot];
@@ -29,20 +54,20 @@
     // We did it this way because we use this function to save screenshots
     // during signal handling, and if we dispatch it to the main thread,
     // that is probably blocked by the crash event, we freeze the application.
-    [[self appScreenshots] enumerateObjectsUsingBlock:^(NSData *obj, NSUInteger idx, BOOL *stop) {
-        NSString *name = idx == 0
-            ? @"screenshot.png"
-            : [NSString stringWithFormat:@"screenshot-%li.png", (unsigned long)idx + 1];
-        NSString *fileName = [imagesDirectoryPath stringByAppendingPathComponent:name];
-        [obj writeToFile:fileName atomically:YES];
-    }];
+    [[self appScreenshotsData]
+        enumerateObjectsUsingBlock:^(NSData *obj, NSUInteger idx, BOOL *stop) {
+            NSString *name = idx == 0
+                ? @"screenshot.png"
+                : [NSString stringWithFormat:@"screenshot-%li.png", (unsigned long)idx + 1];
+            NSString *fileName = [imagesDirectoryPath stringByAppendingPathComponent:name];
+            [obj writeToFile:fileName atomically:YES];
+        }];
 }
 
-- (NSArray<NSData *> *)appScreenshots
+- (NSArray<UIImage *> *)appScreenshots
 {
     NSArray<UIWindow *> *windows = [SentryDependencyContainer.sharedInstance.application windows];
-
-    NSMutableArray *result = [NSMutableArray arrayWithCapacity:windows.count];
+    NSMutableArray<UIImage *> *result = [NSMutableArray<UIImage *> arrayWithCapacity:windows.count];
 
     for (UIWindow *window in windows) {
         CGSize size = window.frame.size;
@@ -53,21 +78,32 @@
             continue;
         }
 
-        UIGraphicsBeginImageContext(size);
+        UIImage *img = [photographer imageWithView:window];
 
-        if ([window drawViewHierarchyInRect:window.bounds afterScreenUpdates:false]) {
-            UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
-            // this shouldn't happen now that we discard windows with either 0 height or 0 width,
-            // but still, we shouldn't send any images with either one.
-            if (LIKELY(img.size.width > 0 && img.size.height > 0)) {
-                NSData *bytes = UIImagePNGRepresentation(img);
-                if (bytes && bytes.length > 0) {
-                    [result addObject:bytes];
-                }
+        // this shouldn't happen now that we discard windows with either 0 height or 0 width,
+        // but still, we shouldn't send any images with either one.
+        if (LIKELY(img.size.width > 0 && img.size.height > 0)) {
+            [result addObject:img];
+        }
+    }
+    return result;
+}
+
+- (NSArray<NSData *> *)appScreenshotsData
+{
+    NSArray<UIImage *> *screenshots = [self appScreenshots];
+    NSMutableArray<NSData *> *result =
+        [NSMutableArray<NSData *> arrayWithCapacity:screenshots.count];
+
+    for (UIImage *screenshot in screenshots) {
+        // this shouldn't happen now that we discard windows with either 0 height or 0 width,
+        // but still, we shouldn't send any images with either one.
+        if (LIKELY(screenshot.size.width > 0 && screenshot.size.height > 0)) {
+            NSData *bytes = UIImagePNGRepresentation(screenshot);
+            if (bytes && bytes.length > 0) {
+                [result addObject:bytes];
             }
         }
-
-        UIGraphicsEndImageContext();
     }
     return result;
 }

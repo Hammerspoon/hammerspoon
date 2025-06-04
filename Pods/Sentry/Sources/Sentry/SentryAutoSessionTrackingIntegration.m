@@ -7,8 +7,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryAutoSessionTrackingIntegration ()
+@interface SentryAutoSessionTrackingIntegration ()
 
 @property (nonatomic, strong) SentrySessionTracker *tracker;
 

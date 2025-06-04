@@ -9,8 +9,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryAutoBreadcrumbTrackingIntegration ()
+@interface SentryAutoBreadcrumbTrackingIntegration ()
 
 @property (nonatomic, strong) SentryBreadcrumbTracker *breadcrumbTracker;
 
@@ -28,16 +27,20 @@ SentryAutoBreadcrumbTrackingIntegration ()
         return NO;
     }
 
-    [self installWithOptions:options
-             breadcrumbTracker:[[SentryBreadcrumbTracker alloc] init]
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
+    [self installWithOptions:options
+             breadcrumbTracker:[[SentryBreadcrumbTracker alloc] initReportAccessibilityIdentifier:
+                                       options.reportAccessibilityIdentifier]
         systemEventBreadcrumbs:
             [[SentrySystemEventBreadcrumbs alloc]
                          initWithFileManager:[SentryDependencyContainer sharedInstance].fileManager
                 andNotificationCenterWrapper:[SentryDependencyContainer sharedInstance]
-                                                 .notificationCenterWrapper]
+                                                 .notificationCenterWrapper]];
+#else
+    [self installWithOptions:options
+           breadcrumbTracker:[[SentryBreadcrumbTracker alloc]
+                                 initReportAccessibilityIdentifier:false]];
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
-    ];
 
     return YES;
 }

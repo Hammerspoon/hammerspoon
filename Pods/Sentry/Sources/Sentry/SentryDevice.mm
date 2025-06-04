@@ -189,7 +189,7 @@ sentry_getOSVersion(void)
 #else
     const auto version = [[NSProcessInfo processInfo] operatingSystemVersion];
     return [NSString stringWithFormat:@"%ld.%ld.%ld", (long)version.majorVersion,
-                     (long)version.minorVersion, (long)version.patchVersion];
+        (long)version.minorVersion, (long)version.patchVersion];
 #endif // SENTRY_HAS_UIKIT
 }
 

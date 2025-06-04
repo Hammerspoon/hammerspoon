@@ -1,5 +1,11 @@
-#import "SentryDefines.h"
-#import "SentrySerializable.h"
+#if __has_include(<Sentry/Sentry.h>)
+#    import <Sentry/SentryDefines.h>
+#elif __has_include(<SentryWithoutUIKit/Sentry.h>)
+#    import <SentryWithoutUIKit/SentryDefines.h>
+#else
+#    import <SentryDefines.h>
+#endif
+#import SENTRY_HEADER(SentrySerializable)
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -7,9 +13,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Adds additional information about what happened to an event.
+ * @deprecated Use @c SentryFeedback .
  */
-NS_SWIFT_NAME(UserFeedback)
-@interface SentryUserFeedback : NSObject <SentrySerializable>
+NS_SWIFT_NAME(UserFeedback) DEPRECATED_MSG_ATTRIBUTE("Use SentryFeedback.")
+    @interface SentryUserFeedback : NSObject<SentrySerializable>
 SENTRY_NO_INIT
 
 /**

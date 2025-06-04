@@ -4,21 +4,13 @@
 
 @class SentrySpan;
 @class SentryInAppLogic;
+@class SentryTimeToDisplayTracker;
 @class UIViewController;
+@class SentryTracer;
+@class SentryPerformanceTracker;
+@class SentryDispatchQueueWrapper;
 
 NS_ASSUME_NONNULL_BEGIN
-
-static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID
-    = @"SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID";
-
-static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
-    = @"SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID";
-
-static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPANS_IN_EXECUTION_SET
-    = @"SENTRY_UI_PERFORMANCE_TRACKER_SPANS_IN_EXECUTION_SET";
-
-static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER
-    = @"SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER";
 
 /**
  * Class responsible to track UI performance.
@@ -26,11 +18,14 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER
  */
 @interface SentryUIViewControllerPerformanceTracker : NSObject
 
-@property (nonatomic, readonly, class) SentryUIViewControllerPerformanceTracker *shared;
-
 @property (nonatomic, strong) SentryInAppLogic *inAppLogic;
 
-@property (nonatomic) BOOL enableWaitForFullDisplay;
+@property (nonatomic) BOOL alwaysWaitForFullDisplay;
+
+SENTRY_NO_INIT
+
+- (instancetype)initWithTracker:(SentryPerformanceTracker *)tracker
+           dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
 
 /**
  * Measures @c controller's @c loadView method.
@@ -100,6 +95,10 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER
                            callbackToOrigin:(void (^)(void))callback;
 
 - (void)reportFullyDisplayed;
+
+- (nullable SentryTimeToDisplayTracker *)startTimeToDisplayTrackerForScreen:(NSString *)screenName
+                                                         waitForFullDisplay:(BOOL)waitForFullDisplay
+                                                                     tracer:(SentryTracer *)tracer;
 
 @end
 

@@ -2,7 +2,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryDsn, SentryEvent;
+@class SentryDsn;
+@class SentryEvent;
 
 @interface SentryNSURLRequest : NSMutableURLRequest
 
