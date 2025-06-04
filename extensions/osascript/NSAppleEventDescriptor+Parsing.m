@@ -108,7 +108,7 @@
 
     if (!object) {
         // FIXME: Do better logging here
-        NSLog(@"ERROR: NSAppleEventDescriptor objectValue is nil. Given descriptorType is: %d", descType);
+        NSLog(@"ERROR: NSAppleEventDescriptor objectValue is nil. Given descriptorType is: %u", (unsigned int)descType);
     }
 
     return object;

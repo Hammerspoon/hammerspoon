@@ -421,6 +421,9 @@
         case STREAMDECK_CODEC_UNKNOWN:
             [LuaSkin logError:@"Unknown image codec for hs.streamdeck device"];
             break;
+        default:
+            [LuaSkin logError:@"Invalid image codec value: %lu", (unsigned long)self.imageCodec];
+            break;
     }
 
     // Writing the image to hardware is a device-specific operation, so hand it off to our subclasses
@@ -535,6 +538,9 @@
 
         case STREAMDECK_CODEC_UNKNOWN:
             [LuaSkin logError:@"Unknown image codec for hs.streamdeck device"];
+            break;
+        default:
+            [LuaSkin logError:@"Invalid image codec value: %lu", (unsigned long)self.imageCodec];
             break;
     }
 
