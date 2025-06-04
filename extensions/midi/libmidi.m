@@ -765,6 +765,11 @@ static int midi_callback(lua_State *L) {
                             commandTypeString = @"systemKeepAlive";
                             break;
                         }
+                        default:{
+                            NSLog(@"Unknown MIKMIDICommandType");
+                            NSCAssert(NO, @"Unknown MIMIDICOmmandTYpe");
+                            break;
+                        }
                     };
 
                     //
@@ -986,6 +991,12 @@ static int midi_callback(lua_State *L) {
                             lua_pushboolean(L, isVirtual);                         lua_setfield(L, -2, "isVirtual");
                             break;
                         }
+                        default:{
+                            NSLog(@"Unknown MIKMIDICommandType");
+                            NSCAssert(NO, @"Unknown MIMIDICOmmandTYpe");
+                            break;
+                        }
+
                     };
 
                     [skin protectedCallAndError:@"hs.midi callback" nargs:5 nresults:0];
