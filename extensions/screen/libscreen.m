@@ -165,7 +165,7 @@ static int screen_currentMode(lua_State* L) {
     lua_pushnumber(L, mode.depth);
     lua_setfield(L, -2, "depth");
 
-    lua_pushstring(L, [[NSString stringWithFormat:@"%dx%d@%.0fx %huHz %ubpp", mode.width, mode.height, (double)mode.density, mode.freq, mode.depth] UTF8String]);
+    lua_pushstring(L, [[NSString stringWithFormat:@"%ux%u@%.0fx %huHz %ubpp", mode.width, mode.height, (double)mode.density, mode.freq, mode.depth] UTF8String]);
     lua_setfield(L, -2, "desc");
 
     return 1;
@@ -225,7 +225,7 @@ static int screen_availableModes(lua_State* L) {
         lua_setfield(L, -2, "depth");
 
         // Now push this mode table into the list-of-modes table
-        lua_setfield(L, -2, [[NSString stringWithFormat:@"%dx%d@%.0fx %huHz %ubpp", mode.width, mode.height, (double)mode.density, mode.freq, mode.depth] UTF8String]);
+        lua_setfield(L, -2, [[NSString stringWithFormat:@"%ux%u@%.0fx %huHz %ubpp", mode.width, mode.height, (double)mode.density, mode.freq, mode.depth] UTF8String]);
     }
 
     return 1;
@@ -416,7 +416,7 @@ void storeInitialScreenGamma(CGDirectDisplayID display) {
 
         [originalGammas setObject:gammas forKey:[NSNumber numberWithInt:display]];
     } else {
-        [LuaSkin logBreadcrumb:[NSString stringWithFormat:@"storeInitialScreenGamma: ERROR %i on display %i", result, display]];
+        [LuaSkin logBreadcrumb:[NSString stringWithFormat:@"storeInitialScreenGamma: ERROR %i on display %u", result, display]];
     }
 
     free(redTable);
@@ -566,7 +566,7 @@ static int screen_gammaSet(lua_State* L) {
     //NSLog(@"screen_gammaSet: Fetching original gamma for display: %i", screen_id);
     NSDictionary *originalGamma = [originalGammas objectForKey:[NSNumber numberWithInt:screen_id]];
     if (!originalGamma) {
-        [skin logBreadcrumb:[NSString stringWithFormat:@"screen_gammaSet: unable to fetch original gamma for display: %i", screen_id]];
+        [skin logBreadcrumb:[NSString stringWithFormat:@"screen_gammaSet: unable to fetch original gamma for display: %u", screen_id]];
         lua_pushboolean(L, false);
         return 1;
     }
@@ -617,7 +617,7 @@ static int screen_gammaSet(lua_State* L) {
     free(blueTable);
 
     if (result != kCGErrorSuccess) {
-        [skin logBreadcrumb:[NSString stringWithFormat:@"screen_gammaSet: ERROR: %i on display %i", result, screen_id]];
+        [skin logBreadcrumb:[NSString stringWithFormat:@"screen_gammaSet: ERROR: %i on display %u", result, screen_id]];
         lua_pushboolean(L, false);
         return 1;
     }
@@ -872,7 +872,7 @@ void screen_gammaReapply(CGDirectDisplayID display) {
     CGError result = CGSetDisplayTransferByTable(display, count, redTable, greenTable, blueTable);
 
     if (result != kCGErrorSuccess) {
-        [LuaSkin logBreadcrumb:[NSString stringWithFormat:@"screen_gammaReapply: ERROR: %i on display: %i", result, display]];
+        [LuaSkin logBreadcrumb:[NSString stringWithFormat:@"screen_gammaReapply: ERROR: %i on display: %u", result, display]];
     } else {
         //NSLog(@"screen_gammaReapply: Success");
     }
