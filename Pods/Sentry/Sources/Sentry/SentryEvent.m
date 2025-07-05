@@ -25,14 +25,23 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryEvent
 
+// This is a designated initializer so that it can be called by the Swift
+// sublcass that adds a `Decodable` conformance. It shares an implementation
+// with `initWithLevel:`.
 - (instancetype)init
 {
-    return [self initWithLevel:kSentryLevelNone];
+    self = [super init];
+    return [self commonInit:kSentryLevelNone];
 }
 
 - (instancetype)initWithLevel:(enum SentryLevel)level
 {
     self = [super init];
+    return [self commonInit:level];
+}
+
+- (instancetype)commonInit:(enum SentryLevel)level
+{
     if (self) {
         self.eventId = [[SentryId alloc] init];
         self.level = level;
@@ -73,6 +82,7 @@ NS_ASSUME_NONNULL_BEGIN
     // before
     [serializedData setValue:sentry_sanitize(self.extra) forKey:@"extra"];
     [serializedData setValue:self.tags forKey:@"tags"];
+    SENTRY_LOG_DEBUG(@"Serialized event: %@", serializedData);
 
     return serializedData;
 }
@@ -203,7 +213,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isAppHangEvent
 {
     return self.exceptions.count == 1 &&
-        [self.exceptions.firstObject.type isEqualToString:SentryANRExceptionType];
+        [SentryAppHangTypeMapper
+            isExceptionTypeAppHangWithExceptionType:self.exceptions.firstObject.type];
 }
 
 @end

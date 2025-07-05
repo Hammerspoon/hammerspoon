@@ -12,8 +12,7 @@
 #    import "SentryUIViewControllerPerformanceTracker.h"
 #    import "SentryUIViewControllerSwizzling.h"
 
-@interface
-SentryPerformanceTrackingIntegration ()
+@interface SentryPerformanceTrackingIntegration ()
 
 @property (nonatomic, strong) SentryUIViewControllerSwizzling *swizzling;
 
@@ -30,7 +29,7 @@ SentryPerformanceTrackingIntegration ()
     dispatch_queue_attr_t attributes = dispatch_queue_attr_make_with_qos_class(
         DISPATCH_QUEUE_SERIAL, DISPATCH_QUEUE_PRIORITY_HIGH, 0);
     SentryDispatchQueueWrapper *dispatchQueue =
-        [[SentryDispatchQueueWrapper alloc] initWithName:"sentry-ui-view-controller-swizzling"
+        [[SentryDispatchQueueWrapper alloc] initWithName:"io.sentry.ui-view-controller-swizzling"
                                               attributes:attributes];
 
     SentrySubClassFinder *subClassFinder = [[SentrySubClassFinder alloc]
@@ -47,8 +46,9 @@ SentryPerformanceTrackingIntegration ()
           binaryImageCache:[SentryDependencyContainer.sharedInstance binaryImageCache]];
 
     [self.swizzling start];
-    SentryUIViewControllerPerformanceTracker.shared.enableWaitForFullDisplay
-        = options.enableTimeToFullDisplayTracing;
+    SentryUIViewControllerPerformanceTracker *performanceTracker =
+        [SentryDependencyContainer.sharedInstance uiViewControllerPerformanceTracker];
+    performanceTracker.alwaysWaitForFullDisplay = options.enableTimeToFullDisplayTracing;
 
     return YES;
 }

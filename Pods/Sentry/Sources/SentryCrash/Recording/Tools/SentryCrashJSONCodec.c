@@ -1210,7 +1210,7 @@ decodeElement(const char *const name, SentryCrashJSONDecodeContext *context)
         const char *const start = context->bufferPtr;
 
         for (; context->bufferPtr < context->bufferEnd && isdigit(*context->bufferPtr);
-             context->bufferPtr++) {
+            context->bufferPtr++) {
             unlikely_if((isOverflow = accum > (ULLONG_MAX / 10))) { break; }
             accum *= 10;
             int nextDigit = (*context->bufferPtr - '0');
@@ -1256,9 +1256,17 @@ decodeElement(const char *const name, SentryCrashJSONDecodeContext *context)
             SENTRY_ASYNC_SAFE_LOG_DEBUG("Number is too long.");
             return SentryCrashJSON_ERROR_DATA_TOO_LONG;
         }
+        // Must use strncpy instead of strlcpy, because of the following reason:
+        //
+        //   Also note that strlcpy() and strlcat() only operate on true 'C' strings.
+        //   This means that for strlcpy() src must be NUL-terminated [..]
+        //
+        // Source: https://linux.die.net/man/3/strlcpy
         strncpy(context->stringBuffer, start, len);
         context->stringBuffer[len] = '\0';
 
+        // Parses a floating point number from the string buffer into value using %lg format
+        // %lg uses shortest decimal representation and removes trailing zeros
         sscanf(context->stringBuffer, "%lg", &value);
 
         value *= sign;

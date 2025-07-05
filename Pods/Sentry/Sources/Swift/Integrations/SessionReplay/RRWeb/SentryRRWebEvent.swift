@@ -14,7 +14,7 @@ protocol SentryRRWebEventProtocol: SentrySerializable {
 }
 
 @objcMembers
-class SentryRRWebEvent: NSObject, SentryRRWebEventProtocol {
+@_spi(Private) public class SentryRRWebEvent: NSObject, SentryRRWebEventProtocol {
     let type: SentryRRWebEventType
     let timestamp: Date
     let data: [String: Any]?
@@ -25,7 +25,7 @@ class SentryRRWebEvent: NSObject, SentryRRWebEventProtocol {
         self.data = data
     }
     
-    func serialize() -> [String: Any] {
+    public func serialize() -> [String: Any] {
         var result: [String: Any] = [
             "type": type.rawValue,
             "timestamp": SentryDateUtil.millisecondsSince1970(timestamp)

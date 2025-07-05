@@ -161,7 +161,7 @@ deletePathContents(const char *path, bool deleteTopLevelPathAlso)
         for (int i = 0; i < entryCount; i++) {
             char *entry = entries[i];
             if (entry != NULL && canDeletePath(entry)) {
-                strncpy(pathPtr, entry, pathRemainingLength);
+                strlcpy(pathPtr, entry, pathRemainingLength);
                 deletePathContents(pathBuffer, true);
             }
         }
@@ -236,15 +236,15 @@ sentrycrashfu_readEntireFile(const char *const path, char **data, int *length, i
     int fd = -1;
     int bytesToRead = maxLength;
 
-    struct stat st;
-    if (stat(path, &st) < 0) {
-        SENTRY_ASYNC_SAFE_LOG_ERROR("Could not stat %s: %s", path, strerror(errno));
-        goto done;
-    }
-
     fd = open(path, O_RDONLY);
     if (fd < 0) {
         SENTRY_ASYNC_SAFE_LOG_ERROR("Could not open %s: %s", path, strerror(errno));
+        goto done;
+    }
+
+    struct stat st;
+    if (fstat(fd, &st) < 0) {
+        SENTRY_ASYNC_SAFE_LOG_ERROR("Could not fstat %s: %s", path, strerror(errno));
         goto done;
     }
 

@@ -1,7 +1,6 @@
 #import "SentryTracer.h"
 
-@interface
-SentryTracer ()
+@interface SentryTracer ()
 
 @property (nonatomic, strong) SentryHub *hub;
 
@@ -10,6 +9,6 @@ SentryTracer ()
  * we can use the same ID as a key in the concurrent bookkeeping. @c SentryTracer.traceId can be
  * changed by consumers so is unfit for this purpose.
  */
-@property (nonatomic, strong, readonly) SentryId *internalID;
+@property (nonatomic, strong, readonly) SentryId *profilerReferenceID;
 
 @end

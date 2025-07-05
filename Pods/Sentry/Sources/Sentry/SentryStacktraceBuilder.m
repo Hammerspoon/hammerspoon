@@ -12,8 +12,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryStacktraceBuilder ()
+@interface SentryStacktraceBuilder ()
 
 @property (nonatomic, strong) SentryCrashStackEntryMapper *crashStackEntryMapper;
 
@@ -48,15 +47,7 @@ SentryStacktraceBuilder ()
         }
     }
 
-    NSArray<SentryFrame *> *framesCleared = [SentryFrameRemover removeNonSdkFrames:frames];
-
-    // The frames must be ordered from caller to callee, or oldest to youngest
-    NSArray<SentryFrame *> *framesReversed = [[framesCleared reverseObjectEnumerator] allObjects];
-
-    SentryStacktrace *stacktrace = [[SentryStacktrace alloc] initWithFrames:framesReversed
-                                                                  registers:@{}];
-
-    return stacktrace;
+    return [SentryStacktraceBuilder buildStacktraceFromFrames:frames];
 }
 
 - (SentryStacktrace *)buildStackTraceFromStackEntries:(SentryCrashStackEntry *)entries
@@ -77,12 +68,7 @@ SentryStacktraceBuilder ()
         [frames addObject:frame];
     }
 
-    NSArray<SentryFrame *> *framesCleared = [SentryFrameRemover removeNonSdkFrames:frames];
-
-    // The frames must be ordered from caller to callee, or oldest to youngest
-    NSArray<SentryFrame *> *framesReversed = [[framesCleared reverseObjectEnumerator] allObjects];
-
-    return [[SentryStacktrace alloc] initWithFrames:framesReversed registers:@{}];
+    return [SentryStacktraceBuilder buildStacktraceFromFrames:frames];
 }
 
 - (SentryStacktrace *)buildStacktraceForThread:(SentryCrashThread)thread
@@ -112,6 +98,16 @@ SentryStacktraceBuilder ()
     sentrycrashsc_initSelfThread(&stackCursor, 0);
     stackCursor.symbolicate = sentrycrashsymbolicator_symbolicate_async_unsafe;
     return [self retrieveStacktraceFromCursor:stackCursor];
+}
+
++ (SentryStacktrace *_Nonnull)buildStacktraceFromFrames:(NSArray<SentryFrame *> *)frames
+{
+    NSArray<SentryFrame *> *framesCleared = [SentryFrameRemover removeNonSdkFrames:frames];
+
+    // The frames must be ordered from caller to callee, or oldest to youngest
+    NSArray<SentryFrame *> *framesReversed = [[framesCleared reverseObjectEnumerator] allObjects];
+
+    return [[SentryStacktrace alloc] initWithFrames:framesReversed registers:@{}];
 }
 
 @end

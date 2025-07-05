@@ -1,6 +1,9 @@
 #import "SentryDefines.h"
 
-@class SentrySession, SentryEnvelope, SentryAppState, SentryReplayRecording;
+@class SentryAppState;
+@class SentryEnvelope;
+@class SentryReplayRecording;
+@class SentrySession;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -23,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Retrieves the json object from an event envelope item data.
  */
-+ (NSDictionary *)deserializeDictionaryFromJsonData:(NSData *)data;
++ (NSDictionary *_Nullable)deserializeDictionaryFromJsonData:(NSData *)data;
 
 /**
  * Extract the level from data of an envelopte item containing an event. Default is the 'error'

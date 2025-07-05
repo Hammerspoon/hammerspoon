@@ -237,6 +237,46 @@
 #define NEVER_INLINE
 #endif
 
+/**
+ * KEEP_FUNCTION_IN_STACKTRACE
+ *
+ * This macro disables tail call optimization (TCO) for the function it decorates.
+ * It ensures that the function remains present in the stack trace, even if it
+ * could otherwise be optimized away by the compiler.
+ *
+ * This attribute is supported by Clang and GCC.
+ *
+ * Example:
+ *   KEEP_FUNCTION_IN_STACKTRACE
+ *   void capture_error(Error *err) {
+ *       // Stack frame will be preserved in the captured stack trace.
+ *       sentry_send_event(err);
+ *   }
+ */
+#define KEEP_FUNCTION_IN_STACKTRACE __attribute__((disable_tail_calls))
+
+/**
+ * THWART_TAIL_CALL_OPTIMISATION
+ *
+ * This macro inserts a volatile no-op inline assembly instruction, acting as a
+ * barrier to tail call optimization at a specific call site.
+ *
+ * This can be used to force intermediate utility or wrapper functions to remain
+ * visible in stack traces, which helps developers trace the full logical flow of
+ * their application when viewing captured exceptions or performance data in Sentry.
+ *
+ * This is especially useful in hand-written C code where macros, error wrappers,
+ * or utility functions would otherwise be optimized into tail calls and removed
+ * from the stack trace.
+ *
+ * Example:
+ *   void send_wrapped_event(Event *evt) {
+ *       sentry_send_event(evt);
+ *       THWART_TAIL_CALL_OPTIMISATION;
+ *   }
+ */
+#define THWART_TAIL_CALL_OPTIMISATION __asm__ __volatile__("");
+
 /* NO_RETURN */
 
 #if !defined(NO_RETURN) && COMPILER(GCC_COMPATIBLE)

@@ -14,14 +14,21 @@
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
 #import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentryMeta.h"
+#import "SentryNSProcessInfoWrapper.h"
 #import "SentryOptions+Private.h"
 #import "SentryProfilingConditionals.h"
+#import "SentryReplayApi.h"
+#import "SentrySamplerDecision.h"
 #import "SentrySamplingContext.h"
 #import "SentryScope.h"
 #import "SentrySerialization.h"
 #import "SentrySwift.h"
 #import "SentryTransactionContext.h"
+#import "SentryUIApplication.h"
+#import "SentryUseNSExceptionCallstackWrapper.h"
+#import "SentryUserFeedbackIntegration.h"
 
 #if TARGET_OS_OSX
 #    import "SentryCrashExceptionApplication.h"
@@ -30,6 +37,9 @@
 #if SENTRY_HAS_UIKIT
 #    import "SentryUIDeviceWrapper.h"
 #    import "SentryUIViewControllerPerformanceTracker.h"
+#    if TARGET_OS_IOS
+#        import "SentryFeedbackAPI.h"
+#    endif // TARGET_OS_IOS
 #endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -37,8 +47,9 @@
 #    import "SentryProfiler+Private.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
-@interface
-SentrySDK ()
+NSString *const SENTRY_XCODE_PREVIEW_ENVIRONMENT_KEY = @"XCODE_RUNNING_FOR_PREVIEWS";
+
+@interface SentrySDK ()
 
 @property (class) SentryHub *currentHub;
 
@@ -46,7 +57,6 @@ SentrySDK ()
 
 NS_ASSUME_NONNULL_BEGIN
 @implementation SentrySDK
-
 static SentryHub *_Nullable currentHub;
 static NSObject *currentHubLock;
 static BOOL crashedLastRunCalled;
@@ -57,8 +67,8 @@ static SentryOptions *_Nullable startOption;
 static NSObject *startOptionsLock;
 
 /**
- * @brief We need to keep track of the number of times @c +[startWith...] is called, because our OOM
- * reporting breaks if it's called more than once.
+ * @brief We need to keep track of the number of times @c +[startWith...] is called, because our
+ * watchdog termination reporting breaks if it's called more than once.
  * @discussion This doesn't just protect from multiple sequential calls to start the SDK, so we
  * can't simply @c dispatch_once the logic inside the start method; there is also a valid workflow
  * where a consumer could start the SDK, then call @c +[close] and then start again, and we want to
@@ -94,7 +104,15 @@ static NSDate *_Nullable startTimestamp = nil;
         return startOption;
     }
 }
-
+#if SENTRY_TARGET_REPLAY_SUPPORTED
++ (SentryReplayApi *)replay
+{
+    static SentryReplayApi *replay;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{ replay = [[SentryReplayApi alloc] init]; });
+    return replay;
+}
+#endif
 /** Internal, only needed for testing. */
 + (void)setCurrentHub:(nullable SentryHub *)hub
 {
@@ -192,17 +210,26 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (void)startWithOptions:(SentryOptions *)options
 {
+    // We save the options before checking for Xcode preview because
+    // we will use this options in the preview
     startOption = options;
-    [SentryLog configure:options.debug diagnosticLevel:options.diagnosticLevel];
+    if ([SentryDependencyContainer.sharedInstance.processInfoWrapper
+                .environment[SENTRY_XCODE_PREVIEW_ENVIRONMENT_KEY] isEqualToString:@"1"]) {
+        // Using NSLog because SentryLog was not initialized yet.
+        NSLog(@"[SENTRY] [WARNING] SentrySDK not started. Running from Xcode preview.");
+        return;
+    }
+
+    [SentryLogSwiftSupport configure:options.debug diagnosticLevel:options.diagnosticLevel];
 
     // We accept the tradeoff that the SDK might not be fully initialized directly after
     // initializing it on a background thread because scheduling the init synchronously on the main
     // thread could lead to deadlocks.
     SENTRY_LOG_DEBUG(@"Starting SDK...");
 
-#if defined(DEBUG) || defined(TEST) || defined(TESTCI)
+#if defined(DEBUG) || defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
     SENTRY_LOG_DEBUG(@"Configured options: %@", options.debugDescription);
-#endif // defined(DEBUG) || defined(TEST) || defined(TESTCI)
+#endif // defined(DEBUG) || defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 
 #if TARGET_OS_OSX
     // Reference to SentryCrashExceptionApplication to prevent compiler from stripping it
@@ -215,6 +242,8 @@ static NSDate *_Nullable startTimestamp = nil;
     SentryClient *newClient = [[SentryClient alloc] initWithOptions:options];
     [newClient.fileManager moveAppStateToPreviousAppState];
     [newClient.fileManager moveBreadcrumbsToPreviousBreadcrumbs];
+    [SentryDependencyContainer.sharedInstance
+            .scopeContextPersistentStore moveCurrentFileToPreviousFile];
 
     SentryScope *scope
         = options.initialScope([[SentryScope alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs]);
@@ -240,7 +269,7 @@ static NSDate *_Nullable startTimestamp = nil;
         [SentrySDK installIntegrations];
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-        sentry_manageTraceProfilerOnStartSDK(options, hub);
+        sentry_sdkInitProfilerTasks(options, hub);
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }];
 
@@ -254,15 +283,24 @@ static NSDate *_Nullable startTimestamp = nil;
     [SentrySDK startWithOptions:options];
 }
 
-+ (void)captureCrashEvent:(SentryEvent *)event
++ (void)captureFatalEvent:(SentryEvent *)event
 {
-    [SentrySDK.currentHub captureCrashEvent:event];
+    [SentrySDK.currentHub captureFatalEvent:event];
 }
 
-+ (void)captureCrashEvent:(SentryEvent *)event withScope:(SentryScope *)scope
++ (void)captureFatalEvent:(SentryEvent *)event withScope:(SentryScope *)scope
 {
-    [SentrySDK.currentHub captureCrashEvent:event withScope:scope];
+    [SentrySDK.currentHub captureFatalEvent:event withScope:scope];
 }
+
+#if SENTRY_HAS_UIKIT
+
++ (void)captureFatalAppHangEvent:(SentryEvent *)event
+{
+    [SentrySDK.currentHub captureFatalAppHangEvent:event];
+}
+
+#endif // SENTRY_HAS_UIKIT
 
 + (SentryId *)captureEvent:(SentryEvent *)event
 {
@@ -358,6 +396,21 @@ static NSDate *_Nullable startTimestamp = nil;
     return [SentrySDK.currentHub captureException:exception withScope:scope];
 }
 
+#if TARGET_OS_OSX
+
++ (SentryId *)captureCrashOnException:(NSException *)exception
+{
+    SentryUseNSExceptionCallstackWrapper *wrappedException =
+        [[SentryUseNSExceptionCallstackWrapper alloc]
+                        initWithName:exception.name
+                              reason:exception.reason
+                            userInfo:exception.userInfo
+            callStackReturnAddresses:exception.callStackReturnAddresses];
+    return [SentrySDK captureException:wrappedException withScope:SentrySDK.currentHub.scope];
+}
+
+#endif // TARGET_OS_OSX
+
 + (SentryId *)captureMessage:(NSString *)message
 {
     return [SentrySDK captureMessage:message withScope:SentrySDK.currentHub.scope];
@@ -396,6 +449,23 @@ static NSDate *_Nullable startTimestamp = nil;
     [SentrySDK.currentHub captureUserFeedback:userFeedback];
 }
 
++ (void)captureFeedback:(SentryFeedback *)feedback
+{
+    [SentrySDK.currentHub captureFeedback:feedback];
+}
+
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
+
++ (SentryFeedbackAPI *)feedback
+{
+    static SentryFeedbackAPI *feedbackAPI;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{ feedbackAPI = [[SentryFeedbackAPI alloc] init]; });
+    return feedbackAPI;
+}
+
+#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
+
 + (void)addBreadcrumb:(SentryBreadcrumb *)crumb
 {
     [SentrySDK.currentHub addBreadcrumb:crumb];
@@ -408,6 +478,16 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (void)setUser:(SentryUser *_Nullable)user
 {
+    if (![SentrySDK isEnabled]) {
+        // We must log with level fatal because only fatal messages get logged even when the SDK
+        // isn't started. We've seen multiple times that users try to set the user before starting
+        // the SDK, and it confuses them. Ideally, we would do something to store the user and set
+        // it once we start the SDK, but this is a breaking change, so we live with the workaround
+        // for now.
+        SENTRY_LOG_FATAL(@"The SDK is disabled, so setUser doesn't work. Please ensure to start "
+                         @"the SDK before setting the user.");
+    }
+
     [SentrySDK.currentHub setUser:user];
 }
 
@@ -446,8 +526,31 @@ static NSDate *_Nullable startTimestamp = nil;
         return;
     }
     SentryOptions *options = [SentrySDK.currentHub getClient].options;
-    for (NSString *integrationName in [SentrySDK.currentHub getClient].options.integrations) {
-        Class integrationClass = NSClassFromString(integrationName);
+    NSMutableArray<NSString *> *integrationNames =
+        [SentrySDK.currentHub getClient].options.integrations.mutableCopy;
+
+    NSArray<Class> *defaultIntegrations = SentryOptions.defaultIntegrationClasses;
+
+    // Since 8.22.0, we use a precompiled XCFramework for SPM, which can lead to Sentry's
+    // definition getting duplicated in the app with a warning “SentrySDK is defined in both
+    // ModuleA and ModuleB”. This doesn't happen when users use Sentry-Dynamic and
+    // when compiling Sentry from source via SPM. Due to the duplication, some users didn't
+    // see any crashes reported to Sentry cause the SentryCrashReportSink couldn't find
+    // a hub bound to the SentrySDK, and it dropped the crash events. This problem
+    // is fixed now by using a dictionary that links the classes with their names
+    // so we can quickly check whether that class is in the option integrations collection.
+    // We cannot load the class itself with NSClassFromString because doing so may load a class
+    // that was duplicated in another module, leading to undefined behavior.
+    NSMutableDictionary<NSString *, Class> *integrationDictionary =
+        [[NSMutableDictionary alloc] init];
+
+    for (Class integrationClass in defaultIntegrations) {
+        integrationDictionary[NSStringFromClass(integrationClass)] = integrationClass;
+    }
+
+    for (NSString *integrationName in integrationNames) {
+        Class integrationClass
+            = integrationDictionary[integrationName] ?: NSClassFromString(integrationName);
         if (nil == integrationClass) {
             SENTRY_LOG_ERROR(@"[SentryHub doInstallIntegrations] "
                              @"couldn't find \"%@\" -> skipping.",
@@ -549,12 +652,34 @@ static NSDate *_Nullable startTimestamp = nil;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 + (void)startProfiler
 {
-    if (![currentHub.client.options isContinuousProfilingEnabled]) {
+    SentryOptions *options = currentHub.client.options;
+    if (![options isContinuousProfilingEnabled]) {
         SENTRY_LOG_WARN(
             @"You must disable trace profiling by setting SentryOptions.profilesSampleRate and "
             @"SentryOptions.profilesSampler to nil (which is the default initial value for both "
             @"properties, so you can also just remove those lines from your configuration "
-            @"altogether) before attempting to start a continuous profiling session.");
+            @"altogether) before attempting to start a continuous profiling session. This behavior "
+            @"relies on deprecated options and will change in a future version.");
+        return;
+    }
+
+    if (options.profiling != nil) {
+        if (options.profiling.lifecycle == SentryProfileLifecycleTrace) {
+            SENTRY_LOG_WARN(
+                @"The profiling lifecycle is set to trace, so you cannot start profile sessions "
+                @"manually. See SentryProfileLifecycle for more information.");
+            return;
+        }
+
+        if (sentry_profilerSessionSampleDecision.decision != kSentrySampleDecisionYes) {
+            SENTRY_LOG_DEBUG(
+                @"The profiling session has been sampled out, no profiling will take place.");
+            return;
+        }
+    }
+
+    if ([SentryContinuousProfiler isCurrentlyProfiling]) {
+        SENTRY_LOG_WARN(@"There is already a profile session running.");
         return;
     }
 
@@ -563,12 +688,26 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (void)stopProfiler
 {
-    if (![currentHub.client.options isContinuousProfilingEnabled]) {
+    SentryOptions *options = currentHub.client.options;
+    if (![options isContinuousProfilingEnabled]) {
         SENTRY_LOG_WARN(
             @"You must disable trace profiling by setting SentryOptions.profilesSampleRate and "
             @"SentryOptions.profilesSampler to nil (which is the default initial value for both "
             @"properties, so you can also just remove those lines from your configuration "
-            @"altogether) before attempting to stop a continuous profiling session.");
+            @"altogether) before attempting to stop a continuous profiling session. This behavior "
+            @"relies on deprecated options and will change in a future version.");
+        return;
+    }
+
+    if (options.profiling != nil && options.profiling.lifecycle == SentryProfileLifecycleTrace) {
+        SENTRY_LOG_WARN(
+            @"The profiling lifecycle is set to trace, so you cannot stop profile sessions "
+            @"manually. See SentryProfileLifecycle for more information.");
+        return;
+    }
+
+    if (![SentryContinuousProfiler isCurrentlyProfiling]) {
+        SENTRY_LOG_WARN(@"No profile session to stop.");
         return;
     }
 
@@ -576,17 +715,15 @@ static NSDate *_Nullable startTimestamp = nil;
 }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
-#if SENTRY_TARGET_REPLAY_SUPPORTED
-+ (void)replayRedactView:(UIView *)view
-{
-    [SentryRedactViewHelper redactView:view];
-}
+#if SENTRY_HAS_UIKIT
 
-+ (void)replayIgnoreView:(UIView *)view
+/** Only needed for testing. We can't use `SENTRY_TEST || SENTRY_TEST_CI` because we call this from
+ * the iOS-Swift sample app. */
++ (nullable NSArray<NSString *> *)relevantViewControllersNames
 {
-    [SentryRedactViewHelper ignoreView:view];
+    return SentryDependencyContainer.sharedInstance.application.relevantViewControllersNames;
 }
-#endif
+#endif // SENTRY_HAS_UIKIT
 
 @end
 

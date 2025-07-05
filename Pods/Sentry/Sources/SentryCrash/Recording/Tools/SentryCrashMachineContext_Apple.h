@@ -34,6 +34,7 @@ extern "C" {
 
 #include <mach/mach_types.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <sys/ucontext.h>
 
 #ifdef __arm64__

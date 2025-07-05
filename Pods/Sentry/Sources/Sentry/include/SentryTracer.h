@@ -3,7 +3,6 @@
 #import "SentrySpan.h"
 #import "SentrySpanProtocol.h"
 #import "SentryTracerConfiguration.h"
-#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -23,10 +22,10 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_MAX_DURATION = 500.0;
 @protocol SentryTracerDelegate
 
 /**
- * Return the active span of given tracer.
+ * Return the active span.
  * This function is used to determine which span will be used to create a new child.
  */
-- (nullable id<SentrySpan>)activeSpanForTracer:(SentryTracer *)tracer;
+- (nullable id<SentrySpan>)getActiveSpan;
 
 /**
  * Report that the tracer has finished.
@@ -91,7 +90,14 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_MAX_DURATION = 500.0;
  */
 + (nullable SentryTracer *)getTracer:(id<SentrySpan>)span;
 
-- (void)dispatchIdleTimeout;
+- (void)startIdleTimeout;
+
+/**
+ * This method is designed to be used when the app crashes. It finishes the transaction and stores
+ * it to disk on the calling thread. This method skips adding a profile to the transaction to
+ * increase the likelihood of storing it before the app exits.
+ */
+- (void)finishForCrash;
 
 @end
 

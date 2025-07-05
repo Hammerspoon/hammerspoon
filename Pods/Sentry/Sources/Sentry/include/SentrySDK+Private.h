@@ -10,16 +10,23 @@
 #    import "SentrySDK.h"
 #endif
 
-@class SentryHub, SentryId, SentryAppStartMeasurement, SentryEnvelope;
+@class SentryAppStartMeasurement;
+@class SentryEnvelope;
+@class SentryFeedback;
+@class SentryHub;
+@class SentryId;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentrySDK ()
+@interface SentrySDK ()
 
-+ (void)captureCrashEvent:(SentryEvent *)event;
++ (void)captureFatalEvent:(SentryEvent *)event;
 
-+ (void)captureCrashEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
++ (void)captureFatalEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
+
+#if SENTRY_HAS_UIKIT
++ (void)captureFatalAppHangEvent:(SentryEvent *)event;
+#endif // SENTRY_HAS_UIKIT
 
 /**
  * SDK private field to store the state if onCrashedLastRun was called.
@@ -51,6 +58,26 @@ SentrySDK ()
  * Needed by hybrid SDKs as react-native to synchronously capture an envelope.
  */
 + (void)captureEnvelope:(SentryEnvelope *)envelope;
+
+#if TARGET_OS_OSX
+/**
+ * Captures an exception event and sends it to Sentry using the stacktrace from the exception.
+ * @param exception The exception to send to Sentry.
+ * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
+ *
+ */
++ (SentryId *)captureCrashOnException:(NSException *)exception
+    NS_SWIFT_NAME(captureCrashOn(exception:));
+
+#endif // TARGET_OS_OSX
+
+#if SENTRY_HAS_UIKIT
+
+/** Only needed for testing. We can't use `SENTRY_TEST || SENTRY_TEST_CI` because we call this from
+ * the iOS-Swift sample app. */
++ (nullable NSArray<NSString *> *)relevantViewControllersNames;
+
+#endif // SENTRY_HAS_UIKIT
 
 @end
 

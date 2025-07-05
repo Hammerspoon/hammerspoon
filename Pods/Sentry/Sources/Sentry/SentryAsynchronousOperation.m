@@ -2,8 +2,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryAsynchronousOperation ()
+@interface SentryAsynchronousOperation ()
 
 @property (nonatomic, getter=isCancelled, readwrite) BOOL cancelled;
 @property (nonatomic, getter=isFinished, readwrite) BOOL finished;

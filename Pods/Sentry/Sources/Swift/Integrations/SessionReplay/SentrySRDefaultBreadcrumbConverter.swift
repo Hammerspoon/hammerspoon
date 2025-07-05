@@ -1,3 +1,4 @@
+@_implementationOnly import _SentryPrivate
 import Foundation
 
 @objc
@@ -6,7 +7,7 @@ protocol SentryReplayBreadcrumbConverter: NSObjectProtocol {
 }
 
 @objcMembers
-class SentrySRDefaultBreadcrumbConverter: NSObject, SentryReplayBreadcrumbConverter {
+@_spi(Private) public class SentrySRDefaultBreadcrumbConverter: NSObject, SentryReplayBreadcrumbConverter {
     
     private let supportedNetworkData = Set<String>([
         "status_code",
@@ -84,5 +85,11 @@ class SentrySRDefaultBreadcrumbConverter: NSObject, SentryReplayBreadcrumbConver
     
     private func getLevel(breadcrumb: Breadcrumb) -> SentryLevel {
         return SentryLevelHelper.breadcrumbLevel(breadcrumb) ?? .none
+    }
+}
+
+extension SentryLevelHelper {
+    static func breadcrumbLevel(_ breadcrumb: Breadcrumb) -> SentryLevel? {
+        SentryLevel(rawValue: SentryLevelBridge.breadcrumbLevel(breadcrumb))
     }
 }

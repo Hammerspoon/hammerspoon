@@ -4,8 +4,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryBinaryImageInfo : NSObject
 @property (nonatomic, strong) NSString *name;
+@property (nonatomic, copy) NSString *UUID;
+@property (nonatomic) uint64_t vmAddress;
 @property (nonatomic) uint64_t address;
 @property (nonatomic) uint64_t size;
+
 @end
 
 /**
@@ -19,9 +22,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)stop;
 
+- (NSArray<SentryBinaryImageInfo *> *)getAllBinaryImages;
+
 - (nullable SentryBinaryImageInfo *)imageByAddress:(const uint64_t)address;
 
-- (nullable NSString *)pathForInAppInclude:(NSString *)inAppInclude;
+- (NSSet<NSString *> *)imagePathsForInAppInclude:(NSString *)inAppInclude;
+
++ (NSString *_Nullable)convertUUID:(const unsigned char *const)value;
 
 @end
 

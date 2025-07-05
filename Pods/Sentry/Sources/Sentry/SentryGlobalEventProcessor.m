@@ -3,15 +3,7 @@
 
 @implementation SentryGlobalEventProcessor
 
-+ (instancetype)shared
-{
-    static SentryGlobalEventProcessor *instance = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{ instance = [[self alloc] initPrivate]; });
-    return instance;
-}
-
-- (instancetype)initPrivate
+- (instancetype)init
 {
     if (self = [super init]) {
         self.processors = [NSMutableArray new];

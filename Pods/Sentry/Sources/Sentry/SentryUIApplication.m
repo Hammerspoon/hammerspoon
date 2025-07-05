@@ -1,6 +1,6 @@
 #import "SentryUIApplication.h"
-#import "SentryDependencyContainer.h"
 #import "SentryDispatchQueueWrapper.h"
+#import "SentryLog.h"
 #import "SentryNSNotificationCenterWrapper.h"
 #import "SentrySwift.h"
 
@@ -8,36 +8,44 @@
 
 #    import <UIKit/UIKit.h>
 
-@implementation SentryUIApplication {
-    UIApplicationState appState;
-}
+@interface SentryUIApplication ()
 
-- (instancetype)init
+@property (nonatomic, assign) UIApplicationState appState;
+@property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenterWrapper;
+@property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
+
+@end
+
+@implementation SentryUIApplication
+
+- (instancetype)initWithNotificationCenterWrapper:
+                    (SentryNSNotificationCenterWrapper *)notificationCenterWrapper
+                             dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
     if (self = [super init]) {
+        self.notificationCenterWrapper = notificationCenterWrapper;
+        self.dispatchQueueWrapper = dispatchQueueWrapper;
 
-        [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
-            addObserver:self
-               selector:@selector(didEnterBackground)
-                   name:UIApplicationDidEnterBackgroundNotification];
+        [self.notificationCenterWrapper addObserver:self
+                                           selector:@selector(didEnterBackground)
+                                               name:UIApplicationDidEnterBackgroundNotification];
 
-        [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
-            addObserver:self
-               selector:@selector(didBecomeActive)
-                   name:UIApplicationDidBecomeActiveNotification];
+        [self.notificationCenterWrapper addObserver:self
+                                           selector:@selector(didBecomeActive)
+                                               name:UIApplicationDidBecomeActiveNotification];
+
         // We store the application state when the app is initialized
         // and we keep track of its changes by the notifications
         // this way we avoid calling sharedApplication in a background thread
-        [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncOnMainQueue:^{
-            self->appState = self.sharedApplication.applicationState;
-        }];
+        [self.dispatchQueueWrapper
+            dispatchAsyncOnMainQueue:^{ self.appState = self.sharedApplication.applicationState; }];
     }
     return self;
 }
 
 - (void)dealloc
 {
-    [SentryDependencyContainer.sharedInstance.notificationCenterWrapper removeObserver:self];
+    [self.notificationCenterWrapper removeObserver:self];
 }
 
 - (UIApplication *)sharedApplication
@@ -66,7 +74,7 @@
 - (NSArray<UIWindow *> *)windows
 {
     __block NSArray<UIWindow *> *windows = nil;
-    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
+    [_dispatchQueueWrapper
         dispatchSyncOnMainQueue:^{
             UIApplication *app = [self sharedApplication];
             NSMutableSet *result = [NSMutableSet set];
@@ -119,15 +127,20 @@
 - (nullable NSArray<NSString *> *)relevantViewControllersNames
 {
     __block NSArray<NSString *> *result = nil;
+    __weak SentryUIApplication *weakSelf = self;
 
-    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
+    [_dispatchQueueWrapper
         dispatchSyncOnMainQueue:^{
-            NSArray *viewControllers
-                = SentryDependencyContainer.sharedInstance.application.relevantViewControllers;
+            if (weakSelf == nil) {
+                SENTRY_LOG_DEBUG(@"WeakSelf is nil. Not doing anything.");
+                return;
+            }
+
+            NSArray<UIViewController *> *viewControllers = weakSelf.relevantViewControllers;
             NSMutableArray *vcsNames =
                 [[NSMutableArray alloc] initWithCapacity:viewControllers.count];
-            for (id vc in viewControllers) {
-                [vcsNames addObject:[SwiftDescriptor getObjectClassName:vc]];
+            for (UIViewController *vc in viewControllers) {
+                [vcsNames addObject:[SwiftDescriptor getViewControllerClassName:vc]];
             }
             result = [NSArray arrayWithArray:vcsNames];
         }
@@ -243,17 +256,22 @@
 
 - (UIApplicationState)applicationState
 {
-    return appState;
+    return self.appState;
 }
 
 - (void)didEnterBackground
 {
-    appState = UIApplicationStateBackground;
+    self.appState = UIApplicationStateBackground;
 }
 
 - (void)didBecomeActive
 {
-    appState = UIApplicationStateActive;
+    self.appState = UIApplicationStateActive;
+}
+
+- (BOOL)isActive
+{
+    return self.appState == UIApplicationStateActive;
 }
 
 @end

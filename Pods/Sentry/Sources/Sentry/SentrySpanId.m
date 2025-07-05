@@ -4,8 +4,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 static NSString *const emptyUUIDString = @"0000000000000000";
 
-@interface
-SentrySpanId ()
+@interface SentrySpanId ()
 
 @property (nonatomic, strong) NSString *value;
 

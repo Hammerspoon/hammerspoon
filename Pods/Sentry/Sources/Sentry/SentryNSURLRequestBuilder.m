@@ -1,32 +1,35 @@
 #import "SentryNSURLRequestBuilder.h"
 #import "SentryDsn.h"
-#import "SentryNSURLRequest.h"
+#import "SentryLog.h"
 #import "SentrySerialization.h"
-#import <Foundation/Foundation.h>
+#import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryNSURLRequestBuilder
 
-- (NSURLRequest *)createEnvelopeRequest:(SentryEnvelope *)envelope
-                                    dsn:(SentryDsn *)dsn
-                       didFailWithError:(NSError *_Nullable *_Nullable)error
+- (nullable NSURLRequest *)createEnvelopeRequest:(SentryEnvelope *)envelope
+                                             dsn:(SentryDsn *)dsn
+                                didFailWithError:(NSError *_Nullable *_Nullable)error
 {
-    return [[SentryNSURLRequest alloc]
-        initEnvelopeRequestWithDsn:dsn
-                           andData:[SentrySerialization dataWithEnvelope:envelope]
-                  didFailWithError:error];
+    NSData *data = [SentrySerialization dataWithEnvelope:envelope];
+    if (nil == data) {
+        SENTRY_LOG_ERROR(@"Envelope cannot be converted to data");
+        return nil;
+    }
+    return [SentryURLRequestFactory envelopeRequestWith:dsn data:data error:error];
 }
 
-- (NSURLRequest *)createEnvelopeRequest:(SentryEnvelope *)envelope
-                                    url:(NSURL *)url
-                       didFailWithError:(NSError *_Nullable *_Nullable)error
+- (nullable NSURLRequest *)createEnvelopeRequest:(SentryEnvelope *)envelope
+                                             url:(NSURL *)url
+                                didFailWithError:(NSError *_Nullable *_Nullable)error
 {
-    return [[SentryNSURLRequest alloc]
-        initEnvelopeRequestWithURL:url
-                           andData:[SentrySerialization dataWithEnvelope:envelope]
-                        authHeader:nil
-                  didFailWithError:error];
+    NSData *data = [SentrySerialization dataWithEnvelope:envelope];
+    if (nil == data) {
+        SENTRY_LOG_ERROR(@"Envelope cannot be converted to data");
+        return nil;
+    }
+    return [SentryURLRequestFactory envelopeRequestWith:url data:data authHeader:nil error:error];
 }
 
 @end

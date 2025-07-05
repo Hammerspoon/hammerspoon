@@ -1,9 +1,8 @@
 #import "SentryBaseIntegration.h"
-#import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryNetworkTrackingIntegration : SentryBaseIntegration <SentryIntegrationProtocol>
+@interface SentryNetworkTrackingIntegration : SentryBaseIntegration
 
 @end
 

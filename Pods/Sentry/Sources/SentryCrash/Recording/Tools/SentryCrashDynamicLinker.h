@@ -36,6 +36,16 @@ extern "C" {
 #include <stdbool.h>
 #include <stdint.h>
 
+#define SENTRY_DYLD_INDEX UINT_MAX - 1
+
+#if __LP64__
+#    define SENTRY_SEGMENT_TYPE LC_SEGMENT_64
+#    define sentry_segment_command_t struct segment_command_64
+#else
+#    define SENTRY_SEGMENT_TYPE LC_SEGMENT
+#    define sentry_segment_command_t struct segment_command
+#endif
+
 typedef struct {
     uint64_t address;
     uint64_t vmAddress;
@@ -44,12 +54,14 @@ typedef struct {
     const uint8_t *uuid;
     int cpuType;
     int cpuSubType;
-    uint64_t majorVersion;
-    uint64_t minorVersion;
-    uint64_t revisionVersion;
     const char *crashInfoMessage;
     const char *crashInfoMessage2;
 } SentryCrashBinaryImage;
+
+typedef struct {
+    uintptr_t start;
+    uintptr_t size;
+} SentrySegmentAddress;
 
 /** Get the number of loaded binary images.
  */
@@ -118,6 +130,12 @@ const uint8_t *sentrycrashdl_imageUUID(const char *const imageName, bool exactMa
  * @return true if at least some information was found.
  */
 bool sentrycrashdl_dladdr(const uintptr_t address, Dl_info *const info);
+
+void sentrycrashdl_getCrashInfo(uint64_t address, SentryCrashBinaryImage *buffer);
+
+void sentrycrashdl_initialize(void);
+
+extern const struct mach_header *sentryDyldHeader;
 
 #ifdef __cplusplus
 }

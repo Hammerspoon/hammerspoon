@@ -42,4 +42,14 @@ typedef struct nlist nlist_t;
 #    define LC_SEGMENT_ARCH_DEPENDENT LC_SEGMENT
 #endif /* __LP64__ */
 
+/** The __DATA_CONST segment in Mach-O binaries contains read-only data.
+ *  This segment is protected with VM_PROT_READ by default and requires special handling
+ *  when modifying symbol bindings or other data within it.
+ *  Used in conjunction with fishhook for symbol rebinding operations.
+ *  For more info also see /develop-docs/Fishhook-Explanation.md.
+ */
+#ifndef SEG_DATA_CONST
+#    define SEG_DATA_CONST "__DATA_CONST"
+#endif /* SEG_DATA_CONST */
+
 #endif /* SentryCrashPlatformSpecificDefines_h */

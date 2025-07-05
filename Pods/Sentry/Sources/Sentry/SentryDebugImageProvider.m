@@ -1,8 +1,10 @@
 #import "SentryDebugImageProvider.h"
+#import "SentryBinaryImageCache.h"
 #import "SentryCrashDefaultBinaryImageProvider.h"
 #import "SentryCrashDynamicLinker.h"
 #import "SentryCrashUUIDConversion.h"
 #import "SentryDebugMeta.h"
+#import "SentryDependencyContainer.h"
 #import "SentryFormatter.h"
 #import "SentryFrame.h"
 #import "SentryInternalDefines.h"
@@ -11,10 +13,13 @@
 #import "SentryThread.h"
 #import <Foundation/Foundation.h>
 
-@interface
-SentryDebugImageProvider ()
+NS_ASSUME_NONNULL_BEGIN
+
+@interface SentryDebugImageProvider ()
 
 @property (nonatomic, strong) id<SentryCrashBinaryImageProvider> binaryImageProvider;
+@property (nonatomic, strong) SentryBinaryImageCache *binaryImageCache;
+
 @end
 
 @implementation SentryDebugImageProvider
@@ -24,16 +29,20 @@ SentryDebugImageProvider ()
     SentryCrashDefaultBinaryImageProvider *provider =
         [[SentryCrashDefaultBinaryImageProvider alloc] init];
 
-    self = [self initWithBinaryImageProvider:provider];
+    self = [self
+        initWithBinaryImageProvider:provider
+                   binaryImageCache:SentryDependencyContainer.sharedInstance.binaryImageCache];
 
     return self;
 }
 
 /** Internal constructor for testing */
 - (instancetype)initWithBinaryImageProvider:(id<SentryCrashBinaryImageProvider>)binaryImageProvider
+                           binaryImageCache:(SentryBinaryImageCache *)binaryImageCache
 {
     if (self = [super init]) {
         self.binaryImageProvider = binaryImageProvider;
+        self.binaryImageCache = binaryImageCache;
     }
     return self;
 }
@@ -43,7 +52,10 @@ SentryDebugImageProvider ()
 {
     NSMutableArray<SentryDebugMeta *> *result = [NSMutableArray array];
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     NSArray<SentryDebugMeta *> *binaryImages = [self getDebugImagesCrashed:isCrash];
+#pragma clang diagnostic pop
 
     for (SentryDebugMeta *sourceImage in binaryImages) {
         if ([addresses containsObject:sourceImage.imageAddress]) {
@@ -96,10 +108,58 @@ SentryDebugImageProvider ()
     return [self getDebugImagesForAddresses:imageAddresses isCrash:isCrash];
 }
 
+- (NSArray<SentryDebugMeta *> *)getDebugImagesFromCacheForFrames:(NSArray<SentryFrame *> *)frames
+{
+    NSMutableSet<NSString *> *imageAddresses = [[NSMutableSet alloc] init];
+    [self extractDebugImageAddressFromFrames:frames intoSet:imageAddresses];
+
+    return [self getDebugImagesForImageAddressesFromCache:imageAddresses];
+}
+
+- (NSArray<SentryDebugMeta *> *)getDebugImagesFromCacheForThreads:(NSArray<SentryThread *> *)threads
+{
+    NSMutableSet<NSString *> *imageAddresses = [[NSMutableSet alloc] init];
+
+    for (SentryThread *thread in threads) {
+        [self extractDebugImageAddressFromFrames:thread.stacktrace.frames intoSet:imageAddresses];
+    }
+
+    return [self getDebugImagesForImageAddressesFromCache:imageAddresses];
+}
+
+- (NSArray<SentryDebugMeta *> *)getDebugImagesForImageAddressesFromCache:
+    (NSSet<NSString *> *)imageAddresses
+{
+    NSMutableArray<SentryDebugMeta *> *result = [NSMutableArray array];
+
+    for (NSString *imageAddress in imageAddresses) {
+        const uint64_t imageAddressAsUInt64 = sentry_UInt64ForHexAddress(imageAddress);
+        SentryBinaryImageInfo *info = [self.binaryImageCache imageByAddress:imageAddressAsUInt64];
+        if (info == nil) {
+            continue;
+        }
+
+        [result addObject:[self fillDebugMetaFromBinaryImageInfo:info]];
+    }
+
+    return result;
+}
+
 - (NSArray<SentryDebugMeta *> *)getDebugImages
 {
     // maintains previous behavior for the same method call by also trying to gather crash info
     return [self getDebugImagesCrashed:YES];
+}
+
+- (NSArray<SentryDebugMeta *> *)getDebugImagesFromCache
+{
+    NSArray<SentryBinaryImageInfo *> *infos = [self.binaryImageCache getAllBinaryImages];
+    NSMutableArray<SentryDebugMeta *> *result =
+        [[NSMutableArray alloc] initWithCapacity:infos.count];
+    for (SentryBinaryImageInfo *info in infos) {
+        [result addObject:[self fillDebugMetaFromBinaryImageInfo:info]];
+    }
+    return result;
 }
 
 - (NSArray<SentryDebugMeta *> *)getDebugImagesCrashed:(BOOL)isCrash
@@ -119,7 +179,7 @@ SentryDebugImageProvider ()
 - (SentryDebugMeta *)fillDebugMetaFrom:(SentryCrashBinaryImage)image
 {
     SentryDebugMeta *debugMeta = [[SentryDebugMeta alloc] init];
-    debugMeta.debugID = [SentryDebugImageProvider convertUUID:image.uuid];
+    debugMeta.debugID = [SentryBinaryImageCache convertUUID:image.uuid];
     debugMeta.type = SentryDebugImageType;
 
     if (image.vmAddress > 0) {
@@ -137,15 +197,23 @@ SentryDebugImageProvider ()
     return debugMeta;
 }
 
-+ (NSString *_Nullable)convertUUID:(const unsigned char *const)value
+- (SentryDebugMeta *)fillDebugMetaFromBinaryImageInfo:(SentryBinaryImageInfo *)info
 {
-    if (nil == value) {
-        return nil;
+    SentryDebugMeta *debugMeta = [[SentryDebugMeta alloc] init];
+    debugMeta.debugID = info.UUID;
+    debugMeta.type = SentryDebugImageType;
+
+    if (info.vmAddress > 0) {
+        debugMeta.imageVmAddress = sentry_formatHexAddressUInt64(info.vmAddress);
     }
 
-    char uuidBuffer[37];
-    sentrycrashdl_convertBinaryImageUUID(value, uuidBuffer);
-    return [[NSString alloc] initWithCString:uuidBuffer encoding:NSASCIIStringEncoding];
+    debugMeta.imageAddress = sentry_formatHexAddressUInt64(info.address);
+    debugMeta.imageSize = @(info.size);
+    debugMeta.codeFile = info.name;
+
+    return debugMeta;
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

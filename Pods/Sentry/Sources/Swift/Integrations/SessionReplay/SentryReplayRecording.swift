@@ -1,8 +1,7 @@
-@_implementationOnly import _SentryPrivate
 import Foundation
 
 @objcMembers
-class SentryReplayRecording: NSObject {
+@_spi(Private) public class SentryReplayRecording: NSObject {
     
     static let SentryReplayEncoding = "h264"
     static let SentryReplayContainer = "mp4"
@@ -28,11 +27,11 @@ class SentryReplayRecording: NSObject {
         self.events = [meta, video] + (extraEvents ?? [])
     }
 
-    func headerForReplayRecording() -> [String: Any] {
+    public func headerForReplayRecording() -> [String: Any] {
         return ["segment_id": segmentId]
     }
 
-    func serialize() -> [[String: Any]] {
+    public func serialize() -> [[String: Any]] {
         return events.map { $0.serialize() }
     }
 }

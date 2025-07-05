@@ -20,11 +20,23 @@ static NSString *const SentryPlatformName = @"cocoa";
 #define SENTRY_DEFAULT_PROFILES_SAMPLE_RATE @0
 
 /**
- * Abort in debug, and log a warning in production.
+ * Abort in debug, and log a warning in production. Meant to help customers while they work locally,
+ * but not crash their app in production if a condition inadvertently becomes true.
  */
 #define SENTRY_GRACEFUL_FATAL(...)                                                                 \
     SENTRY_LOG_WARN(__VA_ARGS__);                                                                  \
     NSAssert(NO, __VA_ARGS__);
+
+/**
+ * Abort in test, log a warning otherwise. Meant to help us fail faster in our own development, but
+ * never crash customers because since it's not something they can control with their own
+ * configuration.
+ */
+#if SENTRY_TEST || SENTRY_TEST_CI
+#    define SENTRY_TEST_FATAL(...) SENTRY_CASSERT(NO, __VA_ARGS__)
+#else
+#    define SENTRY_TEST_FATAL(...) SENTRY_LOG_WARN(__VA_ARGS__)
+#endif // SENTRY_TEST || SENTRY_TEST_CI
 
 /**
  * Abort if assertion fails in debug, and log a warning if it fails in production.

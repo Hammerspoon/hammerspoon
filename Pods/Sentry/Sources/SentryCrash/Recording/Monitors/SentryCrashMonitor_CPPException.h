@@ -27,6 +27,7 @@
 #define HDR_SentryCrashMonitor_CPPException_h
 
 #include "SentryCrashMonitor.h"
+#include "SentryCrashStackCursor.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,9 +37,15 @@ extern "C" {
  */
 SentryCrashMonitorAPI *sentrycrashcm_cppexception_getAPI(void);
 
+void sentrycrashcm_cppexception_enable_swap_cxa_throw(void);
+
 /** For testing.
  */
 void sentrycrashcm_cppexception_callOriginalTerminationHandler(void);
+
+/** For testing.
+ */
+SentryCrashStackCursor sentrycrashcm_cppexception_getStackCursor(void);
 
 #ifdef __cplusplus
 }

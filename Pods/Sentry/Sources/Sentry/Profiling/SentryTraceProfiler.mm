@@ -9,11 +9,13 @@
 #    import "SentryNSTimerFactory.h"
 #    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfiler+Private.h"
+#    import "SentrySwift.h"
 #    include <mutex>
 
 #    pragma mark - Private
 
 NSTimer *_Nullable _sentry_threadUnsafe_traceProfileTimeoutTimer;
+NSTimeInterval kSentryProfilerTimeoutInterval = 30;
 
 namespace {
 /** @warning: Must be used from a synchronized context. */
@@ -34,7 +36,7 @@ SentryProfiler *_Nullable _threadUnsafe_gTraceProfiler;
 
         if ([_threadUnsafe_gTraceProfiler isRunning]) {
             SENTRY_LOG_DEBUG(@"A trace profiler is already running.");
-            sentry_trackProfilerForTracer(_threadUnsafe_gTraceProfiler, traceId);
+            sentry_trackTransactionProfilerForTrace(_threadUnsafe_gTraceProfiler, traceId);
             // record a new metric sample for every concurrent span start
             [_threadUnsafe_gTraceProfiler.metricProfiler recordMetrics];
             return YES;
@@ -48,7 +50,7 @@ SentryProfiler *_Nullable _threadUnsafe_gTraceProfiler;
         }
 
         _threadUnsafe_gTraceProfiler.profilerId = [[SentryId alloc] init];
-        sentry_trackProfilerForTracer(_threadUnsafe_gTraceProfiler, traceId);
+        sentry_trackTransactionProfilerForTrace(_threadUnsafe_gTraceProfiler, traceId);
     }
 
     [self scheduleTimeoutTimer];
@@ -112,7 +114,7 @@ SentryProfiler *_Nullable _threadUnsafe_gTraceProfiler;
 
 #    pragma mark - Testing helpers
 
-#    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 + (SentryProfiler *_Nullable)getCurrentProfiler
 {
     return _threadUnsafe_gTraceProfiler;
@@ -127,7 +129,7 @@ SentryProfiler *_Nullable _threadUnsafe_gTraceProfiler;
 {
     return sentry_currentProfiledTracers();
 }
-#    endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 
 @end
 

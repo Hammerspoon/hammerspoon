@@ -1,4 +1,9 @@
-#import "SentryDefines.h"
+#if __has_include(<Sentry/SentryDefines.h>)
+#    import <Sentry/SentryDefines.h>
+#else
+#    import "SentryDefines.h"
+#endif
+
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN

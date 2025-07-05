@@ -9,11 +9,12 @@
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentrySpan.h"
+#import "SentrySpanOperation.h"
 #import "SentrySpanProtocol.h"
 #import "SentryStacktrace.h"
 #import "SentrySwift.h"
 #import "SentryThreadInspector.h"
-#import "SentryTraceOrigins.h"
+#import "SentryTraceOrigin.h"
 
 @implementation SentryCoreDataTracker {
     SentryPredicateDescriptor *predicateDescriptor;
@@ -37,17 +38,20 @@
                             error:(NSError **)error
                       originalImp:(NSArray *(NS_NOESCAPE ^)(NSFetchRequest *, NSError **))original
 {
-    __block id<SentrySpan> fetchSpan;
-    [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
-        fetchSpan = [span startChildWithOperation:SENTRY_COREDATA_FETCH_OPERATION
-                                      description:[self descriptionFromRequest:request]];
-        fetchSpan.origin = SentryTraceOriginAutoDBCoreData;
-    }];
+    id<SentrySpan> _Nullable currentSpan = [SentrySDK.currentHub.scope span];
+    id<SentrySpan> _Nullable fetchSpan;
+    if (currentSpan) {
+        NSString *spanDescription = [self descriptionFromRequest:request];
+        fetchSpan = [currentSpan startChildWithOperation:SentrySpanOperationCoredataFetchOperation
+                                             description:spanDescription];
+    }
 
     if (fetchSpan) {
+        fetchSpan.origin = SentryTraceOriginAutoDBCoreData;
+
         SENTRY_LOG_DEBUG(@"SentryCoreDataTracker automatically started a new span with "
-                         @"description: %@, operation: %@",
-            fetchSpan.description, fetchSpan.operation);
+                         @"description: %@, operation: %@, origin: %@",
+            fetchSpan.description, fetchSpan.operation, fetchSpan.origin);
     }
 
     NSArray *result = original(request, error);
@@ -71,22 +75,25 @@
                  originalImp:(BOOL(NS_NOESCAPE ^)(NSError **))original
 {
 
-    __block id<SentrySpan> saveSpan = nil;
+    __block id<SentrySpan> _Nullable saveSpan = nil;
     if (context.hasChanges) {
         __block NSDictionary<NSString *, NSDictionary *> *operations =
             [self groupEntitiesOperations:context];
 
-        [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
-            saveSpan = [span startChildWithOperation:SENTRY_COREDATA_SAVE_OPERATION
-                                         description:[self descriptionForOperations:operations
-                                                                          inContext:context]];
-            saveSpan.origin = SentryTraceOriginAutoDBCoreData;
-        }];
+        id<SentrySpan> _Nullable currentSpan = [SentrySDK.currentHub.scope span];
+        if (currentSpan) {
+            NSString *spanDescription = [self descriptionForOperations:operations
+                                                             inContext:context];
+            saveSpan = [currentSpan startChildWithOperation:SentrySpanOperationCoredataSaveOperation
+                                                description:spanDescription];
+        }
 
         if (saveSpan) {
+            saveSpan.origin = SentryTraceOriginAutoDBCoreData;
+
             SENTRY_LOG_DEBUG(@"SentryCoreDataTracker automatically started a new span with "
-                             @"description: %@, operation: %@",
-                saveSpan.description, saveSpan.operation);
+                             @"description: %@, operation: %@, origin: %@",
+                saveSpan.description, saveSpan.operation, saveSpan.origin);
 
             [saveSpan setDataValue:operations forKey:@"operations"];
         } else {
@@ -145,10 +152,10 @@
         if (items && items.count > 0) {
             if (items.count == 1) {
                 [resultParts addObject:[NSString stringWithFormat:@"%@ %@ '%@'", op,
-                                                 items.allValues[0], items.allKeys[0]]];
+                                           items.allValues[0], items.allKeys[0]]];
             } else {
                 [resultParts addObject:[NSString stringWithFormat:@"%@ %lu items", op,
-                                                 (unsigned long)total]];
+                                           (unsigned long)total]];
             }
         }
     };
@@ -197,7 +204,7 @@
 
     if (request.predicate) {
         [result appendFormat:@" WHERE %@",
-                [predicateDescriptor predicateDescription:request.predicate]];
+            [predicateDescriptor predicateDescription:request.predicate]];
     }
 
     if (request.sortDescriptors.count > 0) {

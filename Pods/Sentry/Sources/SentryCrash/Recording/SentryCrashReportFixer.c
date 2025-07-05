@@ -60,7 +60,7 @@ increaseDepth(FixupContext *context, const char *name)
     if (name == NULL) {
         *context->objectPath[context->currentDepth] = '\0';
     } else {
-        strncpy(context->objectPath[context->currentDepth], name,
+        strlcpy(context->objectPath[context->currentDepth], name,
             sizeof(context->objectPath[context->currentDepth]));
     }
     context->currentDepth++;

@@ -139,33 +139,11 @@ void sentrycrash_setSaveScreenshots(SaveAttachmentCallback callback);
  */
 void sentrycrash_setSaveViewHierarchy(SaveAttachmentCallback callback);
 
-/** Report a custom, user defined exception.
- * This can be useful when dealing with scripting languages.
- *
- * If terminateProgram is true, all sentries will be uninstalled and the
- * application will terminate with an abort().
- *
- * @param name The exception name (for namespacing exception types).
- *
- * @param reason A description of why the exception occurred.
- *
- * @param language A unique language identifier.
- *
- * @param lineOfCode A copy of the offending line of code (NULL = ignore).
- *
- * @param stackTrace JSON encoded array containing stack trace information (one
- * frame per array entry). The frame structure can be anything you want,
- * including bare strings.
- *
- * @param logAllThreads If true, suspend all threads and log their state. Note
- * that this incurs a performance penalty, so it's best to use only on fatal
- * errors.
- *
- * @param terminateProgram If true, do not return from this function call.
- * Terminate the program instead.
+/**
+ * Set the callback to be called at the end of a crash to make the app save the ongoing transaction
+ * bound to the scope.
  */
-void sentrycrash_reportUserException(const char *name, const char *reason, const char *language,
-    const char *lineOfCode, const char *stackTrace, bool logAllThreads, bool terminateProgram);
+void sentrycrash_setSaveTransaction(void (*callback)(void));
 
 #pragma mark-- Notifications --
 
@@ -245,6 +223,17 @@ bool sentrycrash_hasSaveScreenshotCallback(void);
  * Indicates that a callback was registered for view hierarchy.
  */
 bool sentrycrash_hasSaveViewHierarchyCallback(void);
+
+/**
+ * For testing purpose.
+ * Indicates that a callback was registered for saving the transaction.
+ */
+bool sentrycrash_hasSaveTransaction(void);
+
+/**
+ * For testing purposes.
+ */
+void sentrycrash_invokeSaveTransaction(void);
 
 #ifdef __cplusplus
 }

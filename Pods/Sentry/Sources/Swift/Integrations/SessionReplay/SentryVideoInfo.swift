@@ -1,7 +1,7 @@
 import Foundation
 
 @objcMembers
-class SentryVideoInfo: NSObject {
+@_spi(Private) public class SentryVideoInfo: NSObject {
     
     let path: URL
     let height: Int

@@ -41,3 +41,16 @@ sentry_formatHexAddressUInt64(uint64_t value)
 {
     return sentry_snprintfHexAddress(value);
 }
+
+static inline uint64_t
+sentry_UInt64ForHexAddress(NSString *hexString)
+{
+    uint64_t value = 0;
+    NSScanner *scanner = [NSScanner scannerWithString:hexString];
+
+    if ([scanner scanHexLongLong:&value]) {
+        return value;
+    } else {
+        return 0;
+    }
+}

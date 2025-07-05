@@ -24,10 +24,12 @@
 #import "SentryError.h"
 #import "SentryEvent.h"
 #import "SentryException.h"
+#import "SentryFeedbackAPI.h"
 #import "SentryFrame.h"
 #import "SentryGeo.h"
 #import "SentryHttpStatusCodeRange.h"
 #import "SentryHub.h"
+#import "SentryIntegrationProtocol.h"
 #import "SentryMeasurementUnit.h"
 #import "SentryMechanism.h"
 #import "SentryMechanismMeta.h"
@@ -35,6 +37,7 @@
 #import "SentryNSError.h"
 #import "SentryOptions.h"
 #import "SentryProfilingConditionals.h"
+#import "SentryReplayApi.h"
 #import "SentryRequest.h"
 #import "SentrySampleDecision.h"
 #import "SentrySamplingContext.h"
@@ -51,7 +54,6 @@
 #import "SentryTraceHeader.h"
 #import "SentryTransactionContext.h"
 #import "SentryUser.h"
-#import "SentryUserFeedback.h"
 #import "SentryWithoutUIKit.h"
 
 FOUNDATION_EXPORT double SentryVersionNumber;

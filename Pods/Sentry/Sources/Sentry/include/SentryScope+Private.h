@@ -9,8 +9,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryScope ()
+@interface SentryScope ()
 
 @property (atomic, copy, nullable) NSString *environmentString;
 
@@ -21,7 +20,10 @@ SentryScope ()
  */
 @property (atomic, strong) SentryUser *_Nullable userObject;
 
-@property (atomic, strong) SentryPropagationContext *propagationContext;
+/**
+ * The propagation context has a setter, requiring it to be nonatomic
+ */
+@property (nonatomic, strong) SentryPropagationContext *propagationContext;
 
 @property (nonatomic, nullable, copy) NSString *currentScreen;
 

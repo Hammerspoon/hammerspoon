@@ -2,7 +2,11 @@
 
 #if SENTRY_HAS_UIKIT
 
-@class SentryOptions, SentryCrashWrapper, SentryAppState, SentryFileManager, SentryAppStateManager;
+@class SentryAppState;
+@class SentryAppStateManager;
+@class SentryCrashWrapper;
+@class SentryFileManager;
+@class SentryOptions;
 
 NS_ASSUME_NONNULL_BEGIN
 

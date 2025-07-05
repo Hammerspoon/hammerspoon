@@ -4,7 +4,6 @@
 #import "SentryEnvelopeItemHeader.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryLog.h"
-#import "SentryNSURLRequest.h"
 #import "SentryNSURLRequestBuilder.h"
 #import "SentryOptions.h"
 #import "SentrySerialization.h"
@@ -12,8 +11,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentrySpotlightTransport ()
+@interface SentrySpotlightTransport ()
 
 @property (nonatomic, strong) id<SentryRequestManager> requestManager;
 @property (nonatomic, strong) SentryNSURLRequestBuilder *requestBuilder;
@@ -71,8 +69,10 @@ SentrySpotlightTransport ()
                                                                    url:self.apiURL
                                                       didFailWithError:&requestError];
 
-    if (requestError) {
-        SENTRY_LOG_ERROR(@"Unable to build envelope request with error %@", requestError);
+    if (nil == request || nil != requestError) {
+        if (nil != requestError) {
+            SENTRY_LOG_ERROR(@"Unable to build envelope request with error %@", requestError);
+        }
         return;
     }
 
@@ -83,6 +83,11 @@ SentrySpotlightTransport ()
                 SENTRY_LOG_ERROR(@"Error while performing request %@", requestError);
             }
         }];
+}
+
+- (void)storeEnvelope:(SentryEnvelope *)envelope
+{
+    [self sendEnvelope:envelope];
 }
 
 - (SentryFlushResult)flush:(NSTimeInterval)timeout
@@ -103,13 +108,13 @@ SentrySpotlightTransport ()
     // Empty on purpose
 }
 
-#if defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 - (void)setStartFlushCallback:(nonnull void (^)(void))callback
 {
     // Empty on purpose
 }
 
-#endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 
 @end
 

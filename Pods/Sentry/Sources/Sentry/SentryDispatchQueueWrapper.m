@@ -1,6 +1,5 @@
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryThreadWrapper.h"
-#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -12,7 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
     // iOS 9 we need to manually add the autoreleasepool.
     dispatch_queue_attr_t attributes = dispatch_queue_attr_make_with_qos_class(
         DISPATCH_QUEUE_SERIAL, DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-    self = [self initWithName:"sentry-default" attributes:attributes];
+    self = [self initWithName:"io.sentry.default" attributes:attributes];
     return self;
 }
 

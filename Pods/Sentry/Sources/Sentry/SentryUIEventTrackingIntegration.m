@@ -9,8 +9,7 @@
 #    import <SentryUIEventTracker.h>
 #    import <SentryUIEventTrackerTransactionMode.h>
 
-@interface
-SentryUIEventTrackingIntegration ()
+@interface SentryUIEventTrackingIntegration ()
 
 @property (nonatomic, strong) SentryUIEventTracker *uiEventTracker;
 
@@ -27,7 +26,9 @@ SentryUIEventTrackingIntegration ()
     SentryUIEventTrackerTransactionMode *mode =
         [[SentryUIEventTrackerTransactionMode alloc] initWithIdleTimeout:options.idleTimeout];
 
-    self.uiEventTracker = [[SentryUIEventTracker alloc] initWithMode:mode];
+    self.uiEventTracker =
+        [[SentryUIEventTracker alloc] initWithMode:mode
+                     reportAccessibilityIdentifier:options.reportAccessibilityIdentifier];
 
     [self.uiEventTracker start];
 
