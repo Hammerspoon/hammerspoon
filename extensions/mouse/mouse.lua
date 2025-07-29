@@ -2,7 +2,7 @@
 ---
 --- Inspect/manipulate the position of the mouse pointer
 ---
---- This module is based primarily on code from the previous incarnation of Mjolnir by [Steven Degutis](https://github.com/sdegutis/).
+--- This module is based primarily on code from the previous incarnation of Mjolnir.
 ---
 --- This module uses ManyMouse by Ryan C. Gordon.
 ---

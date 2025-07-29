@@ -2,7 +2,7 @@
 ---
 --- Manipulate the system's audio devices
 ---
---- This module is based primarily on code from the previous incarnation of Mjolnir by [Steven Degutis](https://github.com/sdegutis/).
+--- This module is based primarily on code from the previous incarnation of Mjolnir.
 ---
 --- Note:
 ---  * Objects created by this module are distinct from each other - if you fetch an audiodevice and set a watcher on it, then fetch the audiodevice again, the watcher will only be visible from the first object and not the second. To avoid losing reference to watchers, you can store the audiodevice objects in a Lua table.

@@ -4,7 +4,7 @@
 ---
 --- Home: https://github.com/asmagill/mjolnir_asm.sys
 ---
---- This module is based primarily on code from the previous incarnation of Mjolnir by [Steven Degutis](https://github.com/sdegutis/).
+--- This module is based primarily on code from the previous incarnation of Mjolnir.
 
 -- try to load private framework for brightness controls
 local state, msg = package.loadlib(
