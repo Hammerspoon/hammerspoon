@@ -3,8 +3,15 @@
 #import "SentryDiscardReason.h"
 #import "SentryTransport.h"
 
-@class SentryEnvelope, SentryEnvelopeItem, SentryEvent, SentrySession, SentryUserFeedback,
-    SentryAttachment, SentryTraceContext, SentryOptions;
+@class SentryAttachment;
+@class SentryEnvelope;
+@class SentryEnvelopeItem;
+@class SentryEvent;
+@class SentryFeedback;
+@class SentryOptions;
+@class SentrySession;
+@class SentryTraceContext;
+@class SentryUserFeedback;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -39,7 +46,14 @@ SENTRY_NO_INIT
      traceContext:(nullable SentryTraceContext *)traceContext
       attachments:(NSArray<SentryAttachment *> *)attachments;
 
-- (void)sendUserFeedback:(SentryUserFeedback *)userFeedback NS_SWIFT_NAME(send(userFeedback:));
+- (void)storeEvent:(SentryEvent *)event traceContext:(nullable SentryTraceContext *)traceContext;
+
+/**
+ * @deprecated Use @c -[SentryClient @c captureFeedback:withScope:] .
+ */
+- (void)sendUserFeedback:(SentryUserFeedback *)userFeedback
+    NS_SWIFT_NAME(send(userFeedback:))
+        DEPRECATED_MSG_ATTRIBUTE("Use -[SentryClient captureFeedback:withScope:].");
 
 - (void)sendEnvelope:(SentryEnvelope *)envelope NS_SWIFT_NAME(send(envelope:));
 

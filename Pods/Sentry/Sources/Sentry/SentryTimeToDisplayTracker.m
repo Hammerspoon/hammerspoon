@@ -13,9 +13,9 @@
 #    import "SentrySpan.h"
 #    import "SentrySpanContext.h"
 #    import "SentrySpanId.h"
-#    import "SentrySpanOperations.h"
+#    import "SentrySpanOperation.h"
 #    import "SentrySwift.h"
-#    import "SentryTraceOrigins.h"
+#    import "SentryTraceOrigin.h"
 #    import "SentryTracer.h"
 
 #    import <UIKit/UIKit.h>
@@ -24,8 +24,7 @@
 #        import "SentryLaunchProfiling.h"
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
-@interface
-SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
+@interface SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
 
 @property (nonatomic, weak) SentrySpan *initialDisplaySpan;
 @property (nonatomic, weak) SentrySpan *fullDisplaySpan;
@@ -37,15 +36,15 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
     BOOL _waitForFullDisplay;
     BOOL _initialDisplayReported;
     BOOL _fullyDisplayedReported;
-    NSString *_controllerName;
+    NSString *_name;
 }
 
-- (instancetype)initForController:(UIViewController *)controller
-               waitForFullDisplay:(BOOL)waitForFullDisplay
-             dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
+- (instancetype)initWithName:(NSString *)name
+          waitForFullDisplay:(BOOL)waitForFullDisplay
+        dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
     if (self = [super init]) {
-        _controllerName = [SwiftDescriptor getObjectClassName:controller];
+        _name = name;
         _waitForFullDisplay = waitForFullDisplay;
         _dispatchQueueWrapper = dispatchQueueWrapper;
         _initialDisplayReported = NO;
@@ -63,17 +62,16 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
     }
 
     SENTRY_LOG_DEBUG(@"Starting initial display span");
-    self.initialDisplaySpan = [tracer
-        startChildWithOperation:SentrySpanOperationUILoadInitialDisplay
-                    description:[NSString stringWithFormat:@"%@ initial display", _controllerName]];
+    self.initialDisplaySpan =
+        [tracer startChildWithOperation:SentrySpanOperationUiLoadInitialDisplay
+                            description:[NSString stringWithFormat:@"%@ initial display", _name]];
     self.initialDisplaySpan.origin = SentryTraceOriginAutoUITimeToDisplay;
 
     if (self.waitForFullDisplay) {
         SENTRY_LOG_DEBUG(@"Starting full display span");
         self.fullDisplaySpan =
-            [tracer startChildWithOperation:SentrySpanOperationUILoadFullDisplay
-                                description:[NSString stringWithFormat:@"%@ full display",
-                                                      _controllerName]];
+            [tracer startChildWithOperation:SentrySpanOperationUiLoadFullDisplay
+                                description:[NSString stringWithFormat:@"%@ full display", _name]];
         self.fullDisplaySpan.origin = SentryTraceOriginManualUITimeToDisplay;
 
         // By concept TTID and TTFD spans should have the same beginning,
@@ -86,11 +84,11 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
     [SentryDependencyContainer.sharedInstance.framesTracker addListener:self];
 
     [tracer setShouldIgnoreWaitForChildrenCallback:^(id<SentrySpan> span) {
-        if (span.origin == SentryTraceOriginAutoUITimeToDisplay) {
+        if ([span.origin isEqualToString:SentryTraceOriginAutoUITimeToDisplay]) {
             return YES;
-        } else {
-            return NO;
         }
+
+        return NO;
     }];
     [tracer setFinishCallback:^(SentryTracer *_tracer) {
         [SentryDependencyContainer.sharedInstance.framesTracker removeListener:self];
@@ -128,14 +126,42 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
 
 - (void)reportInitialDisplay
 {
+    SENTRY_LOG_DEBUG(@"Reporting initial display for %@", _name);
     _initialDisplayReported = YES;
 }
 
 - (void)reportFullyDisplayed
 {
+    SENTRY_LOG_DEBUG(@"Reporting full display for %@", _name);
     // All other accesses to _fullyDisplayedReported run on the main thread.
     // To avoid using locks, we execute this on the main queue instead.
     [_dispatchQueueWrapper dispatchAsyncOnMainQueue:^{ self->_fullyDisplayedReported = YES; }];
+}
+
+- (void)finishSpansIfNotFinished
+{
+    [SentryDependencyContainer.sharedInstance.framesTracker removeListener:self];
+
+    if (self.initialDisplaySpan.isFinished == NO) {
+        [self.initialDisplaySpan finish];
+    }
+
+    if (self.fullDisplaySpan.isFinished == NO) {
+        if (_fullyDisplayedReported) {
+            SENTRY_LOG_DEBUG(
+                @"SentrySDK.reportFullyDisplayed() was called but didn't receive a new frame to "
+                @"finish the TTFD span. Finishing the full display span so the SDK can start a new "
+                @"time to display tracker.");
+            [self.fullDisplaySpan finish];
+            return;
+        }
+
+        SENTRY_LOG_WARN(@"You didn't call SentrySDK.reportFullyDisplayed() for UIViewController: "
+                        @"%@. Finishing full display span with status: %@.",
+            _name, nameForSentrySpanStatus(kSentrySpanStatusDeadlineExceeded));
+
+        [self.fullDisplaySpan finishWithStatus:kSentrySpanStatusDeadlineExceeded];
+    }
 }
 
 - (void)framesTrackerHasNewFrame:(NSDate *)newFrameDate
@@ -150,7 +176,7 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
         if (!_waitForFullDisplay) {
             [SentryDependencyContainer.sharedInstance.framesTracker removeListener:self];
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-            if (![SentrySDK.options isContinuousProfilingEnabled]) {
+            if ([SentrySDK.options isProfilingCorrelatedToTraces]) {
                 sentry_stopAndDiscardLaunchProfileTracer();
             }
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
@@ -162,7 +188,7 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
         self.fullDisplaySpan.timestamp = newFrameDate;
         [self.fullDisplaySpan finish];
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-        if (![SentrySDK.options isContinuousProfilingEnabled]) {
+        if ([SentrySDK.options isProfilingCorrelatedToTraces]) {
             sentry_stopAndDiscardLaunchProfileTracer();
         }
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED

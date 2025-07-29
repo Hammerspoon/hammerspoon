@@ -3,6 +3,7 @@
 #if SENTRY_HAS_UIKIT
 
 #    import "SentryScope+Private.h"
+#    import <SentryANRTrackerV1.h>
 #    import <SentryAppState.h>
 #    import <SentryAppStateManager.h>
 #    import <SentryClient+Private.h>
@@ -10,19 +11,20 @@
 #    import <SentryDependencyContainer.h>
 #    import <SentryDispatchQueueWrapper.h>
 #    import <SentryHub.h>
+#    import <SentryNSProcessInfoWrapper.h>
 #    import <SentryOptions+Private.h>
 #    import <SentrySDK+Private.h>
+#    import <SentrySwift.h>
+#    import <SentryWatchdogTerminationBreadcrumbProcessor.h>
 #    import <SentryWatchdogTerminationLogic.h>
 #    import <SentryWatchdogTerminationScopeObserver.h>
 #    import <SentryWatchdogTerminationTracker.h>
-
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryWatchdogTerminationTrackingIntegration ()
+@interface SentryWatchdogTerminationTrackingIntegration () <SentryANRTrackerDelegate>
 
 @property (nonatomic, strong) SentryWatchdogTerminationTracker *tracker;
-@property (nonatomic, strong) SentryANRTracker *anrTracker;
+@property (nonatomic, strong) id<SentryANRTracker> anrTracker;
 @property (nullable, nonatomic, copy) NSString *testConfigurationFilePath;
 @property (nonatomic, strong) SentryAppStateManager *appStateManager;
 
@@ -33,8 +35,10 @@ SentryWatchdogTerminationTrackingIntegration ()
 - (instancetype)init
 {
     if (self = [super init]) {
+        SentryNSProcessInfoWrapper *processInfoWrapper
+            = SentryDependencyContainer.sharedInstance.processInfoWrapper;
         self.testConfigurationFilePath
-            = NSProcessInfo.processInfo.environment[@"XCTestConfigurationFilePath"];
+            = processInfoWrapper.environment[@"XCTestConfigurationFilePath"];
     }
     return self;
 }
@@ -52,7 +56,7 @@ SentryWatchdogTerminationTrackingIntegration ()
     dispatch_queue_attr_t attributes = dispatch_queue_attr_make_with_qos_class(
         DISPATCH_QUEUE_SERIAL, DISPATCH_QUEUE_PRIORITY_HIGH, 0);
     SentryDispatchQueueWrapper *dispatchQueueWrapper =
-        [[SentryDispatchQueueWrapper alloc] initWithName:"sentry-out-of-memory-tracker"
+        [[SentryDispatchQueueWrapper alloc] initWithName:"io.sentry.watchdog-termination-tracker"
                                               attributes:attributes];
 
     SentryFileManager *fileManager = [[[SentrySDK currentHub] getClient] fileManager];
@@ -63,28 +67,37 @@ SentryWatchdogTerminationTrackingIntegration ()
         [[SentryWatchdogTerminationLogic alloc] initWithOptions:options
                                                    crashAdapter:crashWrapper
                                                 appStateManager:appStateManager];
+    SentryScopeContextPersistentStore *scopeContextStore =
+        [SentryDependencyContainer.sharedInstance scopeContextPersistentStore];
 
     self.tracker = [[SentryWatchdogTerminationTracker alloc] initWithOptions:options
                                                     watchdogTerminationLogic:logic
                                                              appStateManager:appStateManager
                                                         dispatchQueueWrapper:dispatchQueueWrapper
-                                                                 fileManager:fileManager];
+                                                                 fileManager:fileManager
+                                                           scopeContextStore:scopeContextStore];
 
     [self.tracker start];
 
     self.anrTracker =
-        [SentryDependencyContainer.sharedInstance getANRTracker:options.appHangTimeoutInterval];
+        [SentryDependencyContainer.sharedInstance getANRTracker:options.appHangTimeoutInterval
+                                                    isV2Enabled:options.enableAppHangTrackingV2];
     [self.anrTracker addListener:self];
 
     self.appStateManager = appStateManager;
 
     SentryWatchdogTerminationScopeObserver *scopeObserver =
-        [[SentryWatchdogTerminationScopeObserver alloc]
-            initWithMaxBreadcrumbs:options.maxBreadcrumbs
-                       fileManager:[[[SentrySDK currentHub] getClient] fileManager]];
+        [SentryDependencyContainer.sharedInstance
+            getWatchdogTerminationScopeObserverWithOptions:options];
 
-    [SentrySDK.currentHub configureScope:^(
-        SentryScope *_Nonnull outerScope) { [outerScope addObserver:scopeObserver]; }];
+    [SentrySDK.currentHub configureScope:^(SentryScope *_Nonnull outerScope) {
+        // Add the observer to the scope so that it can be notified when the scope changes.
+        [outerScope addObserver:scopeObserver];
+
+        // Sync the current context to the observer to capture context modifications that happened
+        // before installation.
+        [scopeObserver setContext:outerScope.contextDictionary];
+    }];
 
     return YES;
 }
@@ -103,13 +116,13 @@ SentryWatchdogTerminationTrackingIntegration ()
     [self.anrTracker removeListener:self];
 }
 
-- (void)anrDetected
+- (void)anrDetectedWithType:(enum SentryANRType)type
 {
     [self.appStateManager
         updateAppState:^(SentryAppState *appState) { appState.isANROngoing = YES; }];
 }
 
-- (void)anrStopped
+- (void)anrStoppedWithResult:(SentryANRStoppedResult *_Nullable)result
 {
     [self.appStateManager
         updateAppState:^(SentryAppState *appState) { appState.isANROngoing = NO; }];

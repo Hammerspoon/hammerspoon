@@ -2,6 +2,7 @@
 
 #if SENTRY_HAS_UIKIT
 
+#    import "SentrySwift.h"
 #    import <SentryDependencyContainer.h>
 #    import <SentryHub+Private.h>
 #    import <SentryLog.h>
@@ -9,15 +10,14 @@
 #    import <SentrySDK.h>
 #    import <SentryScope.h>
 #    import <SentrySpanId.h>
-#    import <SentrySpanOperations.h>
-#    import <SentryTraceOrigins.h>
+#    import <SentrySpanOperation.h>
+#    import <SentryTraceOrigin.h>
 #    import <SentryTracer.h>
 #    import <SentryTransactionContext+Private.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryUIEventTrackerTransactionMode ()
+@interface SentryUIEventTrackerTransactionMode ()
 
 @property (nonatomic, assign) NSTimeInterval idleTimeout;
 @property (nullable, nonatomic, strong) NSMutableArray<SentryTracer *> *activeTransactions;
@@ -37,7 +37,7 @@ SentryUIEventTrackerTransactionMode ()
 
 - (void)handleUIEvent:(NSString *)action
                   operation:(NSString *)operation
-    accessibilityIdentifier:(NSString *)accessibilityIdentifier
+    accessibilityIdentifier:(nullable NSString *)accessibilityIdentifier
 {
 
     // There might be more active transactions stored, but only the last one might still be
@@ -52,7 +52,7 @@ SentryUIEventTrackerTransactionMode ()
     if (sameAction) {
         SENTRY_LOG_DEBUG(@"Dispatching idle timeout for transaction with span id %@",
             currentActiveTransaction.spanId.sentrySpanIdString);
-        [currentActiveTransaction dispatchIdleTimeout];
+        [currentActiveTransaction startIdleTimeout];
         return;
     }
 
@@ -68,32 +68,41 @@ SentryUIEventTrackerTransactionMode ()
         [[SentryTransactionContext alloc] initWithName:action
                                             nameSource:kSentryTransactionNameSourceComponent
                                              operation:operation
-                                                origin:SentryTraceOriginUIEventTracker];
+                                                origin:SentryTraceOriginAutoUiEventTracker];
 
-    __block SentryTracer *transaction;
-    [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
-        BOOL ongoingScreenLoadTransaction
-            = span != nil && [span.operation isEqualToString:SentrySpanOperationUILoad];
-        BOOL ongoingManualTransaction = span != nil
-            && ![span.operation isEqualToString:SentrySpanOperationUILoad]
-            && ![span.operation containsString:SentrySpanOperationUIAction];
+    id<SentrySpan> _Nullable currentSpan = [SentrySDK.currentHub.scope span];
+    BOOL ongoingScreenLoadTransaction = false;
+    BOOL ongoingManualTransaction = false;
+    if (currentSpan != nil) {
+        ongoingScreenLoadTransaction =
+            [currentSpan.operation isEqualToString:SentrySpanOperationUiLoad];
+        ongoingManualTransaction
+            = ![currentSpan.operation isEqualToString:SentrySpanOperationUiLoad]
+            && ![currentSpan.operation containsString:SentrySpanOperationUiAction];
+    }
 
-        BOOL bindToScope = !ongoingScreenLoadTransaction && !ongoingManualTransaction;
+    // If there is an ongoing transaction on the scope, we don’t need to start a UI event
+    // transaction because it won’t have any child spans. Only transactions bound to the scope
+    // automatically receive child spans. As a result, the UI event transaction would time out and
+    // be discarded by the tracer due to the lack of children.
+    BOOL ongoingTransaction = ongoingScreenLoadTransaction || ongoingManualTransaction;
+    if (ongoingTransaction) {
+        SENTRY_LOG_DEBUG(@"Not starting a new UI event transaction because there is already an "
+                         @"ongoing transaction bound to the scope.");
+        return;
+    }
 
-        transaction = [SentrySDK.currentHub
-            startTransactionWithContext:context
-                            bindToScope:bindToScope
-                  customSamplingContext:@{}
-                          configuration:[SentryTracerConfiguration configurationWithBlock:^(
-                                            SentryTracerConfiguration *config) {
-                              config.idleTimeout = self.idleTimeout;
-                              config.waitForChildren = YES;
-                          }]];
+    __block SentryTracer *transaction = [SentrySDK.currentHub
+        startTransactionWithContext:context
+                        bindToScope:YES
+              customSamplingContext:@{}
+                      configuration:[SentryTracerConfiguration configurationWithBlock:^(
+                                        SentryTracerConfiguration *config) {
+                          config.idleTimeout = self.idleTimeout;
+                          config.waitForChildren = YES;
+                      }]];
 
-        SENTRY_LOG_DEBUG(@"Automatically started a new transaction with name: "
-                         @"%@, bindToScope: %@",
-            action, bindToScope ? @"YES" : @"NO");
-    }];
+    SENTRY_LOG_DEBUG(@"Automatically started a new transaction with name: %@", action);
 
     if (accessibilityIdentifier) {
         [transaction setTagValue:accessibilityIdentifier forKey:@"accessibilityIdentifier"];

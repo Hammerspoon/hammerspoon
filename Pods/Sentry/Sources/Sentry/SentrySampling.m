@@ -38,7 +38,9 @@ _sentry_calcSample(NSNumber *rate)
     double random = [SentryDependencyContainer.sharedInstance.random nextNumber];
     SentrySampleDecision decision
         = random <= rate.doubleValue ? kSentrySampleDecisionYes : kSentrySampleDecisionNo;
-    return [[SentrySamplerDecision alloc] initWithDecision:decision forSampleRate:rate];
+    return [[SentrySamplerDecision alloc] initWithDecision:decision
+                                             forSampleRate:rate
+                                            withSampleRand:@(random)];
 }
 
 SentrySamplerDecision *
@@ -46,7 +48,8 @@ _sentry_calcSampleFromNumericalRate(NSNumber *rate)
 {
     if (rate == nil) {
         return [[SentrySamplerDecision alloc] initWithDecision:kSentrySampleDecisionNo
-                                                 forSampleRate:nil];
+                                                 forSampleRate:nil
+                                                withSampleRand:nil];
     }
 
     return _sentry_calcSample(rate);
@@ -61,7 +64,8 @@ sentry_sampleTrace(SentrySamplingContext *context, SentryOptions *options)
     if (context.transactionContext.sampled != kSentrySampleDecisionUndecided) {
         return
             [[SentrySamplerDecision alloc] initWithDecision:context.transactionContext.sampled
-                                              forSampleRate:context.transactionContext.sampleRate];
+                                              forSampleRate:context.transactionContext.sampleRate
+                                             withSampleRand:context.transactionContext.sampleRand];
     }
 
     NSNumber *callbackRate = _sentry_samplerCallbackRate(
@@ -74,7 +78,8 @@ sentry_sampleTrace(SentrySamplingContext *context, SentryOptions *options)
     if (context.transactionContext.parentSampled != kSentrySampleDecisionUndecided) {
         return
             [[SentrySamplerDecision alloc] initWithDecision:context.transactionContext.parentSampled
-                                              forSampleRate:context.transactionContext.sampleRate];
+                                              forSampleRate:context.transactionContext.sampleRate
+                                             withSampleRand:context.transactionContext.sampleRand];
     }
 
     return _sentry_calcSampleFromNumericalRate(options.tracesSampleRate);
@@ -91,7 +96,8 @@ sentry_sampleTraceProfile(SentrySamplingContext *context,
     // whether the associated profile should be sampled.
     if (tracesSamplerDecision.decision != kSentrySampleDecisionYes) {
         return [[SentrySamplerDecision alloc] initWithDecision:kSentrySampleDecisionNo
-                                                 forSampleRate:nil];
+                                                 forSampleRate:nil
+                                                withSampleRand:nil];
     }
 
     // Backward compatibility for clients that are still using the enableProfiling option.
@@ -99,7 +105,8 @@ sentry_sampleTraceProfile(SentrySamplingContext *context,
 #    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     if (options.enableProfiling) {
         return [[SentrySamplerDecision alloc] initWithDecision:kSentrySampleDecisionYes
-                                                 forSampleRate:@1.0];
+                                                 forSampleRate:@1.0
+                                                withSampleRand:@1.0];
     }
 #    pragma clang diagnostic pop
 
@@ -110,6 +117,12 @@ sentry_sampleTraceProfile(SentrySamplingContext *context,
     }
 
     return _sentry_calcSampleFromNumericalRate(options.profilesSampleRate);
+}
+
+SentrySamplerDecision *
+sentry_sampleProfileSession(float sessionSampleRate)
+{
+    return _sentry_calcSampleFromNumericalRate(@(sessionSampleRate));
 }
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED

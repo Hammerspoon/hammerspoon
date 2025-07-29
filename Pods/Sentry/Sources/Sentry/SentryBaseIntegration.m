@@ -2,7 +2,6 @@
 #import "SentryCrashWrapper.h"
 #import "SentryLog.h"
 #import "SentrySwift.h"
-#import <Foundation/Foundation.h>
 #import <SentryDependencyContainer.h>
 #import <SentryOptions+Private.h>
 
@@ -78,22 +77,17 @@ NS_ASSUME_NONNULL_BEGIN
 #endif
 
     if (integrationOptions & kIntegrationOptionEnableAppHangTracking) {
+#if SENTRY_HAS_UIKIT
+        if (!options.enableAppHangTracking && !options.enableAppHangTrackingV2) {
+            [self logWithOptionName:@"enableAppHangTracking && enableAppHangTrackingV2"];
+            return NO;
+        }
+#else
         if (!options.enableAppHangTracking) {
             [self logWithOptionName:@"enableAppHangTracking"];
             return NO;
         }
-
-        if (options.appHangTimeoutInterval == 0) {
-            [self logWithReason:@"because appHangTimeoutInterval is 0"];
-            return NO;
-        }
-    }
-
-    if (integrationOptions & kIntegrationOptionEnableAppHangTrackingV2) {
-        if (!options.enableAppHangTrackingV2) {
-            [self logWithOptionName:@"enableAppHangTrackingV2"];
-            return NO;
-        }
+#endif // SENTRY_HAS_UIKIT
 
         if (options.appHangTimeoutInterval == 0) {
             [self logWithReason:@"because appHangTimeoutInterval is 0"];
@@ -153,21 +147,16 @@ NS_ASSUME_NONNULL_BEGIN
         [self logWithOptionName:@"attachViewHierarchy"];
         return NO;
     }
-
+#endif
+#if SENTRY_TARGET_REPLAY_SUPPORTED
     if (integrationOptions & kIntegrationOptionEnableReplay) {
-        if (@available(iOS 16.0, tvOS 16.0, *)) {
-            if (options.experimental.sessionReplay.onErrorSampleRate == 0
-                && options.experimental.sessionReplay.sessionSampleRate == 0) {
-                [self logWithOptionName:@"sessionReplaySettings"];
-                return NO;
-            }
-        } else {
-            [self logWithReason:@"Session replay requires iOS 16 or above"];
+        if (options.sessionReplay.onErrorSampleRate == 0
+            && options.sessionReplay.sessionSampleRate == 0) {
+            [self logWithOptionName:@"sessionReplaySettings"];
             return NO;
         }
     }
 #endif
-
     if ((integrationOptions & kIntegrationOptionEnableCrashHandler)
         && !options.enableCrashHandler) {
         [self logWithOptionName:@"enableCrashHandler"];
@@ -182,6 +171,33 @@ NS_ASSUME_NONNULL_BEGIN
         }
     }
 #endif
+
+    // The frames tracker runs when tracing is enabled or AppHangsV2. We have to use an extra option
+    // for this.
+    if (integrationOptions & kIntegrationOptionStartFramesTracker) {
+
+#if SENTRY_HAS_UIKIT
+        BOOL performanceDisabled
+            = !options.enableAutoPerformanceTracing || !options.isTracingEnabled;
+        BOOL appHangsV2Disabled = options.isAppHangTrackingV2Disabled;
+
+        if (performanceDisabled && appHangsV2Disabled) {
+            if (appHangsV2Disabled) {
+                SENTRY_LOG_DEBUG(@"Not going to enable %@ because enableAppHangTrackingV2 is "
+                                 @"disabled or the appHangTimeoutInterval is 0.",
+                    self.integrationName);
+            }
+
+            if (performanceDisabled) {
+                SENTRY_LOG_DEBUG(@"Not going to enable %@ because enableAutoPerformanceTracing and "
+                                 @"isTracingEnabled are disabled.",
+                    self.integrationName);
+            }
+
+            return NO;
+        }
+#endif // SENTRY_HAS_UIKIT
+    }
 
     return YES;
 }

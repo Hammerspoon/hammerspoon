@@ -19,7 +19,7 @@ static void HIDcallback(void* context, IOReturn result, void* sender, IOHIDValue
                 return;
             }
 
-            NSString *scancodeString = [NSString stringWithFormat:@"%d",scancode];
+            NSString *scancodeString = [NSString stringWithFormat:@"%u",scancode];
 
             [device deviceButtonPress:scancodeString pressed:pressed];
         }

@@ -2,8 +2,7 @@
 
 #import "SentryProfilingConditionals.h"
 
-@interface
-SentrySpan ()
+@interface SentrySpan ()
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 @property (copy, nonatomic) NSString *_Nullable profileSessionID;

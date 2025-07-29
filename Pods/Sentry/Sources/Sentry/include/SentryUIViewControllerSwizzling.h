@@ -7,8 +7,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryOptions, SentryDispatchQueueWrapper, SentrySubClassFinder, SentryNSProcessInfoWrapper,
-    SentryBinaryImageCache;
+@class SentryBinaryImageCache;
+@class SentryDispatchQueueWrapper;
+@class SentryNSProcessInfoWrapper;
+@class SentryOptions;
+@class SentrySubClassFinder;
 
 /**
  * This is a protocol to define which properties and methods the swizzler required from

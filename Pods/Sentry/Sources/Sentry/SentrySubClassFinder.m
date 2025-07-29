@@ -2,6 +2,7 @@
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryLog.h"
 #import "SentryObjCRuntimeWrapper.h"
+#import "SentrySwift.h"
 #import <objc/runtime.h>
 #import <string.h>
 
@@ -9,8 +10,7 @@
 #    import <UIKit/UIKit.h>
 #endif // SENTRY_HAS_UIKIT
 
-@interface
-SentrySubClassFinder ()
+@interface SentrySubClassFinder ()
 
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) id<SentryObjCRuntimeWrapper> objcRuntimeWrapper;
@@ -36,6 +36,8 @@ SentrySubClassFinder ()
 - (void)actOnSubclassesOfViewControllerInImage:(NSString *)imageName block:(void (^)(Class))block;
 {
     [self.dispatchQueue dispatchAsyncWithBlock:^{
+        SENTRY_LOG_DEBUG(@"ActOnSubclassesOfViewControllerInImage: %@", imageName);
+
         Class viewControllerClass = [UIViewController class];
         if (viewControllerClass == nil) {
             SENTRY_LOG_DEBUG(@"UIViewController class not found.");
@@ -46,6 +48,8 @@ SentrySubClassFinder ()
         const char **classes = [self.objcRuntimeWrapper
             copyClassNamesForImage:[imageName cStringUsingEncoding:NSUTF8StringEncoding]
                             amount:&count];
+
+        SENTRY_LOG_DEBUG(@"Found %u number of classes in image: %@.", count, imageName);
 
         // Storing the actual classes in an NSArray would call initializer of the class, which we
         // must avoid as we are on a background thread here and dealing with UIViewControllers,
@@ -62,13 +66,9 @@ SentrySubClassFinder ()
         for (int i = 0; i < count; i++) {
             NSString *className = [NSString stringWithUTF8String:classes[i]];
 
-            BOOL shouldExcludeClassFromSwizzling = NO;
-            for (NSString *swizzleClassNameExclude in self.swizzleClassNameExcludes) {
-                if ([className containsString:swizzleClassNameExclude]) {
-                    shouldExcludeClassFromSwizzling = YES;
-                    break;
-                }
-            }
+            BOOL shouldExcludeClassFromSwizzling = [SentrySwizzleClassNameExclude
+                shouldExcludeClassWithClassName:className
+                       swizzleClassNameExcludes:self.swizzleClassNameExcludes];
 
             // It is vital to avoid calling NSClassFromString for the excluded classes because we
             // had crashes for specific classes when calling NSClassFromString, such as
@@ -89,11 +89,9 @@ SentrySubClassFinder ()
                 block(NSClassFromString(className));
             }
 
-            [SentryLog
-                logWithMessage:[NSString stringWithFormat:@"The following UIViewControllers will "
-                                                          @"generate automatic transactions: %@",
-                                         [classesToSwizzle componentsJoinedByString:@", "]]
-                      andLevel:kSentryLevelDebug];
+            SENTRY_LOG_DEBUG(@"The following UIViewControllers for image: %@ will generate "
+                             @"automatic transactions: %@",
+                imageName, [classesToSwizzle componentsJoinedByString:@", "]);
         }];
     }];
 }

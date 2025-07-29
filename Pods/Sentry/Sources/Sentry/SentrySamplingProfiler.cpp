@@ -21,7 +21,7 @@ namespace profiling {
             mach_port_t port;
             clock_serv_t clock;
             mach_timespec_t delaySpec;
-            std::shared_ptr<ThreadMetadataCache> cache;
+            ThreadMetadataCache *cache;
             std::function<void(const Backtrace &)> callback;
             std::atomic_uint64_t &numSamples;
             std::function<void()> onThreadStart;
@@ -77,7 +77,7 @@ namespace profiling {
     SamplingProfiler::SamplingProfiler(
         std::function<void(const Backtrace &)> callback, std::uint32_t samplingRateHz)
         : callback_(std::move(callback))
-        , cache_(std::make_shared<ThreadMetadataCache>())
+        , cache_(std::make_unique<ThreadMetadataCache>())
         , isInitialized_(false)
         , isSampling_(false)
         , port_(0)
@@ -139,8 +139,8 @@ namespace profiling {
             SENTRY_ASYNC_SAFE_LOG_ERRNO_RETURN(pthread_attr_setschedparam(&attr, &param));
         }
 
-        const auto params = new SamplingThreadParams { port_, clock_, delaySpec_, cache_, callback_,
-            std::ref(numSamples_), std::move(onThreadStart) };
+        const auto params = new SamplingThreadParams { port_, clock_, delaySpec_, cache_.get(),
+            callback_, std::ref(numSamples_), std::move(onThreadStart) };
         if (SENTRY_ASYNC_SAFE_LOG_ERRNO_RETURN(
                 pthread_create(&thread_, &attr, samplingThreadMain, params))
             != 0) {

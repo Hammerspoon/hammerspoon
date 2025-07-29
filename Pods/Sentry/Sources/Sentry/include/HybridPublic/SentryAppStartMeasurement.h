@@ -1,4 +1,8 @@
-#import "PrivatesHeader.h"
+#if __has_include(<Sentry/PrivatesHeader.h>)
+#    import <Sentry/PrivatesHeader.h>
+#else
+#    import "PrivatesHeader.h"
+#endif
 
 #if SENTRY_UIKIT_AVAILABLE
 

@@ -6,8 +6,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryInstallation ()
+@interface SentryInstallation ()
 @property (class, nonatomic, readonly)
     NSMutableDictionary<NSString *, NSString *> *installationStringsByCacheDirectoryPaths;
 

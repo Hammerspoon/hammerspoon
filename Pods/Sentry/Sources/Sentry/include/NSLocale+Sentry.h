@@ -3,5 +3,6 @@
 @interface SentryLocale : NSObject
 
 + (BOOL)timeIs24HourFormat;
++ (BOOL)isRightToLeftLanguage;
 
 @end

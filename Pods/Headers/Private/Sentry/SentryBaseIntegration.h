@@ -1,1 +1,1 @@
-../../../Sentry/Sources/Sentry/include/SentryBaseIntegration.h
+../../../Sentry/Sources/Sentry/include/HybridPublic/SentryBaseIntegration.h

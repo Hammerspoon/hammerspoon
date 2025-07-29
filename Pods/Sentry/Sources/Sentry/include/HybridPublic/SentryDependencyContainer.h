@@ -1,12 +1,13 @@
-#import "SentryDefines.h"
+#if __has_include(<Sentry/SentryDefines.h>)
+#    import <Sentry/SentryDefines.h>
+#else
+#    import "SentryDefines.h"
+#endif
 
-@class SentryANRTracker;
-@class SentryANRTrackerV2;
 @class SentryAppStateManager;
 @class SentryBinaryImageCache;
 @class SentryCrash;
 @class SentryCrashWrapper;
-@class SentryCurrentDateProvider;
 @class SentryDebugImageProvider;
 @class SentryDispatchFactory;
 @class SentryDispatchQueueWrapper;
@@ -20,7 +21,15 @@
 @class SentrySystemWrapper;
 @class SentryThreadWrapper;
 @class SentryThreadInspector;
+@class SentryFileIOTracker;
+@class SentryScopeContextPersistentStore;
+@class SentryOptions;
+
+@protocol SentryANRTracker;
 @protocol SentryRandom;
+@protocol SentryCurrentDateProvider;
+@protocol SentryRateLimits;
+@protocol SentryDispatchQueueProviderProtocol;
 
 #if SENTRY_HAS_METRIC_KIT
 @class SentryMXManager;
@@ -31,6 +40,10 @@
 @class SentryScreenshot;
 @class SentryUIApplication;
 @class SentryViewHierarchy;
+@class SentryUIViewControllerPerformanceTracker;
+@class SentryWatchdogTerminationScopeObserver;
+@class SentryWatchdogTerminationContextProcessor;
+@class SentryWatchdogTerminationBreadcrumbProcessor;
 #endif // SENTRY_UIKIT_AVAILABLE
 
 #if SENTRY_HAS_UIKIT
@@ -43,61 +56,90 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ * The dependency container is optimized to use as few locks as possible and to only keep the
+ * required dependencies in memory. It splits its dependencies into two groups.
+ *
+ * Init Dependencies: These are mandatory dependencies required to run the SDK, no matter the
+ * options. The dependency container initializes them in init and uses no locks for efficiency.
+ *
+ * Lazy Dependencies: These dependencies either have some state or aren't always required and,
+ * therefore, get initialized lazily to minimize the memory footprint.
+ */
 @interface SentryDependencyContainer : NSObject
 SENTRY_NO_INIT
 
 + (instancetype)sharedInstance;
 
 /**
- * Set all dependencies to nil for testing purposes.
+ * Resets all dependencies.
  */
 + (void)reset;
 
+#pragma mark - Init Dependencies
+
+@property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
+@property (nonatomic, strong) id<SentryRandom> random;
+@property (nonatomic, strong) SentryThreadWrapper *threadWrapper;
+@property (nonatomic, strong) SentryBinaryImageCache *binaryImageCache;
+@property (nonatomic, strong) id<SentryCurrentDateProvider> dateProvider;
+@property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
+@property (nonatomic, strong) SentryExtraContextProvider *extraContextProvider;
+@property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenterWrapper;
+@property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
+@property (nonatomic, strong) SentryNSProcessInfoWrapper *processInfoWrapper;
+@property (nonatomic, strong) SentrySysctl *sysctlWrapper;
+@property (nonatomic, strong) id<SentryRateLimits> rateLimits;
+
+#if SENTRY_HAS_REACHABILITY
+@property (nonatomic, strong) SentryReachability *reachability;
+#endif // !TARGET_OS_WATCH
+
+#if SENTRY_HAS_UIKIT
+@property (nonatomic, strong) SentryUIDeviceWrapper *uiDeviceWrapper;
+@property (nonatomic, strong) SentryUIApplication *application;
+#endif // TARGET_OS_IOS
+
+#pragma mark - Lazy Dependencies
+
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) SentryAppStateManager *appStateManager;
-@property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
+@property (nonatomic, strong) SentryThreadInspector *threadInspector;
+@property (nonatomic, strong) SentryFileIOTracker *fileIOTracker;
 @property (nonatomic, strong) SentryCrash *crashReporter;
-@property (nonatomic, strong) SentryThreadWrapper *threadWrapper;
-@property (nonatomic, strong) id<SentryRandom> random;
-@property (nonatomic, strong) SentrySwizzleWrapper *swizzleWrapper;
-@property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
-@property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenterWrapper;
-@property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
-@property (nonatomic, strong) SentryANRTracker *anrTracker;
-@property (nonatomic, strong) SentryANRTrackerV2 *anrTrackerV2;
-@property (nonatomic, strong) SentryNSProcessInfoWrapper *processInfoWrapper;
+@property (nonatomic, strong) SentryScopeContextPersistentStore *scopeContextPersistentStore;
+
+- (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout;
+#if SENTRY_HAS_UIKIT
+- (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout isV2Enabled:(BOOL)isV2Enabled;
+#endif // SENTRY_HAS_UIKIT
+
 @property (nonatomic, strong) SentrySystemWrapper *systemWrapper;
 @property (nonatomic, strong) SentryDispatchFactory *dispatchFactory;
+@property (nonatomic, strong) id<SentryDispatchQueueProviderProtocol> dispatchQueueProvider;
 @property (nonatomic, strong) SentryNSTimerFactory *timerFactory;
-@property (nonatomic, strong) SentryCurrentDateProvider *dateProvider;
-@property (nonatomic, strong) SentryBinaryImageCache *binaryImageCache;
-@property (nonatomic, strong) SentryExtraContextProvider *extraContextProvider;
-@property (nonatomic, strong) SentrySysctl *sysctlWrapper;
-@property (nonatomic, strong) SentryThreadInspector *threadInspector;
 
+@property (nonatomic, strong) SentrySwizzleWrapper *swizzleWrapper;
 #if SENTRY_UIKIT_AVAILABLE
 @property (nonatomic, strong) SentryFramesTracker *framesTracker;
 @property (nonatomic, strong) SentryScreenshot *screenshot;
 @property (nonatomic, strong) SentryViewHierarchy *viewHierarchy;
-@property (nonatomic, strong) SentryUIApplication *application;
-#endif // SENTRY_UIKIT_AVAILABLE
-
-#if SENTRY_HAS_UIKIT
-@property (nonatomic, strong) SentryUIDeviceWrapper *uiDeviceWrapper;
-#endif // TARGET_OS_IOS
-
-#if !TARGET_OS_WATCH
-@property (nonatomic, strong) SentryReachability *reachability;
-#endif // !TARGET_OS_WATCH
-
-- (SentryANRTracker *)getANRTracker:(NSTimeInterval)timeout;
-#if SENTRY_UIKIT_AVAILABLE
-- (SentryANRTrackerV2 *)getANRTrackerV2:(NSTimeInterval)timeout;
+@property (nonatomic, strong)
+    SentryUIViewControllerPerformanceTracker *uiViewControllerPerformanceTracker;
 #endif // SENTRY_UIKIT_AVAILABLE
 
 #if SENTRY_HAS_METRIC_KIT
 @property (nonatomic, strong) SentryMXManager *metricKitManager API_AVAILABLE(
     ios(15.0), macos(12.0), macCatalyst(15.0)) API_UNAVAILABLE(tvos, watchos);
+#endif // SENTRY_HAS_METRIC_KIT
+
+#if SENTRY_HAS_UIKIT
+- (SentryWatchdogTerminationScopeObserver *)getWatchdogTerminationScopeObserverWithOptions:
+    (SentryOptions *)options;
+- (SentryWatchdogTerminationBreadcrumbProcessor *)
+    getWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs;
+@property (nonatomic, strong)
+    SentryWatchdogTerminationContextProcessor *watchdogTerminationContextProcessor;
 #endif
 
 @end

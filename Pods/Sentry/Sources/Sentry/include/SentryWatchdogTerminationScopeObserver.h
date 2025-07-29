@@ -4,7 +4,8 @@
 
 #    import "SentryScopeObserver.h"
 
-@class SentryFileManager;
+@class SentryWatchdogTerminationBreadcrumbProcessor;
+@class SentryWatchdogTerminationContextProcessor;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -17,8 +18,9 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryWatchdogTerminationScopeObserver : NSObject <SentryScopeObserver>
 SENTRY_NO_INIT
 
-- (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs
-                           fileManager:(SentryFileManager *)fileManager;
+- (instancetype)
+    initWithBreadcrumbProcessor:(SentryWatchdogTerminationBreadcrumbProcessor *)breadcrumbProcessor
+               contextProcessor:(SentryWatchdogTerminationContextProcessor *)contextProcessor;
 
 @end
 

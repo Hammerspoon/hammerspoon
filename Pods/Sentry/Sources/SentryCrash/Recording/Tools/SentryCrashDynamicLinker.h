@@ -44,9 +44,6 @@ typedef struct {
     const uint8_t *uuid;
     int cpuType;
     int cpuSubType;
-    uint64_t majorVersion;
-    uint64_t minorVersion;
-    uint64_t revisionVersion;
     const char *crashInfoMessage;
     const char *crashInfoMessage2;
 } SentryCrashBinaryImage;
@@ -118,6 +115,8 @@ const uint8_t *sentrycrashdl_imageUUID(const char *const imageName, bool exactMa
  * @return true if at least some information was found.
  */
 bool sentrycrashdl_dladdr(const uintptr_t address, Dl_info *const info);
+
+void sentrycrashdl_getCrashInfo(uint64_t address, SentryCrashBinaryImage *buffer);
 
 #ifdef __cplusplus
 }

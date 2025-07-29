@@ -38,8 +38,7 @@ typedef struct {
     ReportField *reportFields[0];
 } CrashHandlerData;
 
-@interface
-SentryCrashInstallation ()
+@interface SentryCrashInstallation ()
 
 /** Initializer.
  *

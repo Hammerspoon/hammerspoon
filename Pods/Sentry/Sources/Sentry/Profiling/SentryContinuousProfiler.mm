@@ -24,6 +24,8 @@
 
 #    pragma mark - Private
 
+NSTimeInterval kSentryProfilerChunkExpirationInterval = 60;
+
 namespace {
 /** @warning: Must be used from a synchronized context. */
 std::mutex _threadUnsafe_gContinuousProfilerLock;
@@ -79,6 +81,15 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
     );
     [SentrySDK captureEnvelope:envelope];
 }
+
+void
+_sentry_unsafe_stopTimerAndCleanup()
+{
+    disableTimer();
+
+    [_threadUnsafe_gContinuousCurrentProfiler stopForReason:SentryProfilerTruncationReasonNormal];
+    _threadUnsafe_gContinuousCurrentProfiler = nil;
+}
 } // namespace
 
 @implementation SentryContinuousProfiler
@@ -90,6 +101,8 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
     {
         std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
 
+        _stopCalled = NO;
+
         if ([_threadUnsafe_gContinuousCurrentProfiler isRunning]) {
             SENTRY_LOG_DEBUG(@"A continuous profiler is already running.");
             return;
@@ -100,8 +113,6 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
             SENTRY_LOG_WARN(@"Continuous profiler was unable to be initialized.");
             return;
         }
-
-        _stopCalled = NO;
 
         static dispatch_once_t onceToken;
         dispatch_once(&onceToken, ^{ _profileSessionID = [[SentryId alloc] init]; });
@@ -136,16 +147,29 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
 
 + (void)stop
 {
-    {
-        std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
+    std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
 
-        if (![_threadUnsafe_gContinuousCurrentProfiler isRunning]) {
-            SENTRY_LOG_DEBUG(@"No continuous profiler is currently running.");
-            return;
-        }
-
-        _stopCalled = YES;
+    if (![_threadUnsafe_gContinuousCurrentProfiler isRunning]) {
+        SENTRY_LOG_DEBUG(@"No continuous profiler is currently running.");
+        return;
     }
+
+#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+    // we want to allow immediately stopping a continuous profile for a UI test, since those
+    // currently only test launch profiles, and there is no reliable way to make the UI test
+    // wait until the continuous profile chunk would finish (behavior introduced in
+    // https://github.com/getsentry/sentry-cocoa/pull/4214). we just want to look in its samples
+    // for a call to main()
+    if ([NSProcessInfo.processInfo.arguments
+            containsObject:@"--io.sentry.continuous-profiler-immediate-stop"]) {
+        _sentry_threadUnsafe_transmitChunkEnvelope();
+        _sentry_unsafe_stopTimerAndCleanup();
+        return;
+    }
+#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+
+    SENTRY_LOG_DEBUG(@"Stopping continuous profiler after current chunk completes.");
+    _stopCalled = YES;
 }
 
 + (nullable SentryId *)currentProfilerID
@@ -196,6 +220,9 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
         }
     }
 
+    SENTRY_LOG_DEBUG(
+        @"Last continuous profile chunk transmitted after stop called, shutting down profiler.");
+
 #    if SENTRY_HAS_UIKIT
     if (_observerToken != nil) {
         [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
@@ -209,22 +236,18 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
 + (void)stopTimerAndCleanup
 {
     std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
-
-    disableTimer();
-
-    [_threadUnsafe_gContinuousCurrentProfiler stopForReason:SentryProfilerTruncationReasonNormal];
-    _threadUnsafe_gContinuousCurrentProfiler = nil;
+    _sentry_unsafe_stopTimerAndCleanup();
 }
 
 #    pragma mark - Testing
 
-#    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 + (nullable SentryProfiler *)profiler
 {
     std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
     return _threadUnsafe_gContinuousCurrentProfiler;
 }
-#    endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 
 @end
 

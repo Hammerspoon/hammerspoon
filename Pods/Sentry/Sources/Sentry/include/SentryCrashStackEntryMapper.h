@@ -1,9 +1,9 @@
 #import "SentryCrashDynamicLinker.h"
 #import "SentryCrashStackCursor.h"
 #import "SentryDefines.h"
-#import <Foundation/Foundation.h>
 
-@class SentryFrame, SentryInAppLogic;
+@class SentryFrame;
+@class SentryInAppLogic;
 
 NS_ASSUME_NONNULL_BEGIN
 

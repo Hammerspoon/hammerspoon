@@ -21,6 +21,7 @@
     if (self = [super init]) {
         self.idleTimeout = 0;
         self.waitForChildren = NO;
+        self.finishMustBeCalled = NO;
     }
     return self;
 }

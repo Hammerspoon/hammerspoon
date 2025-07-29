@@ -1,17 +1,14 @@
 #import "SentryDefines.h"
 
-#if SENTRY_HAS_UIKIT
+#if SENTRY_TARGET_REPLAY_SUPPORTED
 
 #    import "SentryBaseIntegration.h"
 #    import "SentryClient+Private.h"
 #    import "SentryScreenshot.h"
-#    import "SentrySwift.h"
-#    import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryScreenshotIntegration
-    : SentryBaseIntegration <SentryIntegrationProtocol, SentryClientAttachmentProcessor>
+@interface SentryScreenshotIntegration : SentryBaseIntegration <SentryClientAttachmentProcessor>
 
 @end
 

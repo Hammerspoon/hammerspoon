@@ -52,7 +52,7 @@ sentrycrashcpu_framePointer(const SentryCrashMachineContext *const context)
     // We don't want this from stopping us to enable warnings as errors. This needs to be fixed.
 #    pragma clang diagnostic push
 #    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
-    return context->machineContext.__ss.__fp;
+    return arm_thread_state64_get_fp(context->machineContext.__ss);
 #    pragma clang diagnostic pop
 }
 
@@ -62,7 +62,7 @@ sentrycrashcpu_stackPointer(const SentryCrashMachineContext *const context)
     // We don't want this from stopping us to enable warnings as errors. This needs to be fixed.
 #    pragma clang diagnostic push
 #    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
-    return context->machineContext.__ss.__sp;
+    return arm_thread_state64_get_sp(context->machineContext.__ss);
 #    pragma clang diagnostic pop
 }
 
@@ -72,7 +72,7 @@ sentrycrashcpu_instructionAddress(const SentryCrashMachineContext *const context
     // We don't want this from stopping us to enable warnings as errors. This needs to be fixed.
 #    pragma clang diagnostic push
 #    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
-    return context->machineContext.__ss.__pc;
+    return arm_thread_state64_get_pc(context->machineContext.__ss);
 #    pragma clang diagnostic pop
 }
 
@@ -82,7 +82,7 @@ sentrycrashcpu_linkRegister(const SentryCrashMachineContext *const context)
     // We don't want this from stopping us to enable warnings as errors. This needs to be fixed.
 #    pragma clang diagnostic push
 #    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
-    return context->machineContext.__ss.__lr;
+    return arm_thread_state64_get_lr(context->machineContext.__ss);
 #    pragma clang diagnostic pop
 }
 
@@ -122,13 +122,13 @@ sentrycrashcpu_registerValue(const SentryCrashMachineContext *const context, con
 
     switch (regNumber) {
     case 29:
-        return context->machineContext.__ss.__fp;
+        return arm_thread_state64_get_fp(context->machineContext.__ss);
     case 30:
-        return context->machineContext.__ss.__lr;
+        return arm_thread_state64_get_lr(context->machineContext.__ss);
     case 31:
-        return context->machineContext.__ss.__sp;
+        return arm_thread_state64_get_sp(context->machineContext.__ss);
     case 32:
-        return context->machineContext.__ss.__pc;
+        return arm_thread_state64_get_pc(context->machineContext.__ss);
     case 33:
         return context->machineContext.__ss.__cpsr;
     }

@@ -16,6 +16,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)cancel;
 
+#if SENTRY_TEST || SENTRY_TEST_CI
+- (dispatch_source_t)source;
+- (SentryDispatchQueueWrapper *)queue;
+#endif // SENTRY_TEST || SENTRY_TEST_CI
+
 @end
 
 NS_ASSUME_NONNULL_END

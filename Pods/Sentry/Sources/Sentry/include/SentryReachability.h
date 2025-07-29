@@ -25,7 +25,6 @@
 //
 
 #import "SentryDefines.h"
-#import <Foundation/Foundation.h>
 
 #if SENTRY_HAS_REACHABILITY
 #    import <SystemConfiguration/SystemConfiguration.h>
@@ -34,13 +33,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 void SentryConnectivityCallback(SCNetworkReachabilityFlags flags);
 
-#    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 /**
  * Needed for testing.
  */
 void SentrySetReachabilityIgnoreActualCallback(BOOL value);
 
-#    endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 
 NSString *SentryConnectivityFlagRepresentation(SCNetworkReachabilityFlags flags);
 
@@ -68,7 +67,7 @@ SENTRY_EXTERN NSString *const SentryConnectivityNone;
  */
 @interface SentryReachability : NSObject
 
-#    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 
 /**
  * Only needed for testing. Use this flag to skip registering and unregistering the actual callbacks
@@ -76,7 +75,7 @@ SENTRY_EXTERN NSString *const SentryConnectivityNone;
  */
 @property (nonatomic, assign) BOOL skipRegisteringActualCallbacks;
 
-#    endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 
 /**
  * Add an observer which is called each time network connectivity changes.

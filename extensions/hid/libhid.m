@@ -46,7 +46,7 @@ static int access_capslock(int op){
 		if (kr != KERN_SUCCESS)
 		{
 			IOServiceClose(ioc);
-			fprintf(stderr, "IOHIDSetModifierLockState() failed: %x\n", kr);
+			fprintf(stderr, "IOHIDSetModifierLockState() failed: %i\n", kr);
 			return (int) kr;
 		}
 		break;
@@ -55,7 +55,7 @@ static int access_capslock(int op){
 		if (kr != KERN_SUCCESS)
 		{
 			IOServiceClose(ioc);
-			fprintf(stderr, "IOHIDGetModifierLockState() failed: %x\n", kr);
+			fprintf(stderr, "IOHIDGetModifierLockState() failed: %i\n", kr);
 			return (int) kr;
 		}
 		state = !state;
@@ -63,7 +63,7 @@ static int access_capslock(int op){
 		if (kr != KERN_SUCCESS)
 		{
 			IOServiceClose(ioc);
-			fprintf(stderr, "IOHIDSetModifierLockState() failed: %x\n", kr);
+			fprintf(stderr, "IOHIDSetModifierLockState() failed: %i\n", kr);
 			return (int) kr;
 		}
 		break;
@@ -76,8 +76,13 @@ static int access_capslock(int op){
 			return (int) kr;
 		}
 		break;
+    default:
+        {
+            NSCAssert(NO, @"Unexpected CAPS_LOCK op passed to access_capslock: %i",op);
+            break;
+        }
 	}
-
+    
 	IOServiceClose(ioc);
 	return (bool) state;
 }
