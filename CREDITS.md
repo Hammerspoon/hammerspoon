@@ -1,4 +1,4 @@
-Hammerspoon is based on Mjolnir by Steven Degutis, which is based on Hydra by Steven Degutis.
+Hammerspoon is based on Mjolnir, which is based on Hydra.
 
 Our maintainers are:
  * [Chris Jones](https://github.com/cmsj)
