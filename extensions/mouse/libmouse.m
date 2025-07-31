@@ -34,6 +34,7 @@ static void enum_callback(void *ctx, IOReturn res, void *sender, IOHIDDeviceRef 
 @property (readonly, getter=getNames) NSArray<NSString *> *names;
 @property (getter=getAbsolutePosition, setter=setAbsolutePosition:) NSPoint absolutePosition;
 @property (readonly, getter=getTrackingSpeed) double trackingSpeed;
+@property (readonly, getter=getTrackpadTrackingSpeed) double trackpadTrackingSpeed;
 @property (readonly, getter=getScrollDirectionNatural) BOOL isScrollDirectionNatural;
 
 -(BOOL)hasInternalMouse;
@@ -42,10 +43,12 @@ static void enum_callback(void *ctx, IOReturn res, void *sender, IOHIDDeviceRef 
 -(NSPoint)getAbsolutePosition;
 -(void)setAbsolutePosition:(NSPoint)absolutePosition;
 -(double)getTrackingSpeed;
+-(double)getTrackpadTrackingSpeed;
 -(io_service_t)createIOHIDSystem;
 -(NSDictionary *)getIOHIDParametersFromService:(io_service_t)service;
 -(NSDictionary *)getIOHIDParameters;
 -(kern_return_t)setTrackingSpeed:(double)trackingSpeed;
+-(kern_return_t)setTrackpadTrackingSpeed:(double)trackingSpeed;
 @end
 
 @implementation HSmouse
@@ -129,25 +132,47 @@ static void enum_callback(void *ctx, IOReturn res, void *sender, IOHIDDeviceRef 
     return parameters;
 }
 
+-(double)getTrackingSpeedForKey:(NSString *)key {
+//     NSDictionary *parameters = [self getIOHIDParameters];
+//     NSNumber *accel = parameters[key];
+//     return accel.doubleValue / MOUSE_TRACKING_FACTOR;
+    double speed = 0 ;
+    IOHIDGetAccelerationWithKey(NXOpenEventStatus(), (__bridge CFStringRef)key, &speed) ;
+    return speed ;
+}
+
 -(double)getTrackingSpeed {
-    NSDictionary *parameters = [self getIOHIDParameters];
-    NSNumber *accel = parameters[@"HIDMouseAcceleration"];
-    return accel.doubleValue / MOUSE_TRACKING_FACTOR;
+    return [self getTrackingSpeedForKey:@(kIOHIDMouseAccelerationType)] ;
+}
+
+-(double)getTrackpadTrackingSpeed {
+    return [self getTrackingSpeedForKey:@(kIOHIDTrackpadAccelerationType)] ;
+}
+
+-(kern_return_t)setTrackingSpeed:(double)trackingSpeed forKey:(NSString *)key {
+//     io_service_t service = [self createIOHIDSystem];
+//
+//     NSDictionary *parameters = [self getIOHIDParametersFromService:service];
+//
+//     NSMutableDictionary *newParameters = [parameters mutableCopy];
+//
+//     newParameters[key] = @([NSNumber numberWithDouble:trackingSpeed * MOUSE_TRACKING_FACTOR].integerValue);
+//
+//     kern_return_t result = IORegistryEntrySetCFProperty(service, CFSTR(kIOHIDParametersKey), (__bridge CFDictionaryRef)newParameters);
+//
+//     IOObjectRelease(service);
+//     return result;
+
+    kern_return_t result = IOHIDSetAccelerationWithKey(NXOpenEventStatus(), (__bridge CFStringRef)key, trackingSpeed) ;
+    return result;
 }
 
 -(kern_return_t)setTrackingSpeed:(double)trackingSpeed {
-    io_service_t service = [self createIOHIDSystem];
+    return [self setTrackingSpeed:trackingSpeed forKey:@(kIOHIDMouseAccelerationType)] ;
+}
 
-    NSDictionary *parameters = [self getIOHIDParametersFromService:service];
-
-    NSMutableDictionary *newParameters = [parameters mutableCopy];
-    newParameters[@"HIDMouseAcceleration"] = @(trackingSpeed * MOUSE_TRACKING_FACTOR);
-
-    kern_return_t result = IORegistryEntrySetCFProperty(service, CFSTR(kIOHIDParametersKey), (__bridge CFDictionaryRef)newParameters);
-
-    IOObjectRelease(service);
-
-    return result;
+-(kern_return_t)setTrackpadTrackingSpeed:(double)trackingSpeed {
+    return [self setTrackingSpeed:trackingSpeed forKey:@(kIOHIDTrackpadAccelerationType)] ;
 }
 @end
 
@@ -224,33 +249,42 @@ static int mouse_absolutePosition(lua_State *L) {
     return 1;
 }
 
-/// hs.mouse.trackingSpeed([speed]) -> number
+/// hs.mouse.trackingSpeed([speed], [trackpad]) -> number
 /// Function
-/// Gets/Sets the current system mouse tracking speed setting
+/// Gets/Sets the current system mouse or trackpad tracking speed setting
 ///
 /// Parameters:
 ///  * speed - An optional number containing the new tracking speed to set. If this is omitted, the current setting is returned
+///  * trackpad - An optional boolean, default false, indicating whether or not this function affects the mouse tracking speed (false) or the trackpad tracking speed (true)
 ///
 /// Returns:
-///  * A number indicating the current tracking speed setting for mice
+///  * A number indicating the current tracking speed setting for mouse or trackpad
 ///
 /// Notes:
-///  * This is represented in the System Preferences as the "Tracking speed" setting for mice
+///  * This is represented in the System Preferences as the "Tracking speed" setting for Mouse or Trackpad
 ///  * Note that not all values will work, they should map to the steps defined in the System Preferences app, which are:
 ///    * 0.0, 0.125, 0.5, 0.6875, 0.875, 1.0, 1.5, 2.0, 2.5, 3.0
 ///  * Note that changes to this value will not be noticed immediately by macOS
 static int mouse_mouseAcceleration(lua_State *L) {
-    LuaSkin *skin = LS_API(LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK);
+    LuaSkin *skin = LS_API(LS_TNUMBER | LS_TBOOLEAN | LS_TNIL | LS_TOPTIONAL, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK);
+
     HSmouse *mouseManager = [[HSmouse alloc] init];
 
-    if (lua_type(skin.L, 1) == LUA_TNUMBER) {
-        kern_return_t result = [mouseManager setTrackingSpeed:lua_tonumber(skin.L, 1)];
+    BOOL isTrackpad = NO ;
+    if (lua_gettop(L) > 0) {
+        isTrackpad = (lua_type(L, -1) != LUA_TNUMBER) ? (BOOL)(lua_toboolean(L, -1)) : NO ;
+    }
+
+    if (lua_type(L, 1) == LUA_TNUMBER) {
+        kern_return_t result = isTrackpad ? [mouseManager setTrackpadTrackingSpeed:lua_tonumber(L, 1)] :
+                                            [mouseManager setTrackingSpeed:lua_tonumber(L, 1)] ;
+
         if (result != KERN_SUCCESS) {
-            [skin logError:[NSString stringWithFormat:@"Unable to set mouse tracking speed: %d", result]];
+            [skin logError:[NSString stringWithFormat:@"Unable to set %s tracking speed: %d", (isTrackpad ? "trackpad" : "mouse"), result]];
         }
     }
 
-    lua_pushnumber(skin.L, mouseManager.trackingSpeed);
+    lua_pushnumber(L, isTrackpad ? mouseManager.trackpadTrackingSpeed : mouseManager.trackingSpeed);
     return 1;
 }
 
@@ -286,20 +320,20 @@ static int mouse_scrollDirection(lua_State *L) {
 ///  * This function can also return daVinciResolveHorizontalArrows, when hovering over mouse-draggable text-boxes in DaVinci Resolve. This is determined using the "hotspot" value of the cursor.
 static int mouse_currentCursorType(lua_State *L) {
     LuaSkin *skin = LS_API(LS_TBREAK);
-    
+
     NSString *value = @"unknown";
-    
+
     NSCursor *currentCursor = [NSCursor currentSystemCursor];
-    
+
     // Abort if the current cursor can't be detected:
     if (currentCursor == nil) {
         [skin pushNSObject:value];
         return 1;
     }
-    
+
     NSImage *currentCursorImage = [currentCursor image];
     NSData *currentCursorData = [currentCursorImage TIFFRepresentation];
-    
+
     // NOTE: Whilst you can just compare [NSCursor currentCursor] values using ==, the same is not true for [NSCursor currentSystemCursor],
     //       for some weird reason, hence why the only solution I could come up with was to compare the image data.
     if ([currentCursorData isEqualToData:[[[NSCursor arrowCursor] image] TIFFRepresentation]]) { value = @"arrowCursor"; }
@@ -326,7 +360,7 @@ static int mouse_currentCursorType(lua_State *L) {
             value = @"daVinciResolveHorizontalArrows";
         }
     }
-    
+
     [skin pushNSObject:value];
     return 1;
 }
