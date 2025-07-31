@@ -222,7 +222,7 @@ logger.defaultLogLevel = 'warning'
 ---
 --- Notes:
 ---  * the logger instance created by this method is not a regular object, but a plain table with "static" functions;
----    therefore, do not use the colon syntax for so-called "methods" in this module (as in `mylogger.setLogLevel(3)`);
+---    therefore, do not use the colon syntax for so-called "methods" in this module (as in `mylogger:setLogLevel(3)`);
 ---    you must instead use the regular dot syntax: `mylogger.setLogLevel(3)`
 ---
 --- Example:
