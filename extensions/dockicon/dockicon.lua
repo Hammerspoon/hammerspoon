@@ -2,7 +2,7 @@
 ---
 --- Control Hammerspoon's dock icon
 ---
---- This module is based primarily on code from the previous incarnation of Mjolnir by [Steven Degutis](https://github.com/sdegutis/).
+--- This module is based primarily on code from the previous incarnation of Mjolnir.
 
 local module = require("hs.libdockicon")
 require("hs.canvas") -- loads canvas class support for docktile support

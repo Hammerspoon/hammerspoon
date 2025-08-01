@@ -38,7 +38,7 @@ Out of the box, Hammerspoon does nothing - you will need to create `~/.hammerspo
 
 ## What is the history of the project?
 
-Hammerspoon is a fork of [Mjolnir](https://github.com/sdegutis/mjolnir) by Steven Degutis. Mjolnir aims to be a very minimal application, with its extensions hosted externally and managed using a Lua package manager. We wanted to provide a more integrated experience.
+Hammerspoon is a fork of [Mjolnir](https://github.com/mjolnirapp/mjolnir). Mjolnir aims to be a very minimal application, with its extensions hosted externally and managed using a Lua package manager. We wanted to provide a more integrated experience.
 
 ## What is the future of the project?
 

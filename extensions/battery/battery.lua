@@ -3,7 +3,7 @@
 --- Battery/power information
 --- All functions here may return nil, if the information requested is not available.
 ---
---- This module is based primarily on code from the previous incarnation of Mjolnir by [Steven Degutis](https://github.com/sdegutis/).
+--- This module is based primarily on code from the previous incarnation of Mjolnir.
 
 
 local module = require("hs.libbattery")

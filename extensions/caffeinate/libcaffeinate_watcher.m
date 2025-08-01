@@ -8,7 +8,7 @@
 /// Watch for display and system sleep/wake/power events
 /// and for fast user switching session events.
 ///
-/// This module is based primarily on code from the previous incarnation of Mjolnir by [Steven Degutis](https://github.com/sdegutis/).
+/// This module is based primarily on code from the previous incarnation of Mjolnir.
 
 
 /// hs.caffeinate.watcher.systemDidWake

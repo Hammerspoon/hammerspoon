@@ -9,7 +9,7 @@
 ---
 --- A shorthand, based upon the original inspiration for this module from Hydra and Mjolnir, hs.notify.show, is provided if you just require a quick and simple informative notification without the bells and whistles.
 ---
---- This module is based in part on code from the previous incarnation of Mjolnir by [Steven Degutis](https://github.com/sdegutis/).
+--- This module is based in part on code from the previous incarnation of Mjolnir.
 
 -- package.loadlib(
 --     package.searchpath("hs._asm.extras.objectconversion",
