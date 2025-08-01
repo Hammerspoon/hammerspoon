@@ -222,7 +222,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      *
      * - Note: See ``SentryReplayOptions.DefaultValues.quality`` for the default value.
      */
-    var replayBitRate: Int {
+    @_spi(Private) public var replayBitRate: Int {
         quality.bitrate
     }
 
@@ -231,7 +231,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      *
      * - Note: The scale is used to reduce the size of the replay.
      */
-    var sizeScale: Float {
+    @_spi(Private) public var sizeScale: Float {
         quality.sizeScale
     }
 
@@ -242,7 +242,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      *
      * - Note: See ``SentryReplayOptions.DefaultValues.frameRate`` for the default value.
      */
-    var frameRate: UInt {
+    @_spi(Private) public var frameRate: UInt {
         didSet {
             if frameRate < 1 {
                 frameRate = 1
@@ -253,19 +253,19 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
     /**
      * The maximum duration of replays for error events.
      */
-    var errorReplayDuration: TimeInterval
+    @_spi(Private) public var errorReplayDuration: TimeInterval
 
     /**
      * The maximum duration of the segment of a session replay.
      */
-    var sessionSegmentDuration: TimeInterval
+    @_spi(Private) public var sessionSegmentDuration: TimeInterval
 
     /**
      * The maximum duration of a replay session.
      *
      * - Note: See  ``SentryReplayOptions.DefaultValues.maximumDuration`` for the default value.
      */
-    var maximumDuration: TimeInterval
+    @_spi(Private) public var maximumDuration: TimeInterval
 
     /**
      * Used by hybrid SDKs to be able to configure SDK info for Session Replay

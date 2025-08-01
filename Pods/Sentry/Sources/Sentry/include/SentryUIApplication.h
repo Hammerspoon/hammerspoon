@@ -7,8 +7,8 @@
 @class UIScene;
 @class UIWindow;
 @class UIViewController;
-@class SentryNSNotificationCenterWrapper;
 @class SentryDispatchQueueWrapper;
+@protocol SentryNSNotificationCenterWrapper;
 @protocol UIApplicationDelegate;
 
 typedef NS_ENUM(NSInteger, UIApplicationState);
@@ -21,9 +21,10 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryUIApplication : NSObject <SentryApplication>
 SENTRY_NO_INIT
 
-- (instancetype)
-    initWithNotificationCenterWrapper:(SentryNSNotificationCenterWrapper *)notificationCenterWrapper
-                 dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
+- (instancetype)initWithNotificationCenterWrapper:
+                    (id<SentryNSNotificationCenterWrapper>)notificationCenterWrapper
+                             dispatchQueueWrapper:
+                                 (SentryDispatchQueueWrapper *)dispatchQueueWrapper;
 
 @end
 

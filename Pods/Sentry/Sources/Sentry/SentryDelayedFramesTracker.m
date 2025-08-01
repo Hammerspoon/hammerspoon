@@ -4,7 +4,7 @@
 
 #    import "SentryDelayedFrame.h"
 #    import "SentryInternalCDefines.h"
-#    import "SentryLog.h"
+#    import "SentryLogC.h"
 #    import "SentrySwift.h"
 #    import "SentryTime.h"
 

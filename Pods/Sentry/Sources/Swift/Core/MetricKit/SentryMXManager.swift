@@ -34,7 +34,7 @@ import MetricKit
         self.disableCrashDiagnostics = disableCrashDiagnostics
     }
 
-    weak var delegate: SentryMXManagerDelegate?
+    public weak var delegate: SentryMXManagerDelegate?
     
     public func receiveReports() {
         let shared = MXMetricManager.shared

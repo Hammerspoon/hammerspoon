@@ -1,3 +1,4 @@
+@_implementationOnly import _SentryPrivate
 import Foundation
 
 @objcMembers
@@ -41,7 +42,14 @@ public class SentryFeedback: NSObject {
     }
 }
 
-extension SentryFeedback: SentrySerializable {
+#if !SDK_V9
+extension SentryFeedback: SentrySerializable { }
+#endif
+
+extension SentryFeedback {
+    #if SDK_V9
+    @_spi(Private)
+    #endif
     public func serialize() -> [String: Any] {
         let numberOfOptionalItems = (name == nil ? 0 : 1) + (email == nil ? 0 : 1) + (associatedEventId == nil ? 0 : 1)
         var dict = [String: Any](minimumCapacity: 2 + numberOfOptionalItems)

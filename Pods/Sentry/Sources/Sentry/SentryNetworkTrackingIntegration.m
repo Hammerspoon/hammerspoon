@@ -1,5 +1,5 @@
 #import "SentryNetworkTrackingIntegration.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentryNSURLSessionTaskSearch.h"
 #import "SentryNetworkTracker.h"
 #import "SentryOptions.h"

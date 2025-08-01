@@ -63,6 +63,7 @@ typedef struct {
     uintptr_t size;
 } SentrySegmentAddress;
 
+#if !SDK_V9
 /** Get the number of loaded binary images.
  */
 int sentrycrashdl_imageCount(void);
@@ -76,6 +77,7 @@ int sentrycrashdl_imageCount(void);
  * @return True if the image was successfully queried.
  */
 bool sentrycrashdl_getBinaryImage(int index, SentryCrashBinaryImage *buffer, bool isCrash);
+#endif // !SDK_V9
 
 /** Get information about a binary image based on mach_header.
  *

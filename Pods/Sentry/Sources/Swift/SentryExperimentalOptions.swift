@@ -30,6 +30,11 @@ public class SentryExperimentalOptions: NSObject {
      * - Experiment: This is an experimental feature and is therefore disabled by default. We'll enable it by default in a future major release.
      */
     public var enableUnhandledCPPExceptionsV2 = false
+    
+    /**
+     * Logs are considered beta.
+     */
+    public var enableLogs = false
 
     @_spi(Private) public func validateOptions(_ options: [String: Any]?) {
     }

@@ -56,7 +56,7 @@ void
 sentrycrashsc_initCursor(SentryCrashStackCursor *cursor,
     void (*resetCursor)(SentryCrashStackCursor *), bool (*advanceCursor)(SentryCrashStackCursor *))
 {
-    cursor->symbolicate = sentrycrashsymbolicator_symbolicate;
+    cursor->symbolicate = sentrycrashsymbolicator_symbolicate_async_unsafe_sentryDlAddr;
     cursor->advanceCursor = advanceCursor != NULL ? advanceCursor : g_advanceCursor;
     cursor->resetCursor = resetCursor != NULL ? resetCursor : sentrycrashsc_resetCursor;
     cursor->resetCursor(cursor);

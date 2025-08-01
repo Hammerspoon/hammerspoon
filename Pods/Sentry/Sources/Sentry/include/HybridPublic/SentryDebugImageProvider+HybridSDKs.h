@@ -4,13 +4,21 @@
 #    import "SentryDebugImageProvider.h"
 #endif
 
+#import <Foundation/Foundation.h>
+
 @class SentryDebugMeta;
 @class SentryThread;
 @class SentryFrame;
 
 NS_ASSUME_NONNULL_BEGIN
 
+#if SDK_V9
+@interface SentryDebugImageProvider : NSObject
+#else
 @interface SentryDebugImageProvider ()
+#endif
+
+- (instancetype)init;
 
 /**
  * Returns a list of debug images that are being referenced by the given frames.

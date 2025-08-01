@@ -10,7 +10,7 @@
 
 #    import "SentryFeedbackAPI.h"
 #    import "SentryHub+Private.h"
-#    import "SentryLog.h"
+#    import "SentryLogC.h"
 #    import "SentrySDK+Private.h"
 #    import "SentryUserFeedbackIntegration.h"
 
@@ -19,8 +19,8 @@
 - (void)showWidget
 {
     if (@available(iOS 13.0, *)) {
-        SentryUserFeedbackIntegration *feedback =
-            [[SentrySDK currentHub] getInstalledIntegration:[SentryUserFeedbackIntegration class]];
+        SentryUserFeedbackIntegration *feedback = [[SentrySDKInternal currentHub]
+            getInstalledIntegration:[SentryUserFeedbackIntegration class]];
         [feedback showWidget];
     } else {
         SENTRY_LOG_WARN(@"Sentry User Feedback is only available on iOS 13 or later.");
@@ -30,8 +30,8 @@
 - (void)hideWidget
 {
     if (@available(iOS 13.0, *)) {
-        SentryUserFeedbackIntegration *feedback =
-            [SentrySDK.currentHub getInstalledIntegration:[SentryUserFeedbackIntegration class]];
+        SentryUserFeedbackIntegration *feedback = [SentrySDKInternal.currentHub
+            getInstalledIntegration:[SentryUserFeedbackIntegration class]];
         [feedback hideWidget];
     } else {
         SENTRY_LOG_WARN(@"Sentry User Feedback is only available on iOS 13 or later.");

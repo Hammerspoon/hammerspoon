@@ -3,6 +3,6 @@
 // to add an import. This allows the same source to
 // compile in SPM and xcodebuild (which doesn't separate
 // ObjC into the SentryHeaders target)
-#if SENTRY_SWIFT_PACKAGE
+#if SDK_V9
 @_exported import SentryHeaders
 #endif

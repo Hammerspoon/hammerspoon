@@ -3,7 +3,6 @@
 #import "SentryFileManager.h"
 #import "SentryInternalCDefines.h"
 #import "SentryLevelMapper.h"
-#import "SentryLog.h"
 #import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -13,37 +12,37 @@ sendLog(NSInteger level, const char file[], int line, NSString *format, va_list 
 {
     NSString *formattedMessage = [[NSString alloc] initWithFormat:format arguments:args];
 
-    [SentryLog logWithMessage:[NSString stringWithFormat:@"[%@:%d] %@",
-                                  [[[NSString stringWithUTF8String:file] lastPathComponent]
-                                      stringByDeletingPathExtension],
-                                  line, formattedMessage]
-                     andLevel:level];
+    [SentrySDKLog logWithMessage:[NSString stringWithFormat:@"[%@:%d] %@",
+                                     [[[NSString stringWithUTF8String:file] lastPathComponent]
+                                         stringByDeletingPathExtension],
+                                     line, formattedMessage]
+                        andLevel:level];
 }
 
 bool
 debugEnabled(void)
 {
-    return [SentryLog willLogAtLevel:kSentryLevelDebug];
+    return [SentrySDKLog willLogAtLevel:kSentryLevelDebug];
 }
 bool
 infoEnabled(void)
 {
-    return [SentryLog willLogAtLevel:kSentryLevelInfo];
+    return [SentrySDKLog willLogAtLevel:kSentryLevelInfo];
 }
 bool
 warnEnabled(void)
 {
-    return [SentryLog willLogAtLevel:kSentryLevelWarning];
+    return [SentrySDKLog willLogAtLevel:kSentryLevelWarning];
 }
 bool
 errorEnabled(void)
 {
-    return [SentryLog willLogAtLevel:kSentryLevelError];
+    return [SentrySDKLog willLogAtLevel:kSentryLevelError];
 }
 bool
 fatalEnabled(void)
 {
-    return [SentryLog willLogAtLevel:kSentryLevelFatal];
+    return [SentrySDKLog willLogAtLevel:kSentryLevelFatal];
 }
 
 void
@@ -90,26 +89,5 @@ logFatal(const char file[], int line, NSString *format, ...)
     sendLog(kSentryLevelFatal, file, line, format, args);
     va_end(args);
 }
-
-@implementation SentryAsyncLogWrapper
-+ (void)initializeAsyncLogFile
-{
-    const char *asyncLogPath =
-        [[sentryStaticCachesPath() stringByAppendingPathComponent:@"async.log"] UTF8String];
-
-    NSError *error;
-    if (!createDirectoryIfNotExists(sentryStaticCachesPath(), &error)) {
-        SENTRY_LOG_ERROR(@"Failed to initialize directory for async log file: %@", error);
-        return;
-    }
-
-    if (SENTRY_LOG_ERRNO(
-            sentry_asyncLogSetFileName(asyncLogPath, true /* overwrite existing log */))
-        != 0) {
-        SENTRY_LOG_ERROR(
-            @"Could not open a handle to specified path for async logging %s", asyncLogPath);
-    };
-}
-@end
 
 NS_ASSUME_NONNULL_END

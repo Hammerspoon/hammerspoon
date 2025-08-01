@@ -5,10 +5,9 @@
 #import <SentryAppState.h>
 #import <SentryAppStateManager.h>
 #import <SentryClient+Private.h>
-#import <SentryDispatchQueueWrapper.h>
 #import <SentryException.h>
 #import <SentryHub.h>
-#import <SentryLog.h>
+#import <SentryLogC.h>
 #import <SentryMechanism.h>
 #import <SentryMessage.h>
 #import <SentryOptions.h>
@@ -23,7 +22,7 @@
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) SentryAppStateManager *appStateManager;
 @property (nonatomic, strong) SentryFileManager *fileManager;
-@property (nonatomic, strong) SentryScopeContextPersistentStore *scopeContextStore;
+@property (nonatomic, strong) SentryScopePersistentStore *scopePersistentStore;
 
 @end
 
@@ -34,7 +33,7 @@
                 appStateManager:(SentryAppStateManager *)appStateManager
            dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                     fileManager:(SentryFileManager *)fileManager
-              scopeContextStore:(SentryScopeContextPersistentStore *)scopeContextStore
+           scopePersistentStore:(SentryScopePersistentStore *)scopePersistentStore
 {
     if (self = [super init]) {
         self.options = options;
@@ -42,7 +41,7 @@
         self.appStateManager = appStateManager;
         self.dispatchQueue = dispatchQueueWrapper;
         self.fileManager = fileManager;
-        self.scopeContextStore = scopeContextStore;
+        self.scopePersistentStore = scopePersistentStore;
     }
     return self;
 }
@@ -58,6 +57,13 @@
 
             [self addBreadcrumbsToEvent:event];
             [self addContextToEvent:event];
+            event.user = [self.scopePersistentStore readPreviousUserFromDisk];
+            event.dist = [self.scopePersistentStore readPreviousDistFromDisk];
+            event.environment = [self.scopePersistentStore readPreviousEnvironmentFromDisk];
+            event.tags = [self.scopePersistentStore readPreviousTagsFromDisk];
+            event.extra = [self.scopePersistentStore readPreviousExtrasFromDisk];
+            event.fingerprint = [self.scopePersistentStore readPreviousFingerprintFromDisk];
+            // Termination events always have fatal level, so we are not reading from disk
 
             SentryException *exception =
                 [[SentryException alloc] initWithValue:SentryWatchdogTerminationExceptionValue
@@ -71,7 +77,7 @@
             // We don't need to update the releaseName of the event to the previous app state as we
             // assume it's not a watchdog termination when the releaseName changed between app
             // starts.
-            [SentrySDK captureFatalEvent:event];
+            [SentrySDKInternal captureFatalEvent:event];
         }
     }];
 #else // !SENTRY_HAS_UIKIT
@@ -106,7 +112,7 @@
 {
     // Load the previous context from disk, or create an empty one if it doesn't exist
     NSDictionary<NSString *, NSDictionary<NSString *, id> *> *previousContext =
-        [self.scopeContextStore readPreviousContextFromDisk];
+        [self.scopePersistentStore readPreviousContextFromDisk];
     NSMutableDictionary *context =
         [[NSMutableDictionary alloc] initWithDictionary:previousContext ?: @{}];
 

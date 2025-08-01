@@ -1,6 +1,6 @@
 #import "SentryWatchdogTerminationBreadcrumbProcessor.h"
 #import "SentryFileManager.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentrySerialization.h"
 
 @interface SentryWatchdogTerminationBreadcrumbProcessor ()

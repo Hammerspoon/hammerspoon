@@ -7,11 +7,11 @@ import UIKit
 @_spi(Private) public class SentryViewRendererV2: NSObject, SentryViewRenderer {
     let enableFastViewRendering: Bool
 
-    init(enableFastViewRendering: Bool) {
+    public init(enableFastViewRendering: Bool) {
         self.enableFastViewRendering = enableFastViewRendering
     }
 
-    func render(view: UIView) -> UIImage {
+    public func render(view: UIView) -> UIImage {
         let scale = (view as? UIWindow ?? view.window)?.screen.scale ?? 1
         let image = SentryGraphicsImageRenderer(size: view.bounds.size, scale: scale).image { context in
             if enableFastViewRendering {

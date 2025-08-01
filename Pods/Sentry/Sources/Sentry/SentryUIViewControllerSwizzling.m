@@ -6,13 +6,12 @@
 #    import "SentryDefaultObjCRuntimeWrapper.h"
 #    import "SentryDefines.h"
 #    import "SentryDependencyContainer.h"
-#    import "SentryLog.h"
+#    import "SentryLogC.h"
 #    import "SentryNSProcessInfoWrapper.h"
 #    import "SentrySubClassFinder.h"
 #    import "SentrySwift.h"
 #    import "SentrySwizzle.h"
 #    import "SentryUIViewControllerPerformanceTracker.h"
-#    import <SentryDispatchQueueWrapper.h>
 #    import <SentryInAppLogic.h>
 #    import <SentryOptions.h>
 #    import <SentryUIApplication.h>

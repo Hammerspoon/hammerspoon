@@ -3,11 +3,10 @@
 #    import "SentryAsyncSafeLog.h"
 #    import "SentryBacktrace.hpp"
 #    import "SentryDependencyContainer.h"
-#    import "SentryDispatchQueueWrapper.h"
 #    import "SentryFormatter.h"
 #    import "SentryProfileTimeseries.h"
+#    import "SentryProfilingSwiftHelpers.h"
 #    import "SentrySample.h"
-#    import "SentrySwift.h"
 #    import <mach/mach_types.h>
 #    import <mach/port.h>
 #    import <mutex>
@@ -67,8 +66,8 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
     if (self = [super init]) {
         _mutableState = [[SentryProfilerMutableState alloc] init];
         _mainThreadID = 0;
-        [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
-            dispatchAsyncOnMainQueue:^{ [self cacheMainThreadID]; }];
+        sentry_dispatchAsyncOnMain(SentryDependencyContainer.sharedInstance.dispatchQueueWrapper,
+            ^{ [self cacheMainThreadID]; });
     }
     return self;
 }
@@ -154,8 +153,7 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
 
         const auto sample = [[SentrySample alloc] init];
         sample.absoluteTimestamp = backtrace.absoluteTimestamp;
-        sample.absoluteNSDateInterval
-            = SentryDependencyContainer.sharedInstance.dateProvider.date.timeIntervalSince1970;
+        sample.absoluteNSDateInterval = sentry_getDate().timeIntervalSince1970;
         sample.threadID = backtrace.threadMetadata.threadID;
 
         const auto stackKey = [stack componentsJoinedByString:@"|"];

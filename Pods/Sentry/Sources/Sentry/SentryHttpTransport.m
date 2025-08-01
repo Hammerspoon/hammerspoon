@@ -5,7 +5,6 @@
 #import "SentryDependencyContainer.h"
 #import "SentryDiscardReasonMapper.h"
 #import "SentryDiscardedEvent.h"
-#import "SentryDispatchQueueWrapper.h"
 #import "SentryDsn.h"
 #import "SentryEnvelope+Private.h"
 #import "SentryEnvelope.h"
@@ -14,7 +13,7 @@
 #import "SentryEnvelopeRateLimit.h"
 #import "SentryEvent.h"
 #import "SentryFileManager.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentryNSURLRequestBuilder.h"
 #import "SentryOptions.h"
 #import "SentrySerialization.h"
@@ -224,12 +223,29 @@
 
     intptr_t result = dispatch_group_wait(self.dispatchGroup, dispatchTimeout);
 
+    // Every `dispatch_group_enter` must have a corresponding `dispatch_group_leave`.
+    // If nobody called `stopFlushing`, we must call `dispatch_group_leave` here, because
+    // otherwise the dispatch group never leaves and the next time somebody calls flush,
+    // flush will always time out.
+    [self stopFlushing];
+
     if (result == 0) {
         SENTRY_LOG_DEBUG(@"Finished flushing.");
         return kSentryFlushResultSuccess;
     } else {
         SENTRY_LOG_WARN(@"Flushing timed out.");
         return kSentryFlushResultTimedOut;
+    }
+}
+
+- (void)stopFlushing
+{
+    @synchronized(self) {
+        if (_isFlushing) {
+            SENTRY_LOG_DEBUG(@"Stop flushing.");
+            _isFlushing = NO;
+            dispatch_group_leave(self.dispatchGroup);
+        }
     }
 }
 
@@ -368,13 +384,13 @@
     }
 
     __weak SentryHttpTransport *weakSelf = self;
-    [self.dispatchQueue dispatchAfter:self.cachedEnvelopeSendDelay
-                                block:^{
-                                    if (weakSelf == nil) {
-                                        return;
-                                    }
-                                    [weakSelf sendAllCachedEnvelopes];
-                                }];
+    dispatch_block_t block = ^{
+        if (weakSelf == nil) {
+            return;
+        }
+        [weakSelf sendAllCachedEnvelopes];
+    };
+    [self.dispatchQueue dispatchAfter:self.cachedEnvelopeSendDelay block:block];
 }
 
 - (void)sendEnvelope:(SentryEnvelope *)envelope
@@ -418,11 +434,7 @@
 {
     @synchronized(self) {
         self.isSending = NO;
-        if (self.isFlushing) {
-            SENTRY_LOG_DEBUG(@"Stop flushing.");
-            self.isFlushing = NO;
-            dispatch_group_leave(self.dispatchGroup);
-        }
+        [self stopFlushing];
     }
 }
 

@@ -1,5 +1,6 @@
 import Foundation
 
+#if !SDK_V9
 /// Adds additional information about what happened to an event.
 /// @deprecated Use `SentryFeedback`.
 @objc(SentryUserFeedback)
@@ -36,4 +37,5 @@ open class UserFeedback: NSObject, SentrySerializable {
             "comments": comments
         ]
     }
-} 
+}
+#endif // !SDK_V9

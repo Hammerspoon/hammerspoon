@@ -1,8 +1,7 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-// See `develop-docs/README.md` for an explanation of this pattern.
-#if SENTRY_SWIFT_PACKAGE
+#if SDK_V9
 final class SentryRequestDecodable: SentryRequest {
     convenience public init(from decoder: any Decoder) throws {
         try self.init(decodedFrom: decoder)
@@ -23,7 +22,7 @@ extension SentryRequestDecodable: Decodable {
         case url
     }
     
-    #if !SENTRY_SWIFT_PACKAGE
+    #if !SDK_V9
     required convenience public init(from decoder: any Decoder) throws {
         try self.init(decodedFrom: decoder)
     }

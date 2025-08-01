@@ -37,7 +37,7 @@ import Foundation
     }
     
     @objc
-    static func getFatalExceptionType(nonFatalErrorType: String) -> String {
+    public static func getFatalExceptionType(nonFatalErrorType: String) -> String {
         if nonFatalErrorType == ExceptionType.nonFullyBlocking.rawValue {
             return ExceptionType.fatalNonFullyBlocking.rawValue
         }

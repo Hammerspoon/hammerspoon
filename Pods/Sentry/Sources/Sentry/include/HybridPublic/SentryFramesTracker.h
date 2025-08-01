@@ -15,7 +15,7 @@
 @class SentryDisplayLinkWrapper;
 @protocol SentryCurrentDateProvider;
 @class SentryDispatchQueueWrapper;
-@class SentryNSNotificationCenterWrapper;
+@protocol SentryNSNotificationCenterWrapper;
 @class SentryScreenFrames;
 @class SentryFramesDelayResult;
 
@@ -43,7 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithDisplayLinkWrapper:(SentryDisplayLinkWrapper *)displayLinkWrapper
                               dateProvider:(id<SentryCurrentDateProvider>)dateProvider
                       dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-                        notificationCenter:(SentryNSNotificationCenterWrapper *)notificationCenter
+                        notificationCenter:(id<SentryNSNotificationCenterWrapper>)notificationCenter
                  keepDelayedFramesDuration:(CFTimeInterval)keepDelayedFramesDuration;
 
 - (SentryScreenFrames *)currentFrames;

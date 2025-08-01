@@ -5,7 +5,7 @@
 #    import "SentrySpanOperation.h"
 #    import "SentrySwizzleWrapper.h"
 #    import <SentryDependencyContainer.h>
-#    import <SentryLog.h>
+#    import <SentryLogC.h>
 #    import <SentryUIEventTrackerMode.h>
 
 NS_ASSUME_NONNULL_BEGIN

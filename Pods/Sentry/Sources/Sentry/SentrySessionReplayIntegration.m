@@ -6,14 +6,12 @@
 #    import "SentryCrashWrapper.h"
 #    import "SentryDependencyContainer.h"
 #    import "SentryDispatchQueueProviderProtocol.h"
-#    import "SentryDispatchQueueWrapper.h"
 #    import "SentryDisplayLinkWrapper.h"
 #    import "SentryEvent+Private.h"
 #    import "SentryFileManager.h"
 #    import "SentryGlobalEventProcessor.h"
 #    import "SentryHub+Private.h"
-#    import "SentryLog.h"
-#    import "SentryNSNotificationCenterWrapper.h"
+#    import "SentryLogC.h"
 #    import "SentryOptions.h"
 #    import "SentryRandom.h"
 #    import "SentryRateLimits.h"
@@ -32,6 +30,10 @@ NS_ASSUME_NONNULL_BEGIN
 static NSString *SENTRY_REPLAY_FOLDER = @"replay";
 static NSString *SENTRY_CURRENT_REPLAY = @"replay.current";
 static NSString *SENTRY_LAST_REPLAY = @"replay.last";
+
+@interface SentryDisplayLinkWrapper (Replay) <SentryReplayDisplayLinkWrapper>
+
+@end
 
 /**
  * We need to use this from the swizzled block
@@ -53,7 +55,7 @@ static SentryTouchTracker *_touchTracker;
 @implementation SentrySessionReplayIntegration {
     BOOL _startedAsFullSession;
     SentryReplayOptions *_replayOptions;
-    SentryNSNotificationCenterWrapper *_notificationCenter;
+    id<SentryNSNotificationCenterWrapper> _notificationCenter;
     id<SentryRateLimits> _rateLimits;
     id<SentryViewScreenshotProvider> _currentScreenshotProvider;
     id<SentryReplayBreadcrumbConverter> _currentBreadcrumbConverter;
@@ -156,7 +158,7 @@ static SentryTouchTracker *_touchTracker;
     [self moveCurrentReplay];
     [self cleanUp];
 
-    [SentrySDK.currentHub registerSessionListener:self];
+    [SentrySDKInternal.currentHub registerSessionListener:self];
     [SentryDependencyContainer.sharedInstance.globalEventProcessor
         addEventProcessor:^SentryEvent *_Nullable(SentryEvent *_Nonnull event) {
             if (event.isFatalEvent) {
@@ -293,9 +295,9 @@ static SentryTouchTracker *_touchTracker;
                                                                                   video:video
                                                                             extraEvents:@[]];
 
-    [SentrySDK.currentHub captureReplayEvent:replayEvent
-                             replayRecording:recording
-                                       video:video.path];
+    [SentrySDKInternal.currentHub captureReplayEvent:replayEvent
+                                     replayRecording:recording
+                                               video:video.path];
 
     NSError *error = nil;
     if (![[NSFileManager defaultManager] removeItemAtURL:video.path error:&error]) {
@@ -332,7 +334,8 @@ static SentryTouchTracker *_touchTracker;
         // Wait for a scene to be available to started the replay
         [_notificationCenter addObserver:self
                                 selector:@selector(newSceneActivate)
-                                    name:UISceneDidActivateNotification];
+                                    name:UISceneDidActivateNotification
+                                  object:nil];
     }
 }
 
@@ -342,7 +345,8 @@ static SentryTouchTracker *_touchTracker;
         SENTRY_LOG_DEBUG(@"[Session Replay] Scene is available, starting replay");
         [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
             removeObserver:self
-                      name:UISceneDidActivateNotification];
+                      name:UISceneDidActivateNotification
+                    object:nil];
         [self startWithOptions:_replayOptions fullSession:_startedAsFullSession];
     }
 }
@@ -421,9 +425,12 @@ static SentryTouchTracker *_touchTracker;
                          options:replayOptions];
 }
 
-- (NSURL *)replayDirectory
+- (nullable NSURL *)replayDirectory
 {
     NSString *sentryPath = [SentryDependencyContainer.sharedInstance.fileManager sentryPath];
+    if (!sentryPath) {
+        return nil;
+    }
     NSURL *dir = [NSURL fileURLWithPath:sentryPath];
     return [dir URLByAppendingPathComponent:SENTRY_REPLAY_FOLDER];
 }
@@ -620,7 +627,7 @@ static SentryTouchTracker *_touchTracker;
 - (void)uninstall
 {
     SENTRY_LOG_DEBUG(@"[Session Replay] Uninstalling");
-    [SentrySDK.currentHub unregisterSessionListener:self];
+    [SentrySDKInternal.currentHub unregisterSessionListener:self];
     _touchTracker = nil;
     [self pause];
 }
@@ -718,9 +725,9 @@ static SentryTouchTracker *_touchTracker;
         return;
     }
 
-    [SentrySDK.currentHub captureReplayEvent:replayEvent
-                             replayRecording:replayRecording
-                                       video:videoUrl];
+    [SentrySDKInternal.currentHub captureReplayEvent:replayEvent
+                                     replayRecording:replayRecording
+                                               video:videoUrl];
 
     sentrySessionReplaySync_updateInfo(
         (unsigned int)replayEvent.segmentId, replayEvent.timestamp.timeIntervalSinceReferenceDate);
@@ -729,21 +736,21 @@ static SentryTouchTracker *_touchTracker;
 - (void)sessionReplayStartedWithReplayId:(SentryId *)replayId
 {
     SENTRY_LOG_DEBUG(@"[Session Replay] Session replay started with replay id: %@", replayId);
-    [SentrySDK.currentHub configureScope:^(
+    [SentrySDKInternal.currentHub configureScope:^(
         SentryScope *_Nonnull scope) { scope.replayId = [replayId sentryIdString]; }];
 }
 
 - (NSArray<SentryBreadcrumb *> *)breadcrumbsForSessionReplay
 {
     __block NSArray<SentryBreadcrumb *> *result;
-    [SentrySDK.currentHub
+    [SentrySDKInternal.currentHub
         configureScope:^(SentryScope *_Nonnull scope) { result = scope.breadcrumbs; }];
     return result;
 }
 
 - (nullable NSString *)currentScreenNameForSessionReplay
 {
-    return SentrySDK.currentHub.scope.currentScreen
+    return SentrySDKInternal.currentHub.scope.currentScreen
         ?: [SentryDependencyContainer.sharedInstance.application relevantViewControllersNames]
                .firstObject;
 }

@@ -1,13 +1,13 @@
 {
   "name": "Sentry",
-  "version": "8.53.1",
+  "version": "8.54.0",
   "summary": "Sentry client for cocoa",
   "homepage": "https://github.com/getsentry/sentry-cocoa",
   "license": "mit",
   "authors": "Sentry",
   "source": {
     "git": "https://github.com/getsentry/sentry-cocoa.git",
-    "tag": "8.53.1"
+    "tag": "8.54.0"
   },
   "platforms": {
     "ios": "11.0",
@@ -24,9 +24,8 @@
     "GCC_ENABLE_CPP_EXCEPTIONS": "YES",
     "CLANG_CXX_LANGUAGE_STANDARD": "c++14",
     "CLANG_CXX_LIBRARY": "libc++",
-    "APPLICATION_EXTENSION_API_ONLY": "YES",
     "SWIFT_INCLUDE_PATHS": "${PODS_TARGET_SRCROOT}/Sources/Sentry/include",
-    "OTHER_CFLAGS": "$(inherited) -DAPPLICATION_EXTENSION_API_ONLY_$(APPLICATION_EXTENSION_API_ONLY)"
+    "OTHER_CFLAGS": "$(inherited)"
   },
   "watchos": {
     "pod_target_xcconfig": {

@@ -2,7 +2,7 @@
 import Foundation
 
 @objc
-protocol SentryReplayBreadcrumbConverter: NSObjectProtocol {
+@_spi(Private) public protocol SentryReplayBreadcrumbConverter: NSObjectProtocol {
     func convert(from breadcrumb: Breadcrumb) -> SentryRRWebEventProtocol?
 }
 
@@ -23,7 +23,7 @@ protocol SentryReplayBreadcrumbConverter: NSObjectProtocol {
      * Any deviation in the information will cause the breadcrumb or the information itself to be discarded
      * in order to avoid unknown behavior in the front-end.
      */
-    func convert(from breadcrumb: Breadcrumb) -> SentryRRWebEventProtocol? {
+    public func convert(from breadcrumb: Breadcrumb) -> SentryRRWebEventProtocol? {
         guard let timestamp = breadcrumb.timestamp else { return nil }
         if breadcrumb.category == "http" {
             return networkSpan(breadcrumb)

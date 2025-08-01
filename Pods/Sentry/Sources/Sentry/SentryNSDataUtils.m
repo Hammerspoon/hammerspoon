@@ -3,6 +3,7 @@
 #endif
 
 #import "SentryError.h"
+#import "SentryInternalDefines.h"
 #import "SentryNSDataUtils.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -63,7 +64,7 @@ NSData *_Nullable sentry_nullTerminated(NSData *_Nullable data)
     if (data == nil) {
         return nil;
     }
-    NSMutableData *mutable = [NSMutableData dataWithData:data];
+    NSMutableData *mutable = [NSMutableData dataWithData:SENTRY_UNWRAP_NULLABLE(NSData, data)];
     [mutable appendBytes:"\0" length:1];
     return mutable;
 }

@@ -6,15 +6,15 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryNSNotificationCenterWrapper;
-
+@protocol SentryNSNotificationCenterWrapper;
 @protocol SentryBreadcrumbDelegate;
 
 @interface SentrySystemEventBreadcrumbs : NSObject
 SENTRY_NO_INIT
 
 - (instancetype)initWithFileManager:(SentryFileManager *)fileManager
-       andNotificationCenterWrapper:(SentryNSNotificationCenterWrapper *)notificationCenterWrapper;
+       andNotificationCenterWrapper:
+           (id<SentryNSNotificationCenterWrapper>)notificationCenterWrapper;
 
 - (void)startWithDelegate:(id<SentryBreadcrumbDelegate>)delegate;
 

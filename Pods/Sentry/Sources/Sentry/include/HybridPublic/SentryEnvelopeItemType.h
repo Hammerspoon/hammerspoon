@@ -5,7 +5,9 @@
 // differences.
 static NSString *const SentryEnvelopeItemTypeEvent = @"event";
 static NSString *const SentryEnvelopeItemTypeSession = @"session";
+#if !SDK_V9
 static NSString *const SentryEnvelopeItemTypeUserFeedback = @"user_report";
+#endif // !SDK_V9
 static NSString *const SentryEnvelopeItemTypeFeedback = @"feedback";
 static NSString *const SentryEnvelopeItemTypeTransaction = @"transaction";
 static NSString *const SentryEnvelopeItemTypeAttachment = @"attachment";
@@ -14,3 +16,4 @@ static NSString *const SentryEnvelopeItemTypeProfile = @"profile";
 static NSString *const SentryEnvelopeItemTypeReplayVideo = @"replay_video";
 static NSString *const SentryEnvelopeItemTypeStatsd = @"statsd";
 static NSString *const SentryEnvelopeItemTypeProfileChunk = @"profile_chunk";
+static NSString *const SentryEnvelopeItemTypeLog = @"log";

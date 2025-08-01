@@ -25,7 +25,7 @@ final class SentryGraphicsImageRenderer {
         /// - Remark: To reduce error-handling and potential issues, the image is always returned but can be empty.
         var currentImage: UIImage {
             guard let cgImage = cgContext.makeImage() else {
-                SentryLog.fatal("Unable to create image from graphics context")
+                SentrySDKLog.fatal("Unable to create image from graphics context")
                 return UIImage()
             }
             return UIImage(cgImage: cgImage, scale: scale, orientation: .up)
@@ -50,7 +50,7 @@ final class SentryGraphicsImageRenderer {
 
         // Allocate memory for raw image data and initializes every byte in the allocated memory to 0.
         guard let rawData = calloc(pixelsPerColumn * bytesPerRow, MemoryLayout<UInt8>.size) else {
-            SentryLog.error("Unable to allocate memory for image data")
+            SentrySDKLog.error("Unable to allocate memory for image data")
             return UIImage()
         }
         defer {
@@ -66,7 +66,7 @@ final class SentryGraphicsImageRenderer {
             space: colorSpace,
             bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
         ) else {
-            SentryLog.error("Unable to create context")
+            SentrySDKLog.error("Unable to create context")
             return UIImage()
         }
 

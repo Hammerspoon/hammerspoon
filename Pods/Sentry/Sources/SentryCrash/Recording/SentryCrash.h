@@ -45,8 +45,6 @@ typedef enum {
 
 static NSString *const SENTRYCRASH_REPORT_ATTACHMENTS_ITEM = @"attachments";
 
-@class SentryNSNotificationCenterWrapper;
-
 /**
  * Reports any crashes that occur in the application.
  *

@@ -4,7 +4,7 @@
 
 #    import "SentryDependencyContainer.h"
 #    import "SentryHub.h"
-#    import "SentryLog.h"
+#    import "SentryLogC.h"
 #    import "SentryOptions.h"
 #    import "SentryPerformanceTracker.h"
 #    import "SentrySDK+Private.h"
@@ -69,7 +69,7 @@
     if (self = [super init]) {
         self.tracker = tracker;
 
-        SentryOptions *options = [SentrySDK options];
+        SentryOptions *options = [SentrySDKInternal options];
         self.inAppLogic = [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
                                                             inAppExcludes:options.inAppExcludes];
 
@@ -94,7 +94,7 @@
         return;
     }
 
-    SentryOptions *options = [SentrySDK options];
+    SentryOptions *options = [SentrySDKInternal options];
 
     if ([SentrySwizzleClassNameExclude
             shouldExcludeClassWithClassName:NSStringFromClass([controller class])

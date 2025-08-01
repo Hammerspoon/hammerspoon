@@ -4,18 +4,7 @@
 #    import "PrivatesHeader.h"
 #endif
 
-#if COCOAPODS
 @class SentrySdkInfo;
-#else
-
-#    if __has_include(<Sentry/SentrySdkInfo.h>)
-#        import <Sentry/SentrySdkInfo.h>
-#    else
-#        import "SentrySdkInfo.h"
-#    endif
-
-#endif
-
 @class SentryAttachment;
 @class SentryEnvelopeItemHeader;
 @class SentryEvent;
@@ -91,6 +80,8 @@ SENTRY_NO_INIT
 
 - (instancetype)initWithEvent:(SentryEvent *)event;
 - (instancetype)initWithSession:(SentrySession *)session;
+
+#if !SDK_V9
 /**
  * @deprecated Building the envelopes for the new @c SentryFeedback type is done directly in @c
  * -[SentryClient @c captureFeedback:withScope:]
@@ -100,6 +91,7 @@ SENTRY_NO_INIT
         "Building the envelopes for the new SentryFeedback type is done directly in -[SentryClient "
         "captureFeedback:withScope:] so there will be no analog to this initializer for "
         "SentryFeedback at this time..");
+#endif // !SDK_V9
 - (_Nullable instancetype)initWithAttachment:(SentryAttachment *)attachment
                            maxAttachmentSize:(NSUInteger)maxAttachmentSize;
 - (instancetype)initWithHeader:(SentryEnvelopeItemHeader *)header
@@ -149,6 +141,7 @@ SENTRY_NO_INIT
  */
 - (instancetype)initWithEvent:(SentryEvent *)event;
 
+#if !SDK_V9
 /**
  * @deprecated Building the envelopes for the new @c SentryFeedback type is done directly in @c
  * -[SentryClient @c captureFeedback:withScope:]
@@ -156,6 +149,7 @@ SENTRY_NO_INIT
 - (instancetype)initWithUserFeedback:(SentryUserFeedback *)userFeedback
     DEPRECATED_MSG_ATTRIBUTE("Building the envelopes for the new SentryFeedback type is done "
                              "directly in -[SentryClient captureFeedback:withScope:].");
+#endif // !SDK_V9
 
 /**
  * The envelope header.

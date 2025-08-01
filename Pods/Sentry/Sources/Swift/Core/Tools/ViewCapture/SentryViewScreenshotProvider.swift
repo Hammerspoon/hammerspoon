@@ -3,10 +3,10 @@
 import Foundation
 import UIKit
 
-typealias ScreenshotCallback = (_ maskedViewImage: UIImage) -> Void
+@_spi(Private) public typealias ScreenshotCallback = (_ maskedViewImage: UIImage) -> Void
 
 @objc
-protocol SentryViewScreenshotProvider: NSObjectProtocol {
+@_spi(Private) public protocol SentryViewScreenshotProvider: NSObjectProtocol {
     func image(view: UIView, onComplete: @escaping ScreenshotCallback)
 }
 #endif

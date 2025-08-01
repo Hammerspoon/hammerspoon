@@ -108,7 +108,7 @@ SU_EXPORT extern NSString *const SUSystemProfilerPreferredLanguageKey;
  This feature was added in Sparkle 2.
  
  @return The set of channel names the updater is allowed to find new updates in. An empty set is the default behavior,
-         which means the updater will only look for updates in the default channel.
+         which means the updater will only look for updates in the default channel. The default channel is always included in the allowed set.
  */
 - (NSSet<NSString *> *)allowedChannelsForUpdater:(SPUUpdater *)updater;
 
@@ -137,7 +137,11 @@ SU_EXPORT extern NSString *const SUSystemProfilerPreferredLanguageKey;
 /**
  Returns whether Sparkle should prompt the user about checking for new updates automatically.
  
- Use this to override the default behavior.
+ Use this to override the default behavior, which is to prompt for permission to check for updates on second app launch
+ (if SUEnableAutomaticChecks is not specified).
+ 
+ This method is not called if SUEnableAutomaticChecks is defined in Info.plist or
+ if the user has responded to a permission prompt before.
  
  @param updater The updater instance.
  @return @c YES if the updater should prompt for permission to check for new updates automatically, otherwise @c NO
@@ -382,7 +386,7 @@ SU_EXPORT extern NSString *const SUSystemProfilerPreferredLanguageKey;
  @param updater The updater instance.
  @return The custom version comparator or @c nil if you don't want to be delegated this task.
  */
-- (nullable id<SUVersionComparison>)versionComparatorForUpdater:(SPUUpdater *)updater;
+- (nullable id<SUVersionComparison>)versionComparatorForUpdater:(SPUUpdater *)updater __deprecated_msg("Custom version comparators are deprecated because they are incompatible with how the system compares different versions of an app.");
 
 /**
  Called when a background update will be scheduled after a delay.

@@ -104,7 +104,7 @@
 
     // When calling SentrySDK.start twice we would wrongly report a Watchdog Termination. We can
     // only report a Watchdog Termination when the SDK is started the first time.
-    if (SentrySDK.startInvocations != 1) {
+    if (SentrySDKInternal.startInvocations != 1) {
         return NO;
     }
 

@@ -2,7 +2,7 @@ import Foundation
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
 
 @objc
-protocol SentrySessionReplayDelegate: NSObjectProtocol {
+@_spi(Private) public protocol SentrySessionReplayDelegate: NSObjectProtocol {
     func sessionReplayShouldCaptureReplayForError() -> Bool
     func sessionReplayNewSegment(replayEvent: SentryReplayEvent, replayRecording: SentryReplayRecording, videoUrl: URL)
     func sessionReplayStarted(replayId: SentryId)

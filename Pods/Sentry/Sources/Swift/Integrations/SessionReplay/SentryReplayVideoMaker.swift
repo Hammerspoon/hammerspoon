@@ -3,7 +3,7 @@ import Foundation
 import UIKit
 
 @objc
-protocol SentryReplayVideoMaker: NSObjectProtocol {
+@_spi(Private) public protocol SentryReplayVideoMaker: NSObjectProtocol {
     func addFrameAsync(timestamp: Date, maskedViewImage: UIImage, forScreen: String?)
     func releaseFramesUntil(_ date: Date)
     func createVideoInBackgroundWith(beginning: Date, end: Date, completion: @escaping ([SentryVideoInfo]) -> Void)

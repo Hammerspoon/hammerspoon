@@ -41,6 +41,11 @@ NS_ASSUME_NONNULL_BEGIN
                     withSession:(SentrySession *)session
                       withScope:(SentryScope *)scope;
 
+- (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
+                      withEventId:(NSString *)feedbackEventId
+                      attachments:(NSArray<SentryAttachment *> *)feedbackAttachments
+                            scope:(SentryScope *)scope;
+
 - (void)saveCrashTransaction:(SentryTransaction *)transaction
                    withScope:(SentryScope *)scope
     NS_SWIFT_NAME(saveCrashTransaction(transaction:scope:));

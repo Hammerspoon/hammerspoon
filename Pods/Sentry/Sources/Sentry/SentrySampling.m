@@ -87,6 +87,7 @@ sentry_sampleTrace(SentrySamplingContext *context, SentryOptions *options)
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
+#    if !SDK_V9
 SentrySamplerDecision *
 sentry_sampleTraceProfile(SentrySamplingContext *context,
     SentrySamplerDecision *tracesSamplerDecision, SentryOptions *options)
@@ -101,23 +102,27 @@ sentry_sampleTraceProfile(SentrySamplingContext *context,
     }
 
     // Backward compatibility for clients that are still using the enableProfiling option.
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#        pragma clang diagnostic push
+#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
     if (options.enableProfiling) {
         return [[SentrySamplerDecision alloc] initWithDecision:kSentrySampleDecisionYes
                                                  forSampleRate:@1.0
                                                 withSampleRand:@1.0];
     }
-#    pragma clang diagnostic pop
 
     NSNumber *callbackRate = _sentry_samplerCallbackRate(
         options.profilesSampler, context, SENTRY_DEFAULT_PROFILES_SAMPLE_RATE);
+#        pragma clang diagnostic pop
     if (callbackRate != nil) {
         return _sentry_calcSample(callbackRate);
     }
 
+#        pragma clang diagnostic push
+#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
     return _sentry_calcSampleFromNumericalRate(options.profilesSampleRate);
+#        pragma clang diagnostic pop
 }
+#    endif // !SDK_V9
 
 SentrySamplerDecision *
 sentry_sampleProfileSession(float sessionSampleRate)

@@ -1,9 +1,12 @@
 #import "SentryBinaryImageCache.h"
 #import "SentryCrashBinaryImageCache.h"
 #include "SentryCrashUUIDConversion.h"
+#import "SentryDefaultObjCRuntimeWrapper.h"
 #import "SentryDependencyContainer.h"
 #import "SentryInAppLogic.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
+#import "SentrySDK+Private.h"
+#import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -16,15 +19,17 @@ static void binaryImageWasRemoved(const SentryCrashBinaryImage *image);
 
 @interface SentryBinaryImageCache ()
 @property (nonatomic, strong, nullable) NSMutableArray<SentryBinaryImageInfo *> *cache;
+@property (nonatomic, assign) BOOL isDebug;
 - (void)binaryImageAdded:(const SentryCrashBinaryImage *)image;
 - (void)binaryImageRemoved:(const SentryCrashBinaryImage *)image;
 @end
 
 @implementation SentryBinaryImageCache
 
-- (void)start
+- (void)start:(BOOL)isDebug
 {
     @synchronized(self) {
+        _isDebug = isDebug;
         _cache = [NSMutableArray array];
         sentrycrashbic_registerAddedCallback(&binaryImageWasAdded);
         sentrycrashbic_registerRemovedCallback(&binaryImageWasRemoved);
@@ -82,6 +87,17 @@ static void binaryImageWasRemoved(const SentryCrashBinaryImage *image);
         }
 
         [_cache insertObject:newImage atIndex:left];
+    }
+
+    if (self.isDebug) {
+        // This validation adds some overhead with each class present in the image, so we only
+        // run this when debug is enabled. A non main queue is used to avoid affecting the UI.
+        [LoadValidator
+            checkForDuplicatedSDKWithImageName:imageName
+                                  imageAddress:@(newImage.address)
+                                     imageSize:@(newImage.size)
+                          dispatchQueueWrapper:[[SentryDependencyContainer sharedInstance]
+                                                   dispatchQueueWrapper]];
     }
 }
 

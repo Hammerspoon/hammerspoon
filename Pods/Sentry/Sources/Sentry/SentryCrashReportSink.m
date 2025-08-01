@@ -6,14 +6,14 @@
 #import "SentryCrashReportConverter.h"
 #import "SentryCrashWrapper.h"
 #import "SentryDefines.h"
-#import "SentryDispatchQueueWrapper.h"
 #import "SentryEvent.h"
 #import "SentryException.h"
 #import "SentryHub.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentrySDK+Private.h"
-#import "SentrySDK.h"
+#import "SentrySDKInternal.h"
 #import "SentryScope+Private.h"
+#import "SentrySwift.h"
 #import "SentryThread.h"
 
 static const NSTimeInterval SENTRY_APP_START_CRASH_DURATION_THRESHOLD = 2.0;
@@ -50,11 +50,11 @@ static const NSTimeInterval SENTRY_APP_START_CRASH_FLUSH_DURATION = 5.0;
         && durationFromCrashStateInitToLastCrash <= SENTRY_APP_START_CRASH_DURATION_THRESHOLD) {
         SENTRY_LOG_WARN(@"Startup crash: detected.");
 
-        [SentrySDK setDetectedStartUpCrash:YES];
+        [SentrySDKInternal setDetectedStartUpCrash:YES];
 
         [self sendReports:reports onCompletion:onCompletion];
 
-        [SentrySDK flush:SENTRY_APP_START_CRASH_FLUSH_DURATION];
+        [SentrySDKInternal flush:SENTRY_APP_START_CRASH_FLUSH_DURATION];
         SENTRY_LOG_DEBUG(@"Startup crash: Finished flushing.");
 
     } else {
@@ -69,7 +69,7 @@ static const NSTimeInterval SENTRY_APP_START_CRASH_FLUSH_DURATION = 5.0;
     for (NSDictionary *report in reports) {
         SentryCrashReportConverter *reportConverter =
             [[SentryCrashReportConverter alloc] initWithReport:report inAppLogic:self.inAppLogic];
-        if (nil != [SentrySDK.currentHub getClient]) {
+        if (nil != [SentrySDKInternal.currentHub getClient]) {
             SentryEvent *event = [reportConverter convertReportToEvent];
             if (nil != event) {
                 [self handleConvertedEvent:event report:report sentReports:sentReports];
@@ -92,7 +92,7 @@ static const NSTimeInterval SENTRY_APP_START_CRASH_FLUSH_DURATION = 5.0;
                  sentReports:(NSMutableArray *)sentReports
 {
     [sentReports addObject:report];
-    SentryScope *scope = [[SentryScope alloc] initWithScope:SentrySDK.currentHub.scope];
+    SentryScope *scope = [[SentryScope alloc] initWithScope:SentrySDKInternal.currentHub.scope];
 
     if (report[SENTRYCRASH_REPORT_ATTACHMENTS_ITEM]) {
         for (NSString *ssPath in report[SENTRYCRASH_REPORT_ATTACHMENTS_ITEM]) {
@@ -100,7 +100,7 @@ static const NSTimeInterval SENTRY_APP_START_CRASH_FLUSH_DURATION = 5.0;
         }
     }
 
-    [SentrySDK captureFatalEvent:event withScope:scope];
+    [SentrySDKInternal captureFatalEvent:event withScope:scope];
 }
 
 @end

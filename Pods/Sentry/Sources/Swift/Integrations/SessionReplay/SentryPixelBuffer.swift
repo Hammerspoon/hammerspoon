@@ -6,7 +6,11 @@ import CoreGraphics
 import Foundation
 import UIKit
 
-final class SentryPixelBuffer {
+protocol SentryAppendablePixelBuffer {
+    func append(image: UIImage, presentationTime: CMTime) -> Bool
+}
+
+final class SentryPixelBuffer: SentryAppendablePixelBuffer {
     private var pixelBuffer: CVPixelBuffer?
     private let rgbColorSpace = CGColorSpaceCreateDeviceRGB()
     private let size: CGSize
@@ -26,9 +30,9 @@ final class SentryPixelBuffer {
     }
     
     func append(image: UIImage, presentationTime: CMTime) -> Bool {
-        SentryLog.debug("[Session Replay] Appending image to pixel buffer with presentation time: \(presentationTime)")
+        SentrySDKLog.debug("[Session Replay] Appending image to pixel buffer with presentation time: \(presentationTime)")
         guard let pixelBuffer = pixelBuffer else { 
-            SentryLog.error("[Session Replay] Could not append image to pixel buffer, reason: pixel buffer is nil")
+            SentrySDKLog.error("[Session Replay] Could not append image to pixel buffer, reason: pixel buffer is nil")
             return false 
         }
         
@@ -46,7 +50,7 @@ final class SentryPixelBuffer {
                 space: rgbColorSpace,
                 bitmapInfo: CGImageAlphaInfo.noneSkipFirst.rawValue
             ) else {
-            SentryLog.error("[Session Replay] Failed to append image to pixel buffer, reason: could not create CGContext")
+            SentrySDKLog.error("[Session Replay] Failed to append image to pixel buffer, reason: could not create CGContext")
             return false
         }
 

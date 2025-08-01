@@ -34,6 +34,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (SentryLevel)levelFromData:(NSData *)eventEnvelopeItemData;
 
+/**
+ * Retrieves the json object from an event envelope item data.
+ */
++ (NSArray *_Nullable)deserializeArrayFromJsonData:(NSData *)data;
+
 @end
 
 NS_ASSUME_NONNULL_END

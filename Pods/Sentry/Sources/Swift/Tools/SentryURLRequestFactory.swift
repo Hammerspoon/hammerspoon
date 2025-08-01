@@ -33,11 +33,11 @@ private enum Error: Swift.Error {
             let data = try SentryNSDataUtils.sentry_gzipped(with: data, compressionLevel: -1)
             request.httpBody = data
         } catch {
-            SentryLog.log(message: "Failed to compress envelope request body: \(error)", andLevel: .error)
+            SentrySDKLog.log(message: "Failed to compress envelope request body: \(error)", andLevel: .error)
             throw error
         }
         
-        SentryLog.log(message: "Constructed request: \(self)", andLevel: .debug)
+        SentrySDKLog.log(message: "Constructed request: \(self)", andLevel: .debug)
         return request
     }
     

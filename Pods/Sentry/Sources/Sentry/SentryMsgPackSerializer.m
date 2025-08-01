@@ -1,5 +1,5 @@
 #import "SentryMsgPackSerializer.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 
 @implementation SentryMsgPackSerializer
 

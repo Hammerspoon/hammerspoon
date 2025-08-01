@@ -14,6 +14,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+#    if defined(__cplusplus)
+extern "C" {
+#    endif
+
 SENTRY_EXTERN SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHub *hub,
     SentryProfiler *profiler, NSDictionary<NSString *, id> *profilingData,
     SentryTransaction *transaction, NSDate *startTimestamp);
@@ -29,6 +33,10 @@ SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
 /** Alternative affordance for use by PrivateSentrySDKOnly for hybrid SDKs. */
 NSMutableDictionary<NSString *, id> *_Nullable sentry_collectProfileDataHybridSDK(
     uint64_t startSystemTime, uint64_t endSystemTime, SentryId *traceId, SentryHub *hub);
+
+#    if defined(__cplusplus)
+}
+#    endif
 
 NS_ASSUME_NONNULL_END
 

@@ -10,7 +10,7 @@
 #import "SentryFrame.h"
 #import "SentryInAppLogic.h"
 #import "SentryInternalDefines.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentryMechanism.h"
 #import "SentryMechanismMeta.h"
 #import "SentryStacktrace.h"

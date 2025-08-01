@@ -95,6 +95,7 @@ SENTRY_NO_INIT
 - (SentryId *)captureMessage:(NSString *)message
                    withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(message:scope:));
 
+#if !SDK_V9
 /**
  * Captures a manually created user feedback and sends it to Sentry.
  * @param userFeedback The user feedback to send to Sentry.
@@ -103,6 +104,7 @@ SENTRY_NO_INIT
 - (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
     NS_SWIFT_NAME(capture(userFeedback:))
         DEPRECATED_MSG_ATTRIBUTE("Use -[SentryClient captureFeedback:withScope:].");
+#endif // !SDK_V9
 
 /**
  * Captures a new-style user feedback and sends it to Sentry.

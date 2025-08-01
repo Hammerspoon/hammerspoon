@@ -6,7 +6,7 @@
 #import "SentryCrashSymbolicator.h"
 #import "SentryFrame.h"
 #import "SentryFrameRemover.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentryStacktrace.h"
 #import <dlfcn.h>
 

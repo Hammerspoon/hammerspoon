@@ -39,10 +39,10 @@
 #import "SentryDefines.h"
 #import "SentryDependencyContainer.h"
 #import "SentryInternalCDefines.h"
-#import "SentryNSNotificationCenterWrapper.h"
+#import "SentrySwift.h"
 #import <SentryNSDataUtils.h>
 
-#import "SentryLog.h"
+#import "SentryLogC.h"
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
@@ -238,39 +238,48 @@
     }
 
 #if SENTRY_HAS_UIKIT
-    SentryNSNotificationCenterWrapper *notificationCenter
+    id<SentryNSNotificationCenterWrapper> notificationCenter
         = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
     [notificationCenter addObserver:self
                            selector:@selector(applicationDidBecomeActive)
-                               name:UIApplicationDidBecomeActiveNotification];
+                               name:UIApplicationDidBecomeActiveNotification
+                             object:nil];
     [notificationCenter addObserver:self
                            selector:@selector(applicationWillResignActive)
-                               name:UIApplicationWillResignActiveNotification];
+                               name:UIApplicationWillResignActiveNotification
+                             object:nil];
     [notificationCenter addObserver:self
                            selector:@selector(applicationDidEnterBackground)
-                               name:UIApplicationDidEnterBackgroundNotification];
+                               name:UIApplicationDidEnterBackgroundNotification
+                             object:nil];
     [notificationCenter addObserver:self
                            selector:@selector(applicationWillEnterForeground)
-                               name:UIApplicationWillEnterForegroundNotification];
+                               name:UIApplicationWillEnterForegroundNotification
+                             object:nil];
     [notificationCenter addObserver:self
                            selector:@selector(applicationWillTerminate)
-                               name:UIApplicationWillTerminateNotification];
+                               name:UIApplicationWillTerminateNotification
+                             object:nil];
 #endif // SENTRY_HAS_UIKIT
 #if SENTRY_HAS_NSEXTENSION
-    SentryNSNotificationCenterWrapper *notificationCenter
+    id<SentryNSNotificationCenterWrapper> notificationCenter
         = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
     [notificationCenter addObserver:self
                            selector:@selector(applicationDidBecomeActive)
-                               name:NSExtensionHostDidBecomeActiveNotification];
+                               name:NSExtensionHostDidBecomeActiveNotification
+                             object:nil];
     [notificationCenter addObserver:self
                            selector:@selector(applicationWillResignActive)
-                               name:NSExtensionHostWillResignActiveNotification];
+                               name:NSExtensionHostWillResignActiveNotification
+                             object:nil];
     [notificationCenter addObserver:self
                            selector:@selector(applicationDidEnterBackground)
-                               name:NSExtensionHostDidEnterBackgroundNotification];
+                               name:NSExtensionHostDidEnterBackgroundNotification
+                             object:nil];
     [notificationCenter addObserver:self
                            selector:@selector(applicationWillEnterForeground)
-                               name:NSExtensionHostWillEnterForegroundNotification];
+                               name:NSExtensionHostWillEnterForegroundNotification
+                             object:nil];
 #endif // SENTRY_HAS_NSEXTENSION
 
     return true;
@@ -285,21 +294,37 @@
     sentrycrash_uninstall();
 
 #if SENTRY_HAS_UIKIT
-    SentryNSNotificationCenterWrapper *notificationCenter
+    id<SentryNSNotificationCenterWrapper> notificationCenter
         = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
-    [notificationCenter removeObserver:self name:UIApplicationDidBecomeActiveNotification];
-    [notificationCenter removeObserver:self name:UIApplicationWillResignActiveNotification];
-    [notificationCenter removeObserver:self name:UIApplicationDidEnterBackgroundNotification];
-    [notificationCenter removeObserver:self name:UIApplicationWillEnterForegroundNotification];
-    [notificationCenter removeObserver:self name:UIApplicationWillTerminateNotification];
+    [notificationCenter removeObserver:self
+                                  name:UIApplicationDidBecomeActiveNotification
+                                object:nil];
+    [notificationCenter removeObserver:self
+                                  name:UIApplicationWillResignActiveNotification
+                                object:nil];
+    [notificationCenter removeObserver:self
+                                  name:UIApplicationDidEnterBackgroundNotification
+                                object:nil];
+    [notificationCenter removeObserver:self
+                                  name:UIApplicationWillEnterForegroundNotification
+                                object:nil];
+    [notificationCenter removeObserver:self name:UIApplicationWillTerminateNotification object:nil];
 #endif // SENTRY_HAS_UIKIT
 #if SENTRY_HAS_NSEXTENSION
-    SentryNSNotificationCenterWrapper *notificationCenter
+    id<SentryNSNotificationCenterWrapper> notificationCenter
         = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
-    [notificationCenter removeObserver:self name:NSExtensionHostDidBecomeActiveNotification];
-    [notificationCenter removeObserver:self name:NSExtensionHostWillResignActiveNotification];
-    [notificationCenter removeObserver:self name:NSExtensionHostDidEnterBackgroundNotification];
-    [notificationCenter removeObserver:self name:NSExtensionHostWillEnterForegroundNotification];
+    [notificationCenter removeObserver:self
+                                  name:NSExtensionHostDidBecomeActiveNotification
+                                object:nil];
+    [notificationCenter removeObserver:self
+                                  name:NSExtensionHostWillResignActiveNotification
+                                object:nil];
+    [notificationCenter removeObserver:self
+                                  name:NSExtensionHostDidEnterBackgroundNotification
+                                object:nil];
+    [notificationCenter removeObserver:self
+                                  name:NSExtensionHostWillEnterForegroundNotification
+                                object:nil];
 #endif
 }
 

@@ -1,5 +1,5 @@
 #import "SentryDispatchSourceWrapper.h"
-#import "SentryDispatchQueueWrapper.h"
+#import "SentrySwift.h"
 
 @implementation SentryDispatchSourceWrapper {
     SentryDispatchQueueWrapper *_queueWrapper;

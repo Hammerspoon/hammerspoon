@@ -1,7 +1,7 @@
 #import "SentryDispatchFactory.h"
-#import "SentryDispatchQueueWrapper.h"
 #import "SentryDispatchSourceWrapper.h"
 #import "SentryInternalDefines.h"
+#import "SentrySwift.h"
 
 @implementation SentryDispatchFactory
 

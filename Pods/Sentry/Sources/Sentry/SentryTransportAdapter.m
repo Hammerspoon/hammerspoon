@@ -91,8 +91,9 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#if !SDK_V9
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)sendUserFeedback:(SentryUserFeedback *)userFeedback
 {
     SentryEnvelopeItem *item = [[SentryEnvelopeItem alloc] initWithUserFeedback:userFeedback];
@@ -102,7 +103,8 @@ NS_ASSUME_NONNULL_BEGIN
                                                            singleItem:item];
     [self sendEnvelope:envelope];
 }
-#pragma clang diagnostic pop
+#    pragma clang diagnostic pop
+#endif // !SDK_V9
 
 - (void)sendEnvelope:(SentryEnvelope *)envelope
 {

@@ -6,14 +6,13 @@
 #    import "SentryAppStateManager.h"
 #    import "SentryDefines.h"
 #    import "SentryFramesTracker.h"
-#    import "SentryLog.h"
+#    import "SentryLogC.h"
 #    import "SentrySysctl.h"
 #    import <PrivateSentrySDKOnly.h>
 #    import <SentryAppState.h>
 #    import <SentryDependencyContainer.h>
-#    import <SentryDispatchQueueWrapper.h>
 #    import <SentryInternalNotificationNames.h>
-#    import <SentryLog.h>
+#    import <SentryLogC.h>
 #    import <SentrySDK+Private.h>
 #    import <SentrySwift.h>
 #    import <UIKit/UIKit.h>
@@ -215,10 +214,10 @@ static const NSTimeInterval SENTRY_APP_START_MAX_DURATION = 180.0;
                                                    duration:appStartDuration
                                        runtimeInitTimestamp:runtimeInit
                               moduleInitializationTimestamp:sysctl.moduleInitializationTimestamp
-                                          sdkStartTimestamp:SentrySDK.startTimestamp
+                                          sdkStartTimestamp:SentrySDKInternal.startTimestamp
                                 didFinishLaunchingTimestamp:self.didFinishLaunchingTimestamp];
 
-        SentrySDK.appStartMeasurement = appStartMeasurement;
+        SentrySDKInternal.appStartMeasurement = appStartMeasurement;
     };
 
 // With only running this once we know that the process is a new one when the following

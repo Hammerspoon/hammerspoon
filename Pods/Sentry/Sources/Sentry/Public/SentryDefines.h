@@ -1,26 +1,5 @@
 #import <Foundation/Foundation.h>
 
-// SentryDefines.h is a key header and will be checked early,
-// ensuring this error appears first during the compile process.
-//
-// Setting APPLICATION_EXTENSION_API_ONLY to YES has a side effect of
-// including all Swift classes in the `Sentry-Swift.h` header which is
-// required for the SDK to work.
-//
-// https://github.com/getsentry/sentry-cocoa/issues/4426
-//
-// This mainly came up in RN SDK, because
-// some libraries advice to users
-// to set APPLICATION_EXTENSION_API_ONLY_NO
-// for all cocoapods targets, instead of
-// only to their pod.
-// https://github.com/getsentry/sentry-react-native/issues/3908
-#if APPLICATION_EXTENSION_API_ONLY_NO
-#    error "Set APPLICATION_EXTENSION_API_ONLY to YES in the Sentry build settings.\
- Setting the flag to YES is required for the SDK to work.\
- For more information, visit https://docs.sentry.io/platforms/apple/troubleshooting/#unknown-receiver-somereceiver-use-of-undeclared-identifier-someidentifier
-#endif
-
 // Clang warns if a double quoted include is used instead of angle brackets in a public header
 // These 3 import variations are how public headers can be imported with angle brackets
 // for Sentry, SentryWithoutUIKit, and SPM
@@ -171,6 +150,7 @@ typedef NSNumber *_Nullable (^SentryTracesSamplerCallback)(
 typedef void (^SentrySpanCallback)(id<SentrySpan> _Nullable span DEPRECATED_MSG_ATTRIBUTE(
     "See `SentryScope.useSpan` for reasoning of deprecation."));
 
+#if !SDK_V9
 /**
  * Log level.
  */
@@ -180,6 +160,7 @@ typedef NS_ENUM(NSInteger, SentryLogLevel) {
     kSentryLogLevelDebug,
     kSentryLogLevelVerbose
 };
+#endif // !SDK_V9
 
 /**
  * Sentry level.

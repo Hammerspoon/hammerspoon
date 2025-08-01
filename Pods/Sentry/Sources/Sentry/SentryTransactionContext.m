@@ -1,5 +1,5 @@
 #import "SentryTransactionContext.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #include "SentryProfilingConditionals.h"
 #import "SentrySpanContext+Private.h"
 #import "SentrySwift.h"

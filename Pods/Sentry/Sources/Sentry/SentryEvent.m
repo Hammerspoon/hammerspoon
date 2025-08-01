@@ -9,11 +9,13 @@
 #import "SentryLevelMapper.h"
 #import "SentryMessage.h"
 #import "SentryMeta.h"
+#import "SentryModels+Serializable.h"
 #import "SentryNSDictionarySanitize.h"
 #import "SentryRequest.h"
 #import "SentryStacktrace.h"
 #import "SentrySwift.h"
 #import "SentryThread.h"
+#import "SentryUser+Serialize.h"
 #import "SentryUser.h"
 
 #if SENTRY_HAS_METRIC_KIT

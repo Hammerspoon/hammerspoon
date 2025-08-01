@@ -7,7 +7,7 @@
 #import "SentryHub+Private.h"
 #import "SentryInternalCDefines.h"
 #import "SentryInternalDefines.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentryNSDictionarySanitize.h"
 #import "SentryNoOpSpan.h"
 #import "SentryOptions+Private.h"
@@ -30,7 +30,6 @@
 #import "SentryTransactionContext.h"
 #import "SentryUIApplication.h"
 #import <NSMutableDictionary+Sentry.h>
-#import <SentryDispatchQueueWrapper.h>
 #import <SentryMeasurementValue.h>
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -220,10 +219,25 @@ static BOOL appStartMeasurementRead;
     return _configuration.idleTimeout > 0;
 }
 
+- (nullable dispatch_block_t)dispatchBlockCreate:(void (^)(void))block
+{
+    if ([_dispatchQueue shouldCreateDispatchBlock]) {
+        return dispatch_block_create(0, block);
+    }
+    return NULL;
+}
+
+- (void)dispatchCancel:(dispatch_block_t)block
+{
+    if ([_dispatchQueue shouldDispatchCancel]) {
+        dispatch_cancel(block);
+    }
+}
+
 - (void)startIdleTimeout
 {
     __weak SentryTracer *weakSelf = self;
-    dispatch_block_t newBlock = [_dispatchQueue createDispatchBlock:^{
+    dispatch_block_t newBlock = [self dispatchBlockCreate:^{
         if (weakSelf == nil) {
             SENTRY_LOG_DEBUG(@"WeakSelf is nil. Not doing anything.");
             return;
@@ -243,7 +257,7 @@ static BOOL appStartMeasurementRead;
 {
     @synchronized(_dispatchTimeoutLock) {
         if ([self hasIdleTimeout]) {
-            [_dispatchQueue dispatchCancel:_idleTimeoutBlock];
+            [self dispatchCancel:_idleTimeoutBlock];
         }
     }
 }
@@ -251,7 +265,7 @@ static BOOL appStartMeasurementRead;
 - (void)startDeadlineTimeout
 {
     __weak SentryTracer *weakSelf = self;
-    dispatch_block_t newBlock = [_dispatchQueue createDispatchBlock:^{
+    dispatch_block_t newBlock = [self dispatchBlockCreate:^{
         if (weakSelf == nil) {
             SENTRY_LOG_DEBUG(@"WeakSelf is nil. Not doing anything.");
             return;
@@ -292,7 +306,7 @@ static BOOL appStartMeasurementRead;
 {
     @synchronized(_dispatchTimeoutLock) {
         if (_deadlineTimeoutBlock != NULL) {
-            [_dispatchQueue dispatchCancel:_deadlineTimeoutBlock];
+            [self dispatchCancel:_deadlineTimeoutBlock];
             _deadlineTimeoutBlock = NULL;
         }
     }
@@ -303,7 +317,7 @@ static BOOL appStartMeasurementRead;
                interval:(NSTimeInterval)timeInterval
 {
     if (currentBlock != NULL) {
-        [_dispatchQueue dispatchCancel:currentBlock];
+        [self dispatchCancel:currentBlock];
     }
 
     if (newBlock == NULL) {
@@ -423,8 +437,8 @@ static BOOL appStartMeasurementRead;
                 _traceContext = [[SentryTraceContext alloc] initWithTracer:self
                                                                      scope:_hub.scope
                                                                    options:_hub.client.options
-                        ?: SentrySDK.options]; // We should remove static classes and always
-                                               // inject dependencies.
+                        ?: SentrySDKInternal.options]; // We should remove static classes and always
+                                                       // inject dependencies.
             }
         }
     }
@@ -798,7 +812,7 @@ static BOOL appStartMeasurementRead;
             return nil;
         }
 
-        measurement = [SentrySDK getAppStartMeasurement];
+        measurement = [SentrySDKInternal getAppStartMeasurement];
         if (measurement == nil) {
             SENTRY_LOG_DEBUG(@"No app start measurement available.");
             return nil;

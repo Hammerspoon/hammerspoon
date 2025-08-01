@@ -53,7 +53,7 @@ extension SentryUserFeedbackFormController {
     @objc
     func showedKeyboard(note: Notification) {
         guard let keyboardValue = note.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else {
-            SentryLog.warning("Received a keyboard display notification with no frame information.")
+            SentrySDKLog.warning("Received a keyboard display notification with no frame information.")
             return
         }
         let keyboardViewEndFrame = self.view.convert(keyboardValue.cgRectValue, from: self.view.window)
@@ -73,7 +73,7 @@ extension SentryUserFeedbackFormController: SentryUserFeedbackFormViewModelDeleg
         switch viewModel.validate() {
         case .success(_):
             let feedback = viewModel.feedbackObject()
-            SentryLog.debug("Sending user feedback")
+            SentrySDKLog.debug("Sending user feedback")
             if let block = config.onSubmitSuccess {
                 block(feedback.dataDictionary())
             }
@@ -91,7 +91,7 @@ extension SentryUserFeedbackFormController: SentryUserFeedbackFormViewModelDeleg
             }
             
             guard case let SentryUserFeedbackFormViewModel.InputError.validationError(missing) = error else {
-                SentryLog.warning("Unexpected error type.")
+                SentrySDKLog.warning("Unexpected error type.")
                 presentAlert(message: "Unexpected client error.", errorCode: 2, info: [NSLocalizedDescriptionKey: "Client error: ."])
                 return
             }

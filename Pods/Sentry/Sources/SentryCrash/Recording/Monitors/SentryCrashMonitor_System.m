@@ -34,7 +34,7 @@
 #import "SentryCrashSysCtl.h"
 #import "SentryInternalCDefines.h"
 
-#import "SentryLog.h"
+#import "SentryLogC.h"
 
 #import "SentryDefines.h"
 

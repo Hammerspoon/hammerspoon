@@ -19,7 +19,7 @@ import UIKit
     private var imageView = UIImageView()
     private var idle = true
     
-    var opacity: Float {
+    public var opacity: Float {
         get { return Float(imageView.alpha) }
         set { imageView.alpha = CGFloat(newValue)}
     }

@@ -14,7 +14,7 @@
                                                                forTrace:(SentryId *)traceId
 {
     NSMutableDictionary<NSString *, id> *payload = sentry_collectProfileDataHybridSDK(
-        startSystemTime, endSystemTime, traceId, [SentrySDK currentHub]);
+        startSystemTime, endSystemTime, traceId, [SentrySDKInternal currentHub]);
 
     if (payload != nil) {
         payload[@"platform"] = SentryPlatformName;

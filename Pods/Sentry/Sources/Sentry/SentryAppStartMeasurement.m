@@ -3,7 +3,7 @@
 #if SENTRY_UIKIT_AVAILABLE
 
 #    import "SentryDateUtils.h"
-#    import "SentryLog.h"
+#    import "SentryLogC.h"
 
 @implementation SentryAppStartTypeToString
 + (NSString *)convert:(SentryAppStartType)type

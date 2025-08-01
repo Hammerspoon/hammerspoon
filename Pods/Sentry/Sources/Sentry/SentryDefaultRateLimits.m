@@ -2,7 +2,7 @@
 #import "SentryConcurrentRateLimitsDictionary.h"
 #import "SentryDataCategoryMapper.h"
 #import "SentryDateUtil.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentryRateLimitParser.h"
 #import "SentryRetryAfterHeaderParser.h"
 #import "SentrySwift.h"

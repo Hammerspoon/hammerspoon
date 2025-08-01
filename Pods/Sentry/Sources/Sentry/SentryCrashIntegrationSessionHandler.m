@@ -4,7 +4,7 @@
 #import "SentryDependencyContainer.h"
 #import "SentryFileManager.h"
 #import "SentryHub.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentrySDK+Private.h"
 #import "SentrySession.h"
 #import "SentrySwift.h"
@@ -39,7 +39,7 @@
 
 - (void)endCurrentSessionIfRequired
 {
-    SentryFileManager *fileManager = [[[SentrySDK currentHub] getClient] fileManager];
+    SentryFileManager *fileManager = [[[SentrySDKInternal currentHub] getClient] fileManager];
 
     if (nil == fileManager) {
         SENTRY_LOG_DEBUG(@"File manager is nil. Cannot end current session.");

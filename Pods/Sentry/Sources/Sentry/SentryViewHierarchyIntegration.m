@@ -44,7 +44,7 @@ saveViewHierarchy(const char *reportDirectoryPath)
 
     self.options = options;
 
-    SentryClient *client = [SentrySDK.currentHub getClient];
+    SentryClient *client = [SentrySDKInternal.currentHub getClient];
     [client addAttachmentProcessor:self];
 
     sentrycrash_setSaveViewHierarchy(&saveViewHierarchy);
@@ -63,7 +63,7 @@ saveViewHierarchy(const char *reportDirectoryPath)
 {
     sentrycrash_setSaveViewHierarchy(NULL);
 
-    SentryClient *client = [SentrySDK.currentHub getClient];
+    SentryClient *client = [SentrySDKInternal.currentHub getClient];
     [client removeAttachmentProcessor:self];
 }
 

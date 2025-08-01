@@ -1,6 +1,6 @@
 #import "SentryUIDeviceWrapper.h"
 #import "SentryDependencyContainer.h"
-#import "SentryDispatchQueueWrapper.h"
+#import "SentrySwift.h"
 
 #if SENTRY_HAS_UIKIT
 

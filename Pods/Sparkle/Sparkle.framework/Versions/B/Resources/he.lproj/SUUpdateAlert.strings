@@ -1,8 +1,8 @@
 /* Class = "NSWindow"; title = "Software Update"; ObjectID = "5"; */
-"5.title" = "עדכון תכנה";
+"5.title" = "עדכון תוכנה";
 
 /* Class = "NSTextFieldCell"; title = "Release Notes:"; ObjectID = "170"; */
-"170.title" = "פרטי גרסה:";
+"170.title" = "הערות שחרור:";
 
 /* Class = "NSButtonCell"; title = "Remind Me Later"; ObjectID = "171"; */
 "171.title" = "הזכר לי מאוחר יותר";
@@ -11,7 +11,7 @@
 "172.title" = "דלג על גרסה זו";
 
 /* Class = "NSButtonCell"; title = "Install Update"; ObjectID = "173"; */
-"173.title" = "התקן עדכון";
+"173.title" = "התקן את העדכון";
 
 /* Class = "NSButtonCell"; title = "Automatically download and install updates in the future"; ObjectID = "175"; */
-"175.title" = "הורד והתקן עדכונים אוטומטית גם בעתיד";
+"175.title" = "הורד והתקן עדכונים בעתיד באופן אוטומטי";

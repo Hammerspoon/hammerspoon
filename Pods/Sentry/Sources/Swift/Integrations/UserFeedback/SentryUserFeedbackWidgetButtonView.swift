@@ -37,7 +37,7 @@ final class SentryUserFeedbackWidgetButtonView: UIView {
         precondition(atLeastOneElement, preconditionMessage)
 #endif // DEBUG
         guard atLeastOneElement else {
-            SentryLog.warning(preconditionMessage)
+            SentrySDKLog.warning(preconditionMessage)
             return
         }
         
@@ -120,7 +120,7 @@ final class SentryUserFeedbackWidgetButtonView: UIView {
 #endif // DEBUG
         
         if text.isEmpty {
-            SentryLog.warning("Attempted to show widget button with empty text label. If you don't want to show text, set `SentryUserFeedbackWidgetConfiguration.labelText` to `nil`.")
+            SentrySDKLog.warning("Attempted to show widget button with empty text label. If you don't want to show text, set `SentryUserFeedbackWidgetConfiguration.labelText` to `nil`.")
         }
         
         label.isAccessibilityElement = false

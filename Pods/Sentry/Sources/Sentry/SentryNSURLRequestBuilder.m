@@ -1,6 +1,6 @@
 #import "SentryNSURLRequestBuilder.h"
 #import "SentryDsn.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentrySerialization.h"
 #import "SentrySwift.h"
 

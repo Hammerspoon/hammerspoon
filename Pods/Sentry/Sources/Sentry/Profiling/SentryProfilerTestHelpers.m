@@ -65,7 +65,7 @@ sentry_writeProfileFile(NSData *JSONData, BOOL continuous)
     SENTRY_LOG_DEBUG(@"Writing profile to file: %@.", pathToWrite);
 
     SENTRY_CASSERT([JSONData writeToFile:pathToWrite options:NSDataWritingAtomic error:&error],
-        @"Failed to write data to path %@: %@", pathToWrite, error);
+        @"Failed to write profile data to path %@: %@", pathToWrite, error);
 }
 
 #    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)

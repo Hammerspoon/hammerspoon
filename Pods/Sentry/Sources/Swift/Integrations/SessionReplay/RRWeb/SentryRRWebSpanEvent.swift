@@ -2,7 +2,7 @@ import Foundation
 
 @objc @_spi(Private) public class SentryRRWebSpanEvent: SentryRRWebCustomEvent {
     
-    init(timestamp: Date, endTimestamp: Date, operation: String, description: String, data: [String: Any]) {
+    public init(timestamp: Date, endTimestamp: Date, operation: String, description: String, data: [String: Any]) {
         super.init(timestamp: timestamp, tag: "performanceSpan", payload:
                     [
                         "op": operation,

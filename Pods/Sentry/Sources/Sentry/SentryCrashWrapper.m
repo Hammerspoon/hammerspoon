@@ -4,6 +4,8 @@
 #import "SentryCrashIntegration.h"
 #import "SentryCrashMonitor_AppState.h"
 #import "SentryCrashMonitor_System.h"
+#import "SentryNSProcessInfoWrapper.h"
+#import "SentryScope+PrivateSwift.h"
 #import "SentryScope.h"
 #import "SentryUIDeviceWrapper.h"
 #import <SentryCrashCachedData.h>
@@ -17,7 +19,6 @@
 #    import <UIKit/UIKit.h>
 #endif
 
-static NSString *const DEVICE_KEY = @"device";
 static NSString *const LOCALE_KEY = @"locale";
 
 NS_ASSUME_NONNULL_BEGIN
@@ -145,7 +146,7 @@ NS_ASSUME_NONNULL_BEGIN
         [osData setValue:systemInfo[@"isJailbroken"] forKey:@"rooted"];
     }
 
-    [scope setContextValue:osData forKey:@"os"];
+    [scope setContextValue:osData forKey:SENTRY_CONTEXT_OS_KEY];
 
     // SystemInfo should only be nil when SentryCrash has not been installed
     if (systemInfo == nil || systemInfo.count == 0) {
@@ -195,7 +196,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #endif
 
-    [scope setContextValue:deviceData forKey:DEVICE_KEY];
+    [scope setContextValue:deviceData forKey:SENTRY_CONTEXT_DEVICE_KEY];
 
     // APP
     NSMutableDictionary *appData = [NSMutableDictionary new];
@@ -212,6 +213,33 @@ NS_ASSUME_NONNULL_BEGIN
     [appData setValue:systemInfo[@"buildType"] forKey:@"build_type"];
 
     [scope setContextValue:appData forKey:@"app"];
+
+    // Runtime
+    NSMutableDictionary *runtimeContext = [[NSMutableDictionary alloc] initWithCapacity:2];
+
+    // We set this info on the runtime context because the app context has no existing fields
+    // suitable for representing Catalyst or iOS-on-Mac execution modes. We also wanted to avoid
+    // adding two new Apple-specific fields to the app context. Coming up with a generic,
+    // reusable property on the app context proved difficult, so instead we reuse the "name"
+    // field of the runtime context as a pragmatic and semantically acceptable solution.
+    // isiOSAppOnMac and isMacCatalystApp are mutually exclusive, so we only set one of them.
+    if (@available(iOS 14.0, macOS 11.0, watchOS 7.0, tvOS 14.0, *)) {
+        if (SentryDependencyContainer.sharedInstance.processInfoWrapper.isiOSAppOnMac) {
+            runtimeContext[@"name"] = @"iOS App on Mac";
+            runtimeContext[@"raw_description"] = @"ios-app-on-mac";
+        }
+    }
+
+    if (@available(iOS 13.0, macOS 10.15, watchOS 6.0, tvOS 13.0, *)) {
+        if (SentryDependencyContainer.sharedInstance.processInfoWrapper.isMacCatalystApp) {
+            runtimeContext[@"name"] = @"Mac Catalyst App";
+            runtimeContext[@"raw_description"] = @"raw_description";
+        }
+    }
+
+    if (runtimeContext.count > 0) {
+        [scope setContextValue:runtimeContext forKey:@"runtime"];
+    }
 }
 
 @end

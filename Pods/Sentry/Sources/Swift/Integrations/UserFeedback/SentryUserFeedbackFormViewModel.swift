@@ -249,13 +249,13 @@ protocol SentryUserFeedbackFormViewModelDelegate: NSObjectProtocol {
         let aspectRatio: CGFloat
         if let screenshot = self.screenshot {
             if screenshot.size.height == 0 {
-                SentryLog.warning("Image had 0 height, won't be able to set a reasonable aspect ratio. Defaulting to 1:1.")
+                SentrySDKLog.warning("Image had 0 height, won't be able to set a reasonable aspect ratio. Defaulting to 1:1.")
                 aspectRatio = 1
             } else {
                 aspectRatio = screenshot.size.width / screenshot.size.height
             }
         } else {
-            SentryLog.warning("Should not be initializing an aspect ratio constraint without a screenshot")
+            SentrySDKLog.warning("Should not be initializing an aspect ratio constraint without a screenshot")
             aspectRatio = 1
         }
         
@@ -424,7 +424,7 @@ extension SentryUserFeedbackFormViewModel {
                 hint.append("including \(accessibilityInfo.lowercased())")
             } else {
                 hint.append("including screenshot")
-                SentryLog.warning("Required screenshot accessibility info but it was not set.")
+                SentrySDKLog.warning("Required screenshot accessibility info but it was not set.")
             }
         }
         
@@ -468,7 +468,7 @@ extension UITextField {
     var textOrNil: String? {
         guard hasText else { return nil }
         guard let text = text else {
-            SentryLog.warning("This branch should be unreachable. UITextField reported .hasText = true but couldn't provide .text in a conditional unwrap.")
+            SentrySDKLog.warning("This branch should be unreachable. UITextField reported .hasText = true but couldn't provide .text in a conditional unwrap.")
             return nil
         }
         return text
@@ -479,7 +479,7 @@ extension UITextView {
     var textOrNil: String? {
         guard hasText else { return nil }
         guard let text = text else {
-            SentryLog.warning("This branch should be unreachable. UITextField reported .hasText = true but couldn't provide .text in a conditional unwrap.")
+            SentrySDKLog.warning("This branch should be unreachable. UITextField reported .hasText = true but couldn't provide .text in a conditional unwrap.")
             return nil
         }
         return text

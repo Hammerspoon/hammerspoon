@@ -13,7 +13,6 @@
 @class SentryDispatchQueueWrapper;
 @class SentryExtraContextProvider;
 @class SentryFileManager;
-@class SentryNSNotificationCenterWrapper;
 @class SentryNSProcessInfoWrapper;
 @class SentryNSTimerFactory;
 @class SentrySwizzleWrapper;
@@ -22,7 +21,7 @@
 @class SentryThreadWrapper;
 @class SentryThreadInspector;
 @class SentryFileIOTracker;
-@class SentryScopeContextPersistentStore;
+@class SentryScopePersistentStore;
 @class SentryOptions;
 @class SentrySessionTracker;
 @class SentryGlobalEventProcessor;
@@ -33,6 +32,8 @@
 @protocol SentryRateLimits;
 @protocol SentryApplication;
 @protocol SentryDispatchQueueProviderProtocol;
+@protocol SentryNSNotificationCenterWrapper;
+@protocol SentryObjCRuntimeWrapper;
 
 #if SENTRY_HAS_METRIC_KIT
 @class SentryMXManager;
@@ -45,7 +46,7 @@
 @class SentryViewHierarchyProvider;
 @class SentryUIViewControllerPerformanceTracker;
 @class SentryWatchdogTerminationScopeObserver;
-@class SentryWatchdogTerminationContextProcessor;
+@class SentryWatchdogTerminationAttributesProcessor;
 @class SentryWatchdogTerminationBreadcrumbProcessor;
 #endif // SENTRY_UIKIT_AVAILABLE
 
@@ -87,7 +88,7 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentryBinaryImageCache *binaryImageCache;
 @property (nonatomic, strong) id<SentryCurrentDateProvider> dateProvider;
 @property (nonatomic, strong) SentryExtraContextProvider *extraContextProvider;
-@property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenterWrapper;
+@property (nonatomic, strong) id<SentryNSNotificationCenterWrapper> notificationCenterWrapper;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryNSProcessInfoWrapper *processInfoWrapper;
 @property (nonatomic, strong) SentrySysctl *sysctlWrapper;
@@ -104,12 +105,12 @@ SENTRY_NO_INIT
 
 #pragma mark - Lazy Dependencies
 
-@property (nonatomic, strong) SentryFileManager *fileManager;
+@property (nonatomic, strong, nullable) SentryFileManager *fileManager;
 @property (nonatomic, strong) SentryAppStateManager *appStateManager;
 @property (nonatomic, strong) SentryThreadInspector *threadInspector;
 @property (nonatomic, strong) SentryFileIOTracker *fileIOTracker;
 @property (nonatomic, strong) SentryCrash *crashReporter;
-@property (nonatomic, strong) SentryScopeContextPersistentStore *scopeContextPersistentStore;
+@property (nonatomic, strong) SentryScopePersistentStore *scopePersistentStore;
 @property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
 
 - (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout;
@@ -135,6 +136,7 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentryMXManager *metricKitManager API_AVAILABLE(
     ios(15.0), macos(12.0), macCatalyst(15.0)) API_UNAVAILABLE(tvos, watchos);
 #endif // SENTRY_HAS_METRIC_KIT
+@property (nonatomic, strong) id<SentryObjCRuntimeWrapper> objcRuntimeWrapper;
 
 #if SENTRY_HAS_UIKIT
 - (SentryWatchdogTerminationScopeObserver *)getWatchdogTerminationScopeObserverWithOptions:
@@ -142,7 +144,7 @@ SENTRY_NO_INIT
 - (SentryWatchdogTerminationBreadcrumbProcessor *)
     getWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs;
 @property (nonatomic, strong)
-    SentryWatchdogTerminationContextProcessor *watchdogTerminationContextProcessor;
+    SentryWatchdogTerminationAttributesProcessor *watchdogTerminationAttributesProcessor;
 #endif
 
 @property (nonatomic, strong) SentryGlobalEventProcessor *globalEventProcessor;

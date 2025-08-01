@@ -1,6 +1,6 @@
 #import "SentryBaggage.h"
 #import "SentryDsn.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentryOptions+Private.h"
 #import "SentryScope+Private.h"
 #import "SentrySwift.h"
@@ -15,7 +15,9 @@
                     releaseName:(nullable NSString *)releaseName
                     environment:(nullable NSString *)environment
                     transaction:(nullable NSString *)transaction
+#if !SDK_V9
                     userSegment:(nullable NSString *)userSegment
+#endif
                      sampleRate:(nullable NSString *)sampleRate
                         sampled:(nullable NSString *)sampled
                        replayId:(nullable NSString *)replayId
@@ -25,7 +27,9 @@
                      releaseName:releaseName
                      environment:environment
                      transaction:transaction
+#if !SDK_V9
                      userSegment:userSegment
+#endif
                       sampleRate:sampleRate
                       sampleRand:nil
                          sampled:sampled
@@ -37,7 +41,9 @@
                     releaseName:(nullable NSString *)releaseName
                     environment:(nullable NSString *)environment
                     transaction:(nullable NSString *)transaction
+#if !SDK_V9
                     userSegment:(nullable NSString *)userSegment
+#endif
                      sampleRate:(nullable NSString *)sampleRate
                      sampleRand:(nullable NSString *)sampleRand
                         sampled:(nullable NSString *)sampled
@@ -50,7 +56,9 @@
         _releaseName = releaseName;
         _environment = environment;
         _transaction = transaction;
+#if !SDK_V9
         _userSegment = userSegment;
+#endif
         _sampleRate = sampleRate;
         _sampleRand = sampleRand;
         _sampled = sampled;
@@ -80,9 +88,11 @@
         [information setValue:_transaction forKey:@"sentry-transaction"];
     }
 
+#if !SDK_V9
     if (_userSegment != nil) {
         [information setValue:_userSegment forKey:@"sentry-user_segment"];
     }
+#endif
 
     if (_sampleRand != nil) {
         [information setValue:_sampleRand forKey:@"sentry-sample_rand"];

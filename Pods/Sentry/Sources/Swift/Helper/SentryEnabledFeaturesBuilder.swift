@@ -1,8 +1,10 @@
+@_implementationOnly import _SentryPrivate
 import Foundation
 
 @objcMembers @_spi(Private) public class SentryEnabledFeaturesBuilder: NSObject {
 
     // swiftlint:disable cyclomatic_complexity function_body_length
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     public static func getEnabledFeatures(options: Options?) -> [String] {
         guard let options = options else {
             return []
@@ -22,9 +24,11 @@ import Foundation
         }
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+        #if !SDK_V9
         if options.enableAppLaunchProfiling {
             features.append("appLaunchProfiling")
         }
+        #endif // !SDK_V9
 #endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
 
 #if os(iOS) || os(tvOS)
@@ -40,9 +44,11 @@ import Foundation
         }
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        #if !SDK_V9
         if options.enableAppHangTrackingV2 {
             features.append("appHangTrackingV2")
         }
+        #endif // !SDK_V9
 #endif //os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         
         if options.enablePersistingTracesWhenCrashing {
@@ -50,11 +56,11 @@ import Foundation
         }
 
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
-        if options.sessionReplay.enableViewRendererV2 {
+        if options.enableViewRendererV2() {
             // We keep the old name for backwards compatibility of the telemetry data.
             features.append("experimentalViewRenderer")
         }
-        if options.sessionReplay.enableFastViewRendering {
+        if options.enableFastViewRendering() {
             features.append("fastViewRendering")
         }
 #endif // (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT

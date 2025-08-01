@@ -22,14 +22,6 @@
 #    define SENTRY_BINARY_EXECUTABLE_PATH NSBundle.mainBundle.executablePath;
 #endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 
-+ (SentryNSProcessInfoWrapper *)shared
-{
-    static SentryNSProcessInfoWrapper *instance = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{ instance = [[self alloc] init]; });
-    return instance;
-}
-
 - (NSString *)processDirectoryPath
 {
     return NSBundle.mainBundle.bundlePath;
@@ -53,6 +45,16 @@
 - (NSDictionary<NSString *, NSString *> *)environment
 {
     return NSProcessInfo.processInfo.environment;
+}
+
+- (BOOL)iOSAppOnMac API_AVAILABLE(macos(11.0), ios(14.0), watchos(7.0), tvos(14.0))
+{
+    return NSProcessInfo.processInfo.isiOSAppOnMac;
+}
+
+- (BOOL)isMacCatalystApp API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0))
+{
+    return NSProcessInfo.processInfo.isMacCatalystApp;
 }
 
 @end
