@@ -39,7 +39,7 @@
 
 - (void)endCurrentSessionIfRequired
 {
-    SentryFileManager *fileManager = [[[SentrySDKInternal currentHub] getClient] fileManager];
+    SentryFileManager *fileManager = [[[SentrySDK currentHub] getClient] fileManager];
 
     if (nil == fileManager) {
         SENTRY_LOG_DEBUG(@"File manager is nil. Cannot end current session.");

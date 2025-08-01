@@ -45,14 +45,9 @@
     public func dispatch(after interval: TimeInterval, block: @escaping () -> Void) {
         internalWrapper.dispatch(after: interval, block: block)
     }
-    
+
     public func dispatchOnce(_ predicate: UnsafeMutablePointer<CLong>, block: @escaping () -> Void) {
         internalWrapper.dispatchOnce(predicate, block: block)
-    }
-
-    @_spi(Private) public func dispatch(after interval: TimeInterval, workItem: DispatchWorkItem) {
-        // Swift only API, so we need to call the internal queue directly.
-        internalWrapper.queue.asyncAfter(deadline: .now() + interval, execute: workItem)
     }
 
     // The ObjC version of this code wrapped `dispatch_cancel` and `dispatch_block_create`

@@ -16,6 +16,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (atomic, strong, readonly) NSArray<SentryAttachment *> *attachments;
 
 /**
+ * Set global user -> thus will be sent with every event
+ */
+@property (atomic, strong) SentryUser *_Nullable userObject;
+
+/**
  * The propagation context has a setter, requiring it to be nonatomic
  */
 @property (nonatomic, strong) SentryPropagationContext *propagationContext;

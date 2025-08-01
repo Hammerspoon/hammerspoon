@@ -1,7 +1,8 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-#if SDK_V9
+// See `develop-docs/README.md` for an explanation of this pattern.
+#if SENTRY_SWIFT_PACKAGE
 final class SentryThreadDecodable: SentryThread {
     convenience public init(from decoder: any Decoder) throws {
         try self.init(decodedFrom: decoder)
@@ -21,7 +22,7 @@ extension SentryThreadDecodable: Decodable {
         case isMain = "main"
     }
 
-    #if !SDK_V9
+    #if !SENTRY_SWIFT_PACKAGE
     required convenience public init(from decoder: any Decoder) throws {
         try self.init(decodedFrom: decoder)
     }

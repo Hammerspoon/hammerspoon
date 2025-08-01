@@ -16,7 +16,6 @@
 #    import "SentryLogC.h"
 #    import "SentryMeta.h"
 #    import "SentryMetricProfiler.h"
-#    import "SentryModels+Serializable.h"
 #    import "SentryProfileTimeseries.h"
 #    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfiler+Private.h"
@@ -27,7 +26,6 @@
 #    import "SentrySDK+Private.h"
 #    import "SentrySample.h"
 #    import "SentryScope+Private.h"
-#    import "SentryScope+PrivateSwift.h"
 #    import "SentrySerialization.h"
 #    import "SentrySwift.h"
 #    import "SentryTime.h"
@@ -158,14 +156,14 @@ sentry_serializedTraceProfileData(
         payload[@"debug_meta"] = @ { @"images" : debugImages };
     }
 
-    payload[SENTRY_CONTEXT_OS_KEY] = @ {
+    payload[@"os"] = @ {
         @"name" : sentry_getOSName(),
         @"version" : sentry_getOSVersion(),
         @"build_number" : sentry_getOSBuildNumber()
     };
 
     bool isEmulated = sentry_isSimulatorBuild();
-    payload[SENTRY_CONTEXT_DEVICE_KEY] = @{
+    payload[@"device"] = @{
         @"architecture" : sentry_getCPUArchitecture(),
         @"is_emulator" : @(isEmulated),
         @"locale" : NSLocale.currentLocale.localeIdentifier,
@@ -316,7 +314,7 @@ SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
     NSMutableDictionary<NSString *, id> *payload = sentry_serializedContinuousProfileChunk(
         profileID, chunkID, profileState, metricProfilerState,
         [SentryDependencyContainer.sharedInstance.debugImageProvider getDebugImagesFromCache],
-        SentrySDKInternal.currentHub
+        SentrySDK.currentHub
 #    if SENTRY_HAS_UIKIT
         ,
         gpuData

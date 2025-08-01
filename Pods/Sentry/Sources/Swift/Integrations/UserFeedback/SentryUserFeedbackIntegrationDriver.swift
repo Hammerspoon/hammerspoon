@@ -13,7 +13,6 @@ import UIKit
  * - note: The default method to show the feedback form is via a floating widget placed in the bottom trailing corner of the screen. See the configuration classes for alternative options.
  */
 @available(iOS 13.0, *)
-@available(iOSApplicationExtension, unavailable)
 @objcMembers
 @_spi(Private) public class SentryUserFeedbackIntegrationDriver: NSObject {
     let configuration: SentryUserFeedbackConfiguration
@@ -86,7 +85,6 @@ import UIKit
 
 // MARK: SentryUserFeedbackFormDelegate
 @available(iOS 13.0, *)
-@available(iOSApplicationExtension, unavailable)
 extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackFormDelegate {
     func finished(with feedback: SentryFeedback?) {
         if let feedback = feedback {
@@ -102,7 +100,6 @@ extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackFormDelegate {
 
 // MARK: SentryUserFeedbackWidgetDelegate
 @available(iOS 13.0, *)
-@available(iOSApplicationExtension, unavailable)
 extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackWidgetDelegate {
     func showForm() {
         showForm(screenshot: nil)
@@ -111,7 +108,6 @@ extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackWidgetDelegate 
 
 // MARK: UIAdaptivePresentationControllerDelegate
 @available(iOS 13.0, *)
-@available(iOSApplicationExtension, unavailable)
 extension SentryUserFeedbackIntegrationDriver: UIAdaptivePresentationControllerDelegate {
     public func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
         widget?.rootVC.setWidget(visible: true, animated: configuration.animations)
@@ -122,7 +118,6 @@ extension SentryUserFeedbackIntegrationDriver: UIAdaptivePresentationControllerD
 
 // MARK: Private
 @available(iOS 13.0, *)
-@available(iOSApplicationExtension, unavailable)
 private extension SentryUserFeedbackIntegrationDriver {
     func showForm(screenshot: UIImage?) {
         let form = SentryUserFeedbackFormController(config: configuration, delegate: self, screenshot: screenshot)

@@ -1,7 +1,8 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-#if SDK_V9
+// See `develop-docs/README.md` for an explanation of this pattern.
+#if SENTRY_SWIFT_PACKAGE
 final class BreadcrumbDecodable: Breadcrumb {
     convenience public init(from decoder: any Decoder) throws {
         try self.init(decodedFrom: decoder)
@@ -22,7 +23,7 @@ extension BreadcrumbDecodable: Decodable {
         case origin
     }
     
-    #if !SDK_V9
+    #if !SENTRY_SWIFT_PACKAGE
     required convenience public init(from decoder: any Decoder) throws {
         try self.init(decodedFrom: decoder)
     }

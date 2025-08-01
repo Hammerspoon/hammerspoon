@@ -13,14 +13,13 @@ NSString *const kSentryDataCategoryNameTransaction = @"transaction";
 NSString *const kSentryDataCategoryNameAttachment = @"attachment";
 #if !SDK_V9
 NSString *const kSentryDataCategoryNameUserFeedback = @"user_report";
-#endif // !SDK_V9
+#endif // !SSDK_v9
 NSString *const kSentryDataCategoryNameProfile = @"profile";
 NSString *const kSentryDataCategoryNameProfileChunk = @"profile_chunk_ui";
 NSString *const kSentryDataCategoryNameReplay = @"replay";
 NSString *const kSentryDataCategoryNameMetricBucket = @"metric_bucket";
 NSString *const kSentryDataCategoryNameSpan = @"span";
 NSString *const kSentryDataCategoryNameFeedback = @"feedback";
-NSString *const kSentryDataCategoryNameLogItem = @"log_item";
 NSString *const kSentryDataCategoryNameUnknown = @"unknown";
 
 NS_ASSUME_NONNULL_BEGIN
@@ -56,9 +55,6 @@ sentryDataCategoryForEnvelopItemType(NSString *itemType)
     // discarded events is metric_bucket.
     if ([itemType isEqualToString:SentryEnvelopeItemTypeStatsd]) {
         return kSentryDataCategoryMetricBucket;
-    }
-    if ([itemType isEqualToString:SentryEnvelopeItemTypeLog]) {
-        return kSentryDataCategoryLogItem;
     }
 
     return kSentryDataCategoryDefault;
@@ -118,9 +114,6 @@ sentryDataCategoryForString(NSString *value)
     if ([value isEqualToString:kSentryDataCategoryNameFeedback]) {
         return kSentryDataCategoryFeedback;
     }
-    if ([value isEqualToString:kSentryDataCategoryNameLogItem]) {
-        return kSentryDataCategoryLogItem;
-    }
 
     return kSentryDataCategoryUnknown;
 }
@@ -158,8 +151,6 @@ nameForSentryDataCategory(SentryDataCategory category)
         return kSentryDataCategoryNameSpan;
     case kSentryDataCategoryFeedback:
         return kSentryDataCategoryNameFeedback;
-    case kSentryDataCategoryLogItem:
-        return kSentryDataCategoryNameLogItem;
 
     default: // !!!: fall-through!
     case kSentryDataCategoryUnknown:

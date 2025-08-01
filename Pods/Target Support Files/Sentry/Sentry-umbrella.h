@@ -42,6 +42,7 @@
 #import "SentrySampleDecision.h"
 #import "SentrySamplingContext.h"
 #import "SentryScope.h"
+#import "SentrySDK.h"
 #import "SentrySerializable.h"
 #import "SentrySpanContext.h"
 #import "SentrySpanId.h"

@@ -4,7 +4,7 @@
 #import "SentryFileManager.h"
 #import "SentryLogC.h"
 #import "SentryOptions.h"
-#import "SentrySDKInternal.h"
+#import "SentrySDK.h"
 #import "SentrySystemEventBreadcrumbs.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -88,7 +88,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb
 {
-    [SentrySDKInternal addBreadcrumb:crumb];
+    [SentrySDK addBreadcrumb:crumb];
 }
 
 @end

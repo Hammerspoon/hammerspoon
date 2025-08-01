@@ -69,7 +69,7 @@
     if (self = [super init]) {
         self.tracker = tracker;
 
-        SentryOptions *options = [SentrySDKInternal options];
+        SentryOptions *options = [SentrySDK options];
         self.inAppLogic = [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
                                                             inAppExcludes:options.inAppExcludes];
 
@@ -94,7 +94,7 @@
         return;
     }
 
-    SentryOptions *options = [SentrySDKInternal options];
+    SentryOptions *options = [SentrySDK options];
 
     if ([SentrySwizzleClassNameExclude
             shouldExcludeClassWithClassName:NSStringFromClass([controller class])

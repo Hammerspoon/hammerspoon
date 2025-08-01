@@ -51,14 +51,9 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
     }
 
 #if SENTRY_HAS_UIKIT
-#    if SDK_V9
-    BOOL isV2Enabled = YES;
-#    else
-    BOOL isV2Enabled = options.enableAppHangTrackingV2;
-#    endif // SDK_V9
     self.tracker =
         [SentryDependencyContainer.sharedInstance getANRTracker:options.appHangTimeoutInterval
-                                                    isV2Enabled:isV2Enabled];
+                                                    isV2Enabled:options.enableAppHangTrackingV2];
 #else
     self.tracker =
         [SentryDependencyContainer.sharedInstance getANRTracker:options.appHangTimeoutInterval];
@@ -125,7 +120,7 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
         return;
     }
 #endif // SENTRY_HAS_UIKIT
-    SentryThreadInspector *threadInspector = SentrySDKInternal.currentHub.getClient.threadInspector;
+    SentryThreadInspector *threadInspector = SentrySDK.currentHub.getClient.threadInspector;
 
     NSArray<SentryThread *> *threads = [threadInspector getCurrentThreadsWithStackTrace];
 
@@ -162,15 +157,9 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
     event.debugMeta = [self.debugImageProvider getDebugImagesFromCacheForThreads:event.threads];
 
 #if SENTRY_HAS_UIKIT
-#    if SDK_V9
-    BOOL isV2Enabled = YES;
-#    else
-    BOOL isV2Enabled = self.options.enableAppHangTrackingV2;
-#    endif // SDK_V9
-
     // We only measure app hang duration for V2.
     // For V1, we directly capture the app hang event.
-    if (isV2Enabled) {
+    if (self.options.enableAppHangTrackingV2) {
         // We only temporarily store the app hang duration info, so we can change the error message
         // when either sending a normal or fatal app hang event. Otherwise, we would have to rely on
         // string parsing to retrieve the app hang duration info from the error message.
@@ -179,8 +168,8 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
         // We need to apply the scope now because if the app hang turns into a fatal one,
         // we would lose the scope. Furthermore, we want to know in which state the app was when the
         // app hang started.
-        SentryScope *scope = [SentrySDKInternal currentHub].scope;
-        SentryOptions *options = SentrySDKInternal.options;
+        SentryScope *scope = [SentrySDK currentHub].scope;
+        SentryOptions *options = SentrySDK.options;
         if (scope != nil && options != nil) {
             [scope applyToEvent:event maxBreadcrumb:options.maxBreadcrumbs];
         }
@@ -198,11 +187,9 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
 {
 #if SENTRY_HAS_UIKIT
     // We only measure app hang duration for V2, and therefore ignore V1.
-#    if !SDK_V9
     if (!self.options.enableAppHangTrackingV2) {
         return;
     }
-#    endif // !SDK_V9
 
     if (result == nil) {
         SENTRY_LOG_WARN(@"ANR stopped for V2 but result was nil.")
@@ -301,7 +288,7 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
 
             // We already applied the scope. We use an empty scope to avoid overwriting exising
             // fields on the event.
-            [SentrySDKInternal captureFatalAppHangEvent:event];
+            [SentrySDK captureFatalAppHangEvent:event];
         }
     }];
 }

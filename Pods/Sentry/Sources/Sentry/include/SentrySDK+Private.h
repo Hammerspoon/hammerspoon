@@ -4,10 +4,10 @@
 #    import "SentryProfilingConditionals.h"
 #endif
 
-#if __has_include(<Sentry/SentrySDKInternal.h>)
-#    import <Sentry/SentrySDKInternal.h>
+#if __has_include(<Sentry/SentryOptions.h>)
+#    import <Sentry/SentrySDK.h>
 #else
-#    import "SentrySDKInternal.h"
+#    import "SentrySDK.h"
 #endif
 
 @class SentryAppStartMeasurement;
@@ -18,7 +18,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentrySDKInternal ()
+@interface SentrySDK ()
 
 + (void)captureFatalEvent:(SentryEvent *)event;
 

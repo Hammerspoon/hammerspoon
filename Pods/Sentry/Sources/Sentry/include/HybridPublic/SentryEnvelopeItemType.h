@@ -16,4 +16,3 @@ static NSString *const SentryEnvelopeItemTypeProfile = @"profile";
 static NSString *const SentryEnvelopeItemTypeReplayVideo = @"replay_video";
 static NSString *const SentryEnvelopeItemTypeStatsd = @"statsd";
 static NSString *const SentryEnvelopeItemTypeProfileChunk = @"profile_chunk";
-static NSString *const SentryEnvelopeItemTypeLog = @"log";

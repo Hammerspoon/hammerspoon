@@ -13,6 +13,7 @@
 @class SentryDispatchQueueWrapper;
 @class SentryExtraContextProvider;
 @class SentryFileManager;
+@class SentryNSNotificationCenterWrapper;
 @class SentryNSProcessInfoWrapper;
 @class SentryNSTimerFactory;
 @class SentrySwizzleWrapper;
@@ -32,8 +33,6 @@
 @protocol SentryRateLimits;
 @protocol SentryApplication;
 @protocol SentryDispatchQueueProviderProtocol;
-@protocol SentryNSNotificationCenterWrapper;
-@protocol SentryObjCRuntimeWrapper;
 
 #if SENTRY_HAS_METRIC_KIT
 @class SentryMXManager;
@@ -88,7 +87,7 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentryBinaryImageCache *binaryImageCache;
 @property (nonatomic, strong) id<SentryCurrentDateProvider> dateProvider;
 @property (nonatomic, strong) SentryExtraContextProvider *extraContextProvider;
-@property (nonatomic, strong) id<SentryNSNotificationCenterWrapper> notificationCenterWrapper;
+@property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenterWrapper;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryNSProcessInfoWrapper *processInfoWrapper;
 @property (nonatomic, strong) SentrySysctl *sysctlWrapper;
@@ -136,7 +135,6 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentryMXManager *metricKitManager API_AVAILABLE(
     ios(15.0), macos(12.0), macCatalyst(15.0)) API_UNAVAILABLE(tvos, watchos);
 #endif // SENTRY_HAS_METRIC_KIT
-@property (nonatomic, strong) id<SentryObjCRuntimeWrapper> objcRuntimeWrapper;
 
 #if SENTRY_HAS_UIKIT
 - (SentryWatchdogTerminationScopeObserver *)getWatchdogTerminationScopeObserverWithOptions:

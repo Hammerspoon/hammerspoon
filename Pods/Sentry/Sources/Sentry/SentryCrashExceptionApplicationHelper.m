@@ -7,7 +7,7 @@
 #    import "SentryCrashExceptionApplicationHelper.h"
 #    import "SentryDependencyContainer.h"
 #    import "SentrySDK+Private.h"
-#    import "SentrySDKInternal.h"
+#    import "SentrySDK.h"
 
 @implementation SentryCrashExceptionApplicationHelper
 
@@ -21,7 +21,7 @@
 
 + (void)_crashOnException:(NSException *)exception
 {
-    [SentrySDKInternal captureCrashOnException:exception];
+    [SentrySDK captureCrashOnException:exception];
 #    if !(SENTRY_TEST || SENTRY_TEST_CI)
     abort();
 #    endif

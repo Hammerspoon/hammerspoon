@@ -5,17 +5,11 @@
 #else
 #    import <SentryDefines.h>
 #endif
-#if !SDK_V9
-#    import SENTRY_HEADER(SentrySerializable)
-#endif
+#import SENTRY_HEADER(SentrySerializable)
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryEnvelopeItemHeader : NSObject
-#if !SDK_V9
-                                      <SentrySerializable>
-#endif
-
+@interface SentryEnvelopeItemHeader : NSObject <SentrySerializable>
 SENTRY_NO_INIT
 
 - (instancetype)initWithType:(NSString *)type length:(NSUInteger)length NS_DESIGNATED_INITIALIZER;

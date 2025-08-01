@@ -1,1 +1,0 @@
-../../../Sentry/Sources/Sentry/include/SentryUser+Serialize.h

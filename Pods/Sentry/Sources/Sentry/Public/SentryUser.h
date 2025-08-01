@@ -5,21 +5,14 @@
 #else
 #    import <SentryDefines.h>
 #endif
-#if !SDK_V9
-#    import SENTRY_HEADER(SentrySerializable)
-#endif // !SDK_V9
+#import SENTRY_HEADER(SentrySerializable)
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryGeo;
 
 NS_SWIFT_NAME(User)
-@interface SentryUser : NSObject
-#if SDK_V9
-                        <NSCopying>
-#else
-                        <SentrySerializable, NSCopying>
-#endif // SDK_V9
+@interface SentryUser : NSObject <SentrySerializable, NSCopying>
 
 /**
  * Optional: Id of the user
@@ -41,14 +34,12 @@ NS_SWIFT_NAME(User)
  */
 @property (atomic, copy) NSString *_Nullable ipAddress;
 
-#if !SDK_V9
 /**
  * The user segment, for apps that divide users in user segments.
  * @deprecated This field will be removed in the next major version.
  */
 @property (atomic, copy) NSString *_Nullable segment DEPRECATED_MSG_ATTRIBUTE(
     "This field is deprecated and will be removed in the next major update.");
-#endif // !SDK_V9
 
 /**
  * Optional: Human readable name

@@ -27,7 +27,7 @@
 {
     SENTRY_LOG_INFO(@"[Session Replay] Pausing session");
     SentrySessionReplayIntegration *replayIntegration
-        = (SentrySessionReplayIntegration *)[SentrySDKInternal.currentHub
+        = (SentrySessionReplayIntegration *)[SentrySDK.currentHub
             getInstalledIntegration:SentrySessionReplayIntegration.class];
     [replayIntegration pause];
 }
@@ -36,7 +36,7 @@
 {
     SENTRY_LOG_INFO(@"[Session Replay] Resuming session");
     SentrySessionReplayIntegration *replayIntegration
-        = (SentrySessionReplayIntegration *)[SentrySDKInternal.currentHub
+        = (SentrySessionReplayIntegration *)[SentrySDK.currentHub
             getInstalledIntegration:SentrySessionReplayIntegration.class];
     [replayIntegration resume];
 }
@@ -45,7 +45,7 @@
 {
     SENTRY_LOG_INFO(@"[Session Replay] Starting session");
     SentrySessionReplayIntegration *replayIntegration
-        = (SentrySessionReplayIntegration *)[SentrySDKInternal.currentHub
+        = (SentrySessionReplayIntegration *)[SentrySDK.currentHub
             getInstalledIntegration:SentrySessionReplayIntegration.class];
 
     // Start could be misused and called multiple times, causing it to
@@ -53,15 +53,15 @@
     // Synchronizing it will prevent this problem.
     if (replayIntegration == nil) {
         @synchronized(self) {
-            replayIntegration = (SentrySessionReplayIntegration *)[SentrySDKInternal.currentHub
+            replayIntegration = (SentrySessionReplayIntegration *)[SentrySDK.currentHub
                 getInstalledIntegration:SentrySessionReplayIntegration.class];
             if (replayIntegration == nil) {
                 SENTRY_LOG_DEBUG(@"[Session Replay] Initializing replay integration");
-                SentryOptions *currentOptions = SentrySDKInternal.currentHub.client.options;
+                SentryOptions *currentOptions = SentrySDK.currentHub.client.options;
                 replayIntegration =
                     [[SentrySessionReplayIntegration alloc] initForManualUse:currentOptions];
 
-                [SentrySDKInternal.currentHub
+                [SentrySDK.currentHub
                     addInstalledIntegration:replayIntegration
                                        name:NSStringFromClass(SentrySessionReplay.class)];
             }
@@ -74,7 +74,7 @@
 {
     SENTRY_LOG_INFO(@"[Session Replay] Stopping session");
     SentrySessionReplayIntegration *replayIntegration
-        = (SentrySessionReplayIntegration *)[SentrySDKInternal.currentHub
+        = (SentrySessionReplayIntegration *)[SentrySDK.currentHub
             getInstalledIntegration:SentrySessionReplayIntegration.class];
     [replayIntegration stop];
 }
@@ -89,7 +89,7 @@
 {
     SENTRY_LOG_DEBUG(@"[Session Replay] Showing mask preview with opacity: %f", opacity);
     SentrySessionReplayIntegration *replayIntegration
-        = (SentrySessionReplayIntegration *)[SentrySDKInternal.currentHub
+        = (SentrySessionReplayIntegration *)[SentrySDK.currentHub
             getInstalledIntegration:SentrySessionReplayIntegration.class];
 
     [replayIntegration showMaskPreview:opacity];
@@ -99,7 +99,7 @@
 {
     SENTRY_LOG_DEBUG(@"[Session Replay] Hiding mask preview");
     SentrySessionReplayIntegration *replayIntegration
-        = (SentrySessionReplayIntegration *)[SentrySDKInternal.currentHub
+        = (SentrySessionReplayIntegration *)[SentrySDK.currentHub
             getInstalledIntegration:SentrySessionReplayIntegration.class];
 
     [replayIntegration hideMaskPreview];

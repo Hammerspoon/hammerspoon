@@ -262,17 +262,23 @@ import UIKit
         videoWriter.startWriting()
         videoWriter.startSession(atSourceTime: .zero)
 
-        let frameProcessor = SentryVideoFrameProcessor(
-            videoFrames: videoFrames,
-            videoWriter: videoWriter,
-            currentPixelBuffer: currentPixelBuffer,
-            outputFileURL: outputFileURL,
-            videoHeight: videoHeight,
-            videoWidth: videoWidth,
-            frameRate: frameRate,
-            initialFrameIndex: from,
-            initialImageSize: image.size
-        )
+        var lastImageSize: CGSize = image.size
+        var usedFrames = [SentryReplayFrame]()
+        var frameIndex = from
+
+        // Convenience wrapper to handle the completion callback to return the video info and the final frame index
+        // It is not possible to use an inout frame index here, because the closure is escaping and the frameIndex variable is captured.
+        let deferredCompletionCallback: (Result<SentryVideoInfo?, Error>) -> Void = { result in
+            switch result {
+            case .success(let videoResult):
+                completion(.success(SentryRenderVideoResult(
+                    info: videoResult,
+                    finalFrameIndex: frameIndex
+                )))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
         
         // Append frames to the video writer input in a pull-style manner when the input is ready to receive more media data.
         //
@@ -284,9 +290,143 @@ import UIKit
         //
         // By setting the queue to the asset worker queue, we ensure that the callback is invoked on the asset worker queue.
         // This is important to avoid a deadlock, as this method is called on the processing queue.
-        videoWriterInput.requestMediaDataWhenReady(on: assetWorkerQueue.queue) {
-            frameProcessor.processFrames(videoWriterInput: videoWriterInput, onCompletion: completion)
+        videoWriterInput.requestMediaDataWhenReady(on: assetWorkerQueue.queue) { [weak self] in
+            SentrySDKLog.debug("[Session Replay] Video writer input is ready, status: \(videoWriter.status)")
+            guard let strongSelf = self else {
+                SentrySDKLog.warning("[Session Replay] On-demand replay is deallocated, completing writing session without output video info")
+                return deferredCompletionCallback(.success(nil))
+            }
+            guard videoWriter.status == .writing else {
+                SentrySDKLog.error("[Session Replay] Video writer is not writing anymore, cancelling the writing session, reason: \(videoWriter.error?.localizedDescription ?? "Unknown error")")
+                videoWriter.cancelWriting()
+                return deferredCompletionCallback(.failure(videoWriter.error ?? SentryOnDemandReplayError.errorRenderingVideo))
+            }
+            guard frameIndex < videoFrames.count else {
+                SentrySDKLog.debug("[Session Replay] No more frames available to process, finishing the video")
+                return strongSelf.finishVideo(
+                    outputFileURL: outputFileURL,
+                    usedFrames: usedFrames,
+                    videoHeight: Int(videoHeight),
+                    videoWidth: Int(videoWidth),
+                    videoWriter: videoWriter,
+                    onCompletion: deferredCompletionCallback
+                )
+            }
+
+            let frame = videoFrames[frameIndex]
+            if let image = UIImage(contentsOfFile: frame.imagePath) {
+                SentrySDKLog.debug("[Session Replay] Image at index \(frameIndex) is ready, size: \(image.size)")
+                guard lastImageSize == image.size else {
+                    SentrySDKLog.debug("[Session Replay] Image size has changed, finishing video")
+                    return strongSelf.finishVideo(
+                        outputFileURL: outputFileURL,
+                        usedFrames: usedFrames,
+                        videoHeight: Int(videoHeight),
+                        videoWidth: Int(videoWidth),
+                        videoWriter: videoWriter,
+                        onCompletion: deferredCompletionCallback
+                    )
+                }
+                lastImageSize = image.size
+
+                let presentTime = SentryOnDemandReplay.calculatePresentationTime(
+                    forFrameAtIndex: frameIndex,
+                    frameRate: strongSelf.frameRate
+                ).timeValue
+                guard currentPixelBuffer.append(image: image, presentationTime: presentTime) else {
+                    SentrySDKLog.error("[Session Replay] Failed to append image to pixel buffer, cancelling the writing session, reason: \(String(describing: videoWriter.error))")
+                    videoWriter.cancelWriting()
+                    return deferredCompletionCallback(.failure(videoWriter.error ?? SentryOnDemandReplayError.errorRenderingVideo))
+                }
+                usedFrames.append(frame)
+            }
+
+            // Increment the frame index even if the image could not be appended to the pixel buffer.
+            // This is important to avoid an infinite loop.
+            frameIndex += 1
         }
+    }
+
+    // swiftlint:enable function_body_length cyclomatic_complexity
+    private func finishVideo(
+        outputFileURL: URL,
+        usedFrames: [SentryReplayFrame],
+        videoHeight: Int,
+        videoWidth: Int,
+        videoWriter: AVAssetWriter,
+        onCompletion completion: @escaping (Result<SentryVideoInfo?, Error>) -> Void
+    ) {
+        // Note: This method is expected to be called from the asset worker queue and *not* the processing queue.
+        SentrySDKLog.info("[Session Replay] Finishing video with output file URL: \(outputFileURL), used frames count: \(usedFrames.count), video height: \(videoHeight), video width: \(videoWidth)")
+        videoWriter.inputs.forEach { $0.markAsFinished() }
+        videoWriter.finishWriting { [weak self] in
+            SentrySDKLog.debug("[Session Replay] Finished video writing, status: \(videoWriter.status)")
+            guard let strongSelf = self else {
+                SentrySDKLog.warning("[Session Replay] On-demand replay is deallocated, completing writing session without output video info")
+                return completion(.success(nil))
+            }
+
+            switch videoWriter.status {
+            case .writing:
+                SentrySDKLog.error("[Session Replay] Finish writing video was called with status writing, this is unexpected! Completing with no video info")
+                completion(.success(nil))
+            case .cancelled:
+                SentrySDKLog.warning("[Session Replay] Finish writing video was cancelled, completing with no video info.")
+                completion(.success(nil))
+            case .completed:
+                SentrySDKLog.debug("[Session Replay] Finish writing video was completed, creating video info from file attributes.")
+                do {
+                    let result = try strongSelf.getVideoInfo(
+                        from: outputFileURL,
+                        usedFrames: usedFrames,
+                        videoWidth: Int(videoWidth),
+                        videoHeight: Int(videoHeight)
+                    )
+                    completion(.success(result))
+                } catch {
+                    SentrySDKLog.warning("[Session Replay] Failed to create video info from file attributes, reason: \(error)")
+                    completion(.failure(error))
+                }
+            case .failed:
+                SentrySDKLog.warning("[Session Replay] Finish writing video failed, reason: \(String(describing: videoWriter.error))")
+                completion(.failure(videoWriter.error ?? SentryOnDemandReplayError.errorRenderingVideo))
+            case .unknown:
+                SentrySDKLog.warning("[Session Replay] Finish writing video with unknown status, reason: \(String(describing: videoWriter.error))")
+                completion(.failure(videoWriter.error ?? SentryOnDemandReplayError.errorRenderingVideo))
+            @unknown default:
+                SentrySDKLog.warning("[Session Replay] Finish writing video in unknown state, reason: \(String(describing: videoWriter.error))")
+                completion(.failure(SentryOnDemandReplayError.errorRenderingVideo))
+            }
+        }
+    }
+
+    fileprivate func getVideoInfo(from outputFileURL: URL, usedFrames: [SentryReplayFrame], videoWidth: Int, videoHeight: Int) throws -> SentryVideoInfo {
+        SentrySDKLog.debug("[Session Replay] Getting video info from file: \(outputFileURL.path), width: \(videoWidth), height: \(videoHeight), used frames count: \(usedFrames.count)")
+        let fileAttributes = try FileManager.default.attributesOfItem(atPath: outputFileURL.path)
+        guard let fileSize = fileAttributes[FileAttributeKey.size] as? Int else {
+            SentrySDKLog.warning("[Session Replay] Failed to read video size from video file, reason: size attribute not found")
+            throw SentryOnDemandReplayError.cantReadVideoSize
+        }
+        let minFrame = usedFrames.min(by: { $0.time < $1.time })
+        guard let start = minFrame?.time else {
+            // Note: This code path is currently not reached, because the `getVideoInfo` method is only called after the video is successfully created, therefore at least one frame was used.
+            // The compiler still requires us to unwrap the optional value, and we do not permit force-unwrapping.
+            SentrySDKLog.warning("[Session Replay] Failed to read video start time from used frames, reason: no frames found")
+            throw SentryOnDemandReplayError.cantReadVideoStartTime
+        }
+        let duration = TimeInterval(usedFrames.count / self.frameRate)
+        return SentryVideoInfo(
+            path: outputFileURL,
+            height: videoHeight,
+            width: videoWidth,
+            duration: duration,
+            frameCount: usedFrames.count,
+            frameRate: self.frameRate,
+            start: start,
+            end: start.addingTimeInterval(duration),
+            fileSize: fileSize,
+            screens: usedFrames.compactMap({ $0.screenName })
+        )
     }
 
     internal func createVideoSettings(width: CGFloat, height: CGFloat) -> [String: Any] {

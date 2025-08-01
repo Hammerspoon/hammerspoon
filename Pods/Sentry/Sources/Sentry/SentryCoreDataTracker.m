@@ -38,7 +38,7 @@
                             error:(NSError **)error
                       originalImp:(NSArray *(NS_NOESCAPE ^)(NSFetchRequest *, NSError **))original
 {
-    id<SentrySpan> _Nullable currentSpan = [SentrySDKInternal.currentHub.scope span];
+    id<SentrySpan> _Nullable currentSpan = [SentrySDK.currentHub.scope span];
     id<SentrySpan> _Nullable fetchSpan;
     if (currentSpan) {
         NSString *spanDescription = [self descriptionFromRequest:request];
@@ -80,7 +80,7 @@
         __block NSDictionary<NSString *, NSDictionary *> *operations =
             [self groupEntitiesOperations:context];
 
-        id<SentrySpan> _Nullable currentSpan = [SentrySDKInternal.currentHub.scope span];
+        id<SentrySpan> _Nullable currentSpan = [SentrySDK.currentHub.scope span];
         if (currentSpan) {
             NSString *spanDescription = [self descriptionForOperations:operations
                                                              inContext:context];

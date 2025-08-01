@@ -6,17 +6,12 @@
 #else
 #    import <SentryDefines.h>
 #endif
-#if !SDK_V9
-#    import SENTRY_HEADER(SentrySerializable)
-#endif
+#import SENTRY_HEADER(SentrySerializable)
 
 NS_ASSUME_NONNULL_BEGIN
 
 NS_SWIFT_NAME(Frame)
-@interface SentryFrame : NSObject
-#if !SDK_V9
-                         <SentrySerializable>
-#endif
+@interface SentryFrame : NSObject <SentrySerializable>
 
 /**
  * SymbolAddress of the frame

@@ -2,7 +2,7 @@
 #import "SentryDependencyContainer.h"
 #import "SentryLogC.h"
 #import "SentryOptions.h"
-#import "SentrySDKInternal.h"
+#import "SentrySDK.h"
 #import "SentrySessionTracker.h"
 
 NS_ASSUME_NONNULL_BEGIN

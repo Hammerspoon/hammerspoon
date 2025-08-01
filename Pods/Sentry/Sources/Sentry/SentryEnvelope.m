@@ -165,7 +165,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
         if ([NSProcessInfo.processInfo.arguments
-                containsObject:@"--io.sentry.other.base64-attachment-data"]) {
+                containsObject:@"--io.sentry.base64-attachment-data"]) {
             data = [[attachment.data base64EncodedStringWithOptions:0]
                 dataUsingEncoding:NSUTF8StringEncoding];
         } else {
@@ -200,7 +200,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
         if ([NSProcessInfo.processInfo.arguments
-                containsObject:@"--io.sentry.other.base64-attachment-data"]) {
+                containsObject:@"--io.sentry.base64-attachment-data"]) {
             data = [[[[NSFileManager defaultManager] contentsAtPath:attachment.path]
                 base64EncodedStringWithOptions:0] dataUsingEncoding:NSUTF8StringEncoding];
         } else {

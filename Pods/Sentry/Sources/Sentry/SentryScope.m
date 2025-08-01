@@ -5,17 +5,14 @@
 #import "SentryEvent+Private.h"
 #import "SentryLevelMapper.h"
 #import "SentryLogC.h"
-#import "SentryModels+Serializable.h"
 #import "SentryPropagationContext.h"
 #import "SentryScope+Private.h"
-#import "SentryScope+PrivateSwift.h"
 #import "SentryScopeObserver.h"
 #import "SentrySession.h"
 #import "SentrySpan.h"
 #import "SentrySwift.h"
 #import "SentryTracer.h"
 #import "SentryTransactionContext.h"
-#import "SentryUser+Serialize.h"
 #import "SentryUser.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -231,13 +228,6 @@ NS_ASSUME_NONNULL_BEGIN
         for (id<SentryScopeObserver> observer in self.observers) {
             [observer setContext:_contextDictionary];
         }
-    }
-}
-
-- (nullable NSDictionary<NSString *, id> *)getContextForKey:(NSString *)key
-{
-    @synchronized(_contextDictionary) {
-        return [_contextDictionary objectForKey:key];
     }
 }
 
@@ -630,11 +620,6 @@ NS_ASSUME_NONNULL_BEGIN
     } else {
         return [self.propagationContext traceContextForEvent];
     }
-}
-
-- (NSString *)propagationContextTraceIdString
-{
-    return [self.propagationContext.traceId sentryIdString];
 }
 
 @end

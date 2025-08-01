@@ -21,7 +21,6 @@
 
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
 #        import "SentryLaunchProfiling.h"
-#        import "SentryProfiler+Private.h"
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @interface SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
@@ -176,8 +175,8 @@
         if (!_waitForFullDisplay) {
             [SentryDependencyContainer.sharedInstance.framesTracker removeListener:self];
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-            if (sentry_isLaunchProfileCorrelatedToTraces()) {
-                sentry_stopAndDiscardLaunchProfileTracer(SentrySDKInternal.currentHub);
+            if ([SentrySDK.options isProfilingCorrelatedToTraces]) {
+                sentry_stopAndDiscardLaunchProfileTracer();
             }
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
         }
@@ -188,8 +187,8 @@
         self.fullDisplaySpan.timestamp = newFrameDate;
         [self.fullDisplaySpan finish];
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-        if (sentry_isLaunchProfileCorrelatedToTraces()) {
-            sentry_stopAndDiscardLaunchProfileTracer(SentrySDKInternal.currentHub);
+        if ([SentrySDK.options isProfilingCorrelatedToTraces]) {
+            sentry_stopAndDiscardLaunchProfileTracer();
         }
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }

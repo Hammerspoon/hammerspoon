@@ -1,5 +1,6 @@
 #import "SentryUIApplication.h"
 #import "SentryLogC.h"
+#import "SentryNSNotificationCenterWrapper.h"
 #import "SentrySwift.h"
 
 #if SENTRY_HAS_UIKIT
@@ -9,7 +10,7 @@
 @interface SentryUIApplication ()
 
 @property (nonatomic, assign) UIApplicationState appState;
-@property (nonatomic, strong) id<SentryNSNotificationCenterWrapper> notificationCenterWrapper;
+@property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenterWrapper;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 
 @end
@@ -17,7 +18,7 @@
 @implementation SentryUIApplication
 
 - (instancetype)initWithNotificationCenterWrapper:
-                    (id<SentryNSNotificationCenterWrapper>)notificationCenterWrapper
+                    (SentryNSNotificationCenterWrapper *)notificationCenterWrapper
                              dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
     if (self = [super init]) {
@@ -26,13 +27,11 @@
 
         [self.notificationCenterWrapper addObserver:self
                                            selector:@selector(didEnterBackground)
-                                               name:UIApplicationDidEnterBackgroundNotification
-                                             object:nil];
+                                               name:UIApplicationDidEnterBackgroundNotification];
 
         [self.notificationCenterWrapper addObserver:self
                                            selector:@selector(didBecomeActive)
-                                               name:UIApplicationDidBecomeActiveNotification
-                                             object:nil];
+                                               name:UIApplicationDidBecomeActiveNotification];
 
         // We store the application state when the app is initialized
         // and we keep track of its changes by the notifications
@@ -45,7 +44,7 @@
 
 - (void)dealloc
 {
-    [self.notificationCenterWrapper removeObserver:self name:nil object:nil];
+    [self.notificationCenterWrapper removeObserver:self];
 }
 
 - (UIApplication *)sharedApplication

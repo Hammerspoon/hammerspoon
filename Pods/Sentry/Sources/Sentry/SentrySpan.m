@@ -5,7 +5,6 @@
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryMeasurementValue.h"
-#import "SentryModels+Serializable.h"
 #import "SentryNSDictionarySanitize.h"
 #import "SentryNoOpSpan.h"
 #import "SentrySampleDecision+Private.h"
@@ -26,6 +25,7 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryContinuousProfiler.h"
+#    import "SentryNSNotificationCenterWrapper.h"
 #    import "SentryOptions+Private.h"
 #    import "SentryProfilingConditionals.h"
 #    import "SentrySDK+Private.h"
@@ -49,9 +49,9 @@ NS_ASSUME_NONNULL_BEGIN
     SentryFramesTracker *_framesTracker;
 #endif // SENTRY_HAS_UIKIT
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED && !SDK_V9
+#if SENTRY_TARGET_PROFILING_SUPPORTED
     BOOL _isContinuousProfiling;
-#endif //  SENTRY_TARGET_PROFILING_SUPPORTED && !SDK_V9
+#endif //  SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
 - (instancetype)initWithContext:(SentrySpanContext *)context
@@ -98,21 +98,16 @@ NS_ASSUME_NONNULL_BEGIN
         _origin = context.origin;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-#    if !SDK_V9
-        _isContinuousProfiling = [SentrySDKInternal.options isContinuousProfilingEnabled];
+        _isContinuousProfiling = [SentrySDK.options isContinuousProfilingEnabled];
         if (_isContinuousProfiling) {
-#    endif // !SDK_V9
             _profileSessionID = SentryContinuousProfiler.currentProfilerID.sentryIdString;
             if (_profileSessionID == nil) {
                 [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
                     addObserver:self
                        selector:@selector(linkProfiler)
-                           name:kSentryNotificationContinuousProfileStarted
-                         object:nil];
+                           name:kSentryNotificationContinuousProfileStarted];
             }
-#    if !SDK_V9
         }
-#    endif // !SDK_V9
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }
 
@@ -139,16 +134,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)stopObservingContinuousProfiling
 {
-#    if !SDK_V9
     if (_isContinuousProfiling) {
-#    endif // !SDK_V9
         [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
             removeObserver:self
-                      name:kSentryNotificationContinuousProfileStarted
-                    object:nil];
-#    if !SDK_V9
+                      name:kSentryNotificationContinuousProfileStarted];
     }
-#    endif // !SDK_V9
 }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 

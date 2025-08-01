@@ -4,7 +4,18 @@
 #    import "PrivatesHeader.h"
 #endif
 
+#if COCOAPODS
 @class SentrySdkInfo;
+#else
+
+#    if __has_include(<Sentry/SentrySdkInfo.h>)
+#        import <Sentry/SentrySdkInfo.h>
+#    else
+#        import "SentrySdkInfo.h"
+#    endif
+
+#endif
+
 @class SentryAttachment;
 @class SentryEnvelopeItemHeader;
 @class SentryEvent;

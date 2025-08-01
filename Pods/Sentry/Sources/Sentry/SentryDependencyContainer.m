@@ -2,7 +2,6 @@
 
 #import "SentryApplication.h"
 #import "SentryBinaryImageCache.h"
-#import "SentryDefaultObjCRuntimeWrapper.h"
 #import "SentryDispatchFactory.h"
 #import "SentryDisplayLinkWrapper.h"
 #import "SentryExtraContextProvider.h"
@@ -22,13 +21,15 @@
 #import "SentryUIDeviceWrapper.h"
 #import <SentryAppStateManager.h>
 #import <SentryCrash.h>
+#import <SentryCrashDefaultBinaryImageProvider.h>
 #import <SentryCrashWrapper.h>
-#import <SentryDebugImageProvider+HybridSDKs.h>
+#import <SentryDebugImageProvider.h>
 #import <SentryDefaultRateLimits.h>
 #import <SentryDependencyContainer.h>
 #import <SentryGlobalEventProcessor.h>
 #import <SentryHttpDateParser.h>
 #import <SentryInternalDefines.h>
+#import <SentryNSNotificationCenterWrapper.h>
 #import <SentryPerformanceTracker.h>
 #import <SentryRateLimitParser.h>
 #import <SentryRetryAfterHeaderParser.h>
@@ -160,13 +161,13 @@ static BOOL isInitialializingDependencyContainer = NO;
     if (self = [super init]) {
         isInitialializingDependencyContainer = YES;
 
-        _dispatchQueueWrapper = SentryDependencies.dispatchQueueWrapper;
+        _dispatchQueueWrapper = [[SentryDispatchQueueWrapper alloc] init];
         _random = [[SentryRandom alloc] init];
         _threadWrapper = [[SentryThreadWrapper alloc] init];
         _binaryImageCache = [[SentryBinaryImageCache alloc] init];
-        _dateProvider = SentryDependencies.dateProvider;
+        _dateProvider = [[SentryDefaultCurrentDateProvider alloc] init];
 
-        _notificationCenterWrapper = [NSNotificationCenter defaultCenter];
+        _notificationCenterWrapper = [[SentryNSNotificationCenterWrapper alloc] init];
 #if SENTRY_HAS_UIKIT
         _uiDeviceWrapper = [[SentryUIDeviceWrapper alloc] init];
         _application = [[SentryUIApplication alloc]
@@ -213,8 +214,8 @@ static BOOL isInitialializingDependencyContainer = NO;
 {
     SENTRY_LAZY_INIT(_fileManager, ({
         NSError *error;
-        SentryFileManager *manager =
-            [[SentryFileManager alloc] initWithOptions:SentrySDKInternal.options error:&error];
+        SentryFileManager *manager = [[SentryFileManager alloc] initWithOptions:SentrySDK.options
+                                                                          error:&error];
         if (manager == nil) {
             SENTRY_LOG_DEBUG(@"Could not create file manager - %@", error);
         }
@@ -225,7 +226,7 @@ static BOOL isInitialializingDependencyContainer = NO;
 - (SentryAppStateManager *)appStateManager SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_appStateManager,
-        [[SentryAppStateManager alloc] initWithOptions:SentrySDKInternal.options
+        [[SentryAppStateManager alloc] initWithOptions:SentrySDK.options
                                           crashWrapper:self.crashWrapper
                                            fileManager:self.fileManager
                                   dispatchQueueWrapper:self.dispatchQueueWrapper
@@ -234,8 +235,8 @@ static BOOL isInitialializingDependencyContainer = NO;
 
 - (SentryThreadInspector *)threadInspector SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
-    SENTRY_LAZY_INIT(_threadInspector,
-        [[SentryThreadInspector alloc] initWithOptions:SentrySDKInternal.options]);
+    SENTRY_LAZY_INIT(
+        _threadInspector, [[SentryThreadInspector alloc] initWithOptions:SentrySDK.options]);
 }
 
 - (SentryFileIOTracker *)fileIOTracker SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
@@ -248,7 +249,7 @@ static BOOL isInitialializingDependencyContainer = NO;
 - (SentryCrash *)crashReporter SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_crashReporter,
-        [[SentryCrash alloc] initWithBasePath:SentrySDKInternal.options.cacheDirectoryPath]);
+        [[SentryCrash alloc] initWithBasePath:SentrySDK.options.cacheDirectoryPath]);
 }
 
 - (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout
@@ -451,10 +452,5 @@ static BOOL isInitialializingDependencyContainer = NO;
                                              application:self.application
                                             dateProvider:self.dateProvider
                                       notificationCenter:self.notificationCenterWrapper];
-}
-
-- (id<SentryObjCRuntimeWrapper>)objcRuntimeWrapper SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
-{
-    SENTRY_LAZY_INIT(_objcRuntimeWrapper, [[SentryDefaultObjCRuntimeWrapper alloc] init]);
 }
 @end

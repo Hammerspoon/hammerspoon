@@ -1,9 +1,9 @@
 #import "SentryDefines.h"
 
 @class SentryEvent;
+@class SentryNSNotificationCenterWrapper;
 @class SentryOptions;
 
-@protocol SentryNSNotificationCenterWrapper;
 @protocol SentryApplication;
 @protocol SentryCurrentDateProvider;
 
@@ -20,7 +20,7 @@ SENTRY_NO_INIT
 - (instancetype)initWithOptions:(SentryOptions *)options
                     application:(id<SentryApplication>)application
                    dateProvider:(id<SentryCurrentDateProvider>)dateProvider
-             notificationCenter:(id<SentryNSNotificationCenterWrapper>)notificationCenter;
+             notificationCenter:(SentryNSNotificationCenterWrapper *)notificationCenter;
 
 - (void)start;
 - (void)stop;

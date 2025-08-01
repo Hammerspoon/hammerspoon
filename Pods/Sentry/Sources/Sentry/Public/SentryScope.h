@@ -5,9 +5,7 @@
 #else
 #    import <SentryDefines.h>
 #endif
-#if !SDK_V9
-#    import SENTRY_HEADER(SentrySerializable)
-#endif // SDK_V9
+#import SENTRY_HEADER(SentrySerializable)
 #import SENTRY_HEADER(SentrySpanProtocol)
 
 @class SentryAttachment;
@@ -24,10 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
  * https://docs.sentry.io/platforms/apple/enriching-events/scopes/#whats-a-scope-whats-a-hub
  */
 NS_SWIFT_NAME(Scope)
-@interface SentryScope : NSObject
-#if !SDK_V9
-                         <SentrySerializable>
-#endif // !SDK_V9
+@interface SentryScope : NSObject <SentrySerializable>
 
 /**
  * Returns current Span or Transaction.
@@ -120,12 +115,10 @@ NS_SWIFT_NAME(Scope)
  */
 - (void)clearBreadcrumbs;
 
-#if !SDK_V9
 /**
  * Serializes the Scope to JSON
  */
 - (NSDictionary<NSString *, id> *)serialize;
-#endif // !SDK_V9
 
 /**
  * Sets context values which will overwrite SentryEvent.context when event is

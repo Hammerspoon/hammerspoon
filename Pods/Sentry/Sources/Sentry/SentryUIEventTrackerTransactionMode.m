@@ -7,7 +7,7 @@
 #    import <SentryHub+Private.h>
 #    import <SentryLogC.h>
 #    import <SentrySDK+Private.h>
-#    import <SentrySDKInternal.h>
+#    import <SentrySDK.h>
 #    import <SentryScope.h>
 #    import <SentrySpanId.h>
 #    import <SentrySpanOperation.h>
@@ -70,7 +70,7 @@ NS_ASSUME_NONNULL_BEGIN
                                              operation:operation
                                                 origin:SentryTraceOriginAutoUiEventTracker];
 
-    id<SentrySpan> _Nullable currentSpan = [SentrySDKInternal.currentHub.scope span];
+    id<SentrySpan> _Nullable currentSpan = [SentrySDK.currentHub.scope span];
     BOOL ongoingScreenLoadTransaction = false;
     BOOL ongoingManualTransaction = false;
     if (currentSpan != nil) {
@@ -92,7 +92,7 @@ NS_ASSUME_NONNULL_BEGIN
         return;
     }
 
-    __block SentryTracer *transaction = [SentrySDKInternal.currentHub
+    __block SentryTracer *transaction = [SentrySDK.currentHub
         startTransactionWithContext:context
                         bindToScope:YES
               customSamplingContext:@{}

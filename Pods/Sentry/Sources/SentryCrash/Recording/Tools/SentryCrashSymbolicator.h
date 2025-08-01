@@ -39,9 +39,9 @@ extern "C" {
  *
  * @return True if successful.
  */
-bool sentrycrashsymbolicator_symbolicate_async_unsafe_sentryDlAddr(SentryCrashStackCursor *cursor);
+bool sentrycrashsymbolicator_symbolicate(SentryCrashStackCursor *cursor);
 
-/** Same as ``sentrycrashsymbolicator_symbolicate_async_unsafe_sentryDlAddr`` but faster.
+/** Same as ``sentrycrashsymbolicator_symbolicate`` but faster and async unsafe.
  */
 bool sentrycrashsymbolicator_symbolicate_async_unsafe(SentryCrashStackCursor *cursor);
 

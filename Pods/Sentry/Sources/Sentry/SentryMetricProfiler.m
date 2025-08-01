@@ -97,35 +97,6 @@ SentrySerializedMetricEntry *_Nullable serializeContinuousProfileMetricReadings(
     return @ { @"unit" : unit, @"values" : serializedValues };
 }
 
-NSDictionary<NSString *, id> *
-serializeContinuousProfileMetrics(NSDictionary *state)
-{
-    NSMutableDictionary<NSString *, id> *dict = [NSMutableDictionary<NSString *, id> dictionary];
-    NSArray<SentryMetricReading *> *memoryFootprint
-        = state[kSentryMetricProfilerSerializationKeyMemoryFootprint];
-    if (memoryFootprint.count > 0) {
-        dict[kSentryMetricProfilerSerializationKeyMemoryFootprint]
-            = serializeContinuousProfileMetricReadings(
-                memoryFootprint, kSentryMetricProfilerSerializationUnitBytes);
-    }
-    NSArray<SentryMetricReading *> *cpuEnergyUsage
-        = state[kSentryMetricProfilerSerializationKeyCPUEnergyUsage];
-    if (cpuEnergyUsage.count > 0) {
-        dict[kSentryMetricProfilerSerializationKeyCPUEnergyUsage]
-            = serializeContinuousProfileMetricReadings(
-                cpuEnergyUsage, kSentryMetricProfilerSerializationUnitNanoJoules);
-    }
-
-    NSArray<SentryMetricReading *> *cpuUsage = state[kSentryMetricProfilerSerializationKeyCPUUsage];
-    if (cpuUsage.count > 0) {
-        dict[kSentryMetricProfilerSerializationKeyCPUUsage]
-            = serializeContinuousProfileMetricReadings(
-                cpuUsage, kSentryMetricProfilerSerializationUnitPercentage);
-    }
-
-    return dict;
-}
-
 @implementation SentryMetricProfiler {
     SentryDispatchSourceWrapper *_dispatchSource;
 
@@ -206,15 +177,36 @@ serializeContinuousProfileMetrics(NSDictionary *state)
     return dict;
 }
 
-- (NSDictionary<NSString *, NSArray<SentryMetricReading *> *> *)copyMetricProfilerData
+- (NSMutableDictionary<NSString *, id> *)serializeContinuousProfileMetrics;
 {
-    NSMutableDictionary *copy = [NSMutableDictionary dictionary];
+    NSArray<SentryMetricReading *> *memoryFootprint;
+    NSArray<SentryMetricReading *> *cpuEnergyUsage;
+    NSArray<SentryMetricReading *> *cpuUsage;
     @synchronized(self) {
-        copy[kSentryMetricProfilerSerializationKeyMemoryFootprint] = [_memoryFootprint copy];
-        copy[kSentryMetricProfilerSerializationKeyCPUUsage] = [_cpuUsage copy];
-        copy[kSentryMetricProfilerSerializationKeyCPUEnergyUsage] = [_cpuEnergyUsage copy];
+        cpuEnergyUsage = [NSArray<SentryMetricReading *> arrayWithArray:_cpuEnergyUsage];
+        memoryFootprint = [NSArray<SentryMetricReading *> arrayWithArray:_memoryFootprint];
+        cpuUsage = [NSArray<SentryMetricReading *> arrayWithArray:_cpuUsage];
     }
-    return copy;
+
+    NSMutableDictionary<NSString *, id> *dict = [NSMutableDictionary<NSString *, id> dictionary];
+    if (memoryFootprint.count > 0) {
+        dict[kSentryMetricProfilerSerializationKeyMemoryFootprint]
+            = serializeContinuousProfileMetricReadings(
+                memoryFootprint, kSentryMetricProfilerSerializationUnitBytes);
+    }
+    if (cpuEnergyUsage.count > 0) {
+        dict[kSentryMetricProfilerSerializationKeyCPUEnergyUsage]
+            = serializeContinuousProfileMetricReadings(
+                cpuEnergyUsage, kSentryMetricProfilerSerializationUnitNanoJoules);
+    }
+
+    if (cpuUsage.count > 0) {
+        dict[kSentryMetricProfilerSerializationKeyCPUUsage]
+            = serializeContinuousProfileMetricReadings(
+                cpuUsage, kSentryMetricProfilerSerializationUnitPercentage);
+    }
+
+    return dict;
 }
 
 - (void)clear

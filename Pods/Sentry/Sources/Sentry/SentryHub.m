@@ -464,13 +464,13 @@ NS_ASSUME_NONNULL_BEGIN
                                        sampleRate:tracesSamplerDecision.sampleRate
                                        sampleRand:tracesSamplerDecision.sampleRand];
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED && !SDK_V9
+#if SENTRY_TARGET_PROFILING_SUPPORTED
     if (![self.client.options isContinuousProfilingEnabled]) {
         SentrySamplerDecision *profilesSamplerDecision = sentry_sampleTraceProfile(
             samplingContext, tracesSamplerDecision, self.client.options);
         configuration.profilesSamplerDecision = profilesSamplerDecision;
     }
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED && !SDK_V9
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED"
 
     SentryTracer *tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext
                                                                         hub:self
@@ -555,19 +555,6 @@ NS_ASSUME_NONNULL_BEGIN
     SentryClient *client = self.client;
     if (client != nil) {
         [client captureFeedback:feedback withScope:self.scope];
-    }
-}
-
-- (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
-                      withEventId:(NSString *)feedbackEventId
-                      attachments:(NSArray<SentryAttachment *> *)feedbackAttachments
-{
-    SentryClient *client = self.client;
-    if (client != nil) {
-        [client captureSerializedFeedback:serializedFeedback
-                              withEventId:feedbackEventId
-                              attachments:feedbackAttachments
-                                    scope:self.scope];
     }
 }
 
@@ -855,7 +842,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSMutableArray<NSString *> *)trimmedInstalledIntegrationNames
 {
     NSMutableArray<NSString *> *integrations = [NSMutableArray<NSString *> array];
-    for (NSString *integration in SentrySDKInternal.currentHub.installedIntegrationNames) {
+    for (NSString *integration in SentrySDK.currentHub.installedIntegrationNames) {
         // Every integration starts with "Sentry" and ends with "Integration". To keep the
         // payload of the event small we remove both.
         NSString *withoutSentry = [integration stringByReplacingOccurrencesOfString:@"Sentry"

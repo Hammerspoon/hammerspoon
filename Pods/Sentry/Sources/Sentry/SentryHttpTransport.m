@@ -223,29 +223,12 @@
 
     intptr_t result = dispatch_group_wait(self.dispatchGroup, dispatchTimeout);
 
-    // Every `dispatch_group_enter` must have a corresponding `dispatch_group_leave`.
-    // If nobody called `stopFlushing`, we must call `dispatch_group_leave` here, because
-    // otherwise the dispatch group never leaves and the next time somebody calls flush,
-    // flush will always time out.
-    [self stopFlushing];
-
     if (result == 0) {
         SENTRY_LOG_DEBUG(@"Finished flushing.");
         return kSentryFlushResultSuccess;
     } else {
         SENTRY_LOG_WARN(@"Flushing timed out.");
         return kSentryFlushResultTimedOut;
-    }
-}
-
-- (void)stopFlushing
-{
-    @synchronized(self) {
-        if (_isFlushing) {
-            SENTRY_LOG_DEBUG(@"Stop flushing.");
-            _isFlushing = NO;
-            dispatch_group_leave(self.dispatchGroup);
-        }
     }
 }
 
@@ -434,7 +417,11 @@
 {
     @synchronized(self) {
         self.isSending = NO;
-        [self stopFlushing];
+        if (self.isFlushing) {
+            SENTRY_LOG_DEBUG(@"Stop flushing.");
+            self.isFlushing = NO;
+            dispatch_group_leave(self.dispatchGroup);
+        }
     }
 }
 

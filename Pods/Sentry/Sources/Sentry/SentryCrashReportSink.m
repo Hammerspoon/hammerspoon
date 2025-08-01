@@ -11,7 +11,7 @@
 #import "SentryHub.h"
 #import "SentryLogC.h"
 #import "SentrySDK+Private.h"
-#import "SentrySDKInternal.h"
+#import "SentrySDK.h"
 #import "SentryScope+Private.h"
 #import "SentrySwift.h"
 #import "SentryThread.h"
@@ -50,11 +50,11 @@ static const NSTimeInterval SENTRY_APP_START_CRASH_FLUSH_DURATION = 5.0;
         && durationFromCrashStateInitToLastCrash <= SENTRY_APP_START_CRASH_DURATION_THRESHOLD) {
         SENTRY_LOG_WARN(@"Startup crash: detected.");
 
-        [SentrySDKInternal setDetectedStartUpCrash:YES];
+        [SentrySDK setDetectedStartUpCrash:YES];
 
         [self sendReports:reports onCompletion:onCompletion];
 
-        [SentrySDKInternal flush:SENTRY_APP_START_CRASH_FLUSH_DURATION];
+        [SentrySDK flush:SENTRY_APP_START_CRASH_FLUSH_DURATION];
         SENTRY_LOG_DEBUG(@"Startup crash: Finished flushing.");
 
     } else {
@@ -69,7 +69,7 @@ static const NSTimeInterval SENTRY_APP_START_CRASH_FLUSH_DURATION = 5.0;
     for (NSDictionary *report in reports) {
         SentryCrashReportConverter *reportConverter =
             [[SentryCrashReportConverter alloc] initWithReport:report inAppLogic:self.inAppLogic];
-        if (nil != [SentrySDKInternal.currentHub getClient]) {
+        if (nil != [SentrySDK.currentHub getClient]) {
             SentryEvent *event = [reportConverter convertReportToEvent];
             if (nil != event) {
                 [self handleConvertedEvent:event report:report sentReports:sentReports];
@@ -92,7 +92,7 @@ static const NSTimeInterval SENTRY_APP_START_CRASH_FLUSH_DURATION = 5.0;
                  sentReports:(NSMutableArray *)sentReports
 {
     [sentReports addObject:report];
-    SentryScope *scope = [[SentryScope alloc] initWithScope:SentrySDKInternal.currentHub.scope];
+    SentryScope *scope = [[SentryScope alloc] initWithScope:SentrySDK.currentHub.scope];
 
     if (report[SENTRYCRASH_REPORT_ATTACHMENTS_ITEM]) {
         for (NSString *ssPath in report[SENTRYCRASH_REPORT_ATTACHMENTS_ITEM]) {
@@ -100,7 +100,7 @@ static const NSTimeInterval SENTRY_APP_START_CRASH_FLUSH_DURATION = 5.0;
         }
     }
 
-    [SentrySDKInternal captureFatalEvent:event withScope:scope];
+    [SentrySDK captureFatalEvent:event withScope:scope];
 }
 
 @end

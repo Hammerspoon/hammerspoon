@@ -6,11 +6,7 @@ import CoreGraphics
 import Foundation
 import UIKit
 
-protocol SentryAppendablePixelBuffer {
-    func append(image: UIImage, presentationTime: CMTime) -> Bool
-}
-
-final class SentryPixelBuffer: SentryAppendablePixelBuffer {
+final class SentryPixelBuffer {
     private var pixelBuffer: CVPixelBuffer?
     private let rgbColorSpace = CGColorSpaceCreateDeviceRGB()
     private let size: CGSize

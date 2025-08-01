@@ -28,11 +28,9 @@ typedef struct {
 
 // We need a C function to retrieve information from the stack trace in order to avoid
 // calling into not async-signal-safe code while there are suspended threads.
-// If asyncUnsafeSymbolicate is `true` the stack will be symbolicated but the function is no longer
-// async-signal-safe.
 unsigned int
 getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineContext *context,
-    SentryCrashStackEntry *buffer, unsigned int maxEntries, bool asyncUnsafeSymbolicate)
+    SentryCrashStackEntry *buffer, unsigned int maxEntries, bool symbolicate)
 {
     sentrycrashmc_getContextForThread(thread, context, NO);
     SentryCrashStackCursor stackCursor;
@@ -43,7 +41,7 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
     while (stackCursor.advanceCursor(&stackCursor)) {
         if (entries == maxEntries)
             break;
-        if (asyncUnsafeSymbolicate == false || stackCursor.symbolicate(&stackCursor)) {
+        if (symbolicate == false || stackCursor.symbolicate(&stackCursor)) {
             buffer[entries] = stackCursor.stackEntry;
             entries++;
         }

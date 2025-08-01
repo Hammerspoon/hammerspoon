@@ -1,6 +1,4 @@
-#if !SDK_V9
-
-#    import <Foundation/Foundation.h>
+#import <Foundation/Foundation.h>
 
 @class SentryDebugMeta;
 @class SentryFrame;
@@ -90,5 +88,3 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
-
-#endif // !SDK_V9

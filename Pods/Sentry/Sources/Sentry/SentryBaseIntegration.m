@@ -78,17 +78,10 @@ NS_ASSUME_NONNULL_BEGIN
 
     if (integrationOptions & kIntegrationOptionEnableAppHangTracking) {
 #if SENTRY_HAS_UIKIT
-#    if SDK_V9
-        if (!options.enableAppHangTracking) {
-            [self logWithOptionName:@"enableAppHangTracking"];
-            return NO;
-        }
-#    else
         if (!options.enableAppHangTracking && !options.enableAppHangTrackingV2) {
             [self logWithOptionName:@"enableAppHangTracking && enableAppHangTrackingV2"];
             return NO;
         }
-#    endif
 #else
         if (!options.enableAppHangTracking) {
             [self logWithOptionName:@"enableAppHangTracking"];

@@ -23,32 +23,6 @@ extension SentryLog {
             }
         }
         
-        // MARK: - Initializers
-        
-        /// Initializes a SentryLog.Attribute from any value, converting it to the appropriate type.
-        /// 
-        /// Supported types: String, Bool, Int, Double, and Float (converted to Double).
-        /// Other types (including Date, NSNumber, CGFloat, etc.) are converted to string representation.
-        /// 
-        /// See: https://develop.sentry.dev/sdk/telemetry/logs/#appendix-b-otel_log-envelope-item-payload
-        init(value: Any) {
-            switch value {
-            case let stringValue as String:
-                self = .string(stringValue)
-            case let boolValue as Bool:
-                self = .boolean(boolValue)
-            case let intValue as Int:
-                self = .integer(intValue)
-            case let doubleValue as Double:
-                self = .double(doubleValue)
-            case let floatValue as Float:
-                self = .double(Double(floatValue))
-            default:
-                // For any other type, convert to string representation
-                self = .string(String(describing: value))
-            }
-        }
-        
         private enum CodingKeys: String, CodingKey {
             case value
             case type

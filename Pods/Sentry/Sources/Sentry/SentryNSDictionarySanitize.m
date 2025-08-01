@@ -1,5 +1,5 @@
 #import "SentryNSDictionarySanitize.h"
-#import "SentryArray.h"
+#import "NSArray+SentrySanitize.h"
 #import "SentryDateUtils.h"
 
 NSDictionary *_Nullable sentry_sanitize(NSDictionary *_Nullable dictionary)

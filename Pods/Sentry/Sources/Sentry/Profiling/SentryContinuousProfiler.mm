@@ -5,13 +5,14 @@
 #    import "SentryDependencyContainer.h"
 #    import "SentryLogC.h"
 #    import "SentryMetricProfiler.h"
+#    import "SentryNSNotificationCenterWrapper.h"
 #    import "SentryNSTimerFactory.h"
 #    import "SentryProfiler+Private.h"
 #    import "SentryProfilerSerialization.h"
 #    import "SentryProfilerState.h"
-#    import "SentryProfilingSwiftHelpers.h"
 #    import "SentrySDK+Private.h"
 #    import "SentrySample.h"
+#    import "SentrySwift.h"
 #    include <mutex>
 
 #    if SENTRY_HAS_UIKIT
@@ -61,7 +62,7 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
     [profiler.state clear]; // !!!: profile this to see if it takes longer than one sample duration
                             // length: ~9ms
 
-    const auto metricProfilerState = [profiler.metricProfiler copyMetricProfilerData];
+    const auto metricProfilerState = [profiler.metricProfiler serializeContinuousProfileMetrics];
     [profiler.metricProfiler clear];
 
 #    if SENTRY_HAS_UIKIT
@@ -70,22 +71,14 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
     [framesTracker resetProfilingTimestamps];
 #    endif // SENTRY_HAS_UIKIT
 
-    // Capture profiler ID on main thread since we need it for the background work
-    const auto profilerID = profiler.profilerId;
-
-    // Move the serialization work to a background queue to avoid potentially
-    // blocking the main thread. The serialization can take several milliseconds.
-    sentry_dispatchAsync(SentryDependencyContainer.sharedInstance.dispatchQueueWrapper, ^{
-        const auto serializedMetrics = serializeContinuousProfileMetrics(metricProfilerState);
-        const auto envelope
-            = sentry_continuousProfileChunkEnvelope(profilerID, profilerState, serializedMetrics
+    const auto envelope = sentry_continuousProfileChunkEnvelope(
+        profiler.profilerId, profilerState, metricProfilerState
 #    if SENTRY_HAS_UIKIT
-                ,
-                screenFrameData
+        ,
+        screenFrameData
 #    endif // SENTRY_HAS_UIKIT
-            );
-        [SentrySDKInternal captureEnvelope:envelope];
-    });
+    );
+    [SentrySDK captureEnvelope:envelope];
 }
 
 void
@@ -121,20 +114,27 @@ _sentry_unsafe_stopTimerAndCleanup()
         }
 
         static dispatch_once_t onceToken;
-        dispatch_once(&onceToken, ^{ _profileSessionID = sentry_getSentryId(); });
+        dispatch_once(&onceToken, ^{ _profileSessionID = [[SentryId alloc] init]; });
         _threadUnsafe_gContinuousCurrentProfiler.profilerId = _profileSessionID;
     }
-    sentry_postNotification(
-        [[NSNotification alloc] initWithName:kSentryNotificationContinuousProfileStarted
-                                      object:nil
-                                    userInfo:nil]);
+
+    [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
+        postNotification:[[NSNotification alloc]
+                             initWithName:kSentryNotificationContinuousProfileStarted
+                                   object:nil
+                                 userInfo:nil]];
     [self scheduleTimer];
 
 #    if SENTRY_HAS_UIKIT
-    _observerToken = sentry_addObserverForName(UIApplicationWillResignActiveNotification, ^{
-        sentry_removeObserver(_observerToken);
-        [self stopTimerAndCleanup];
-    });
+    _observerToken = [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
+        addObserverForName:UIApplicationWillResignActiveNotification
+                    object:nil
+                     queue:nil
+                usingBlock:^(NSNotification *_Nonnull notification) {
+                    [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
+                        removeObserver:_observerToken];
+                    [self stopTimerAndCleanup];
+                }];
 #    endif // SENTRY_HAS_UIKIT
 }
 
@@ -160,7 +160,7 @@ _sentry_unsafe_stopTimerAndCleanup()
     // https://github.com/getsentry/sentry-cocoa/pull/4214). we just want to look in its samples
     // for a call to main()
     if ([NSProcessInfo.processInfo.arguments
-            containsObject:@"--io.sentry.profiling.continuous-profiler-immediate-stop"]) {
+            containsObject:@"--io.sentry.continuous-profiler-immediate-stop"]) {
         _sentry_threadUnsafe_transmitChunkEnvelope();
         _sentry_unsafe_stopTimerAndCleanup();
         return;
@@ -185,7 +185,7 @@ _sentry_unsafe_stopTimerAndCleanup()
  */
 + (void)scheduleTimer
 {
-    sentry_dispatchAsyncOnMain(SentryDependencyContainer.sharedInstance.dispatchQueueWrapper, ^{
+    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncOnMainQueue:^{
         std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
         if (_chunkTimer != nil) {
             SENTRY_LOG_WARN(@"There was already a timer in flight, but this codepath shouldn't be "
@@ -199,7 +199,7 @@ _sentry_unsafe_stopTimerAndCleanup()
                                   selector:@selector(timerExpired)
                                   userInfo:nil
                                    repeats:YES];
-    });
+    }];
 }
 
 + (void)timerExpired
@@ -224,7 +224,8 @@ _sentry_unsafe_stopTimerAndCleanup()
 
 #    if SENTRY_HAS_UIKIT
     if (_observerToken != nil) {
-        sentry_removeObserver(_observerToken);
+        [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
+            removeObserver:_observerToken];
     }
 #    endif // SENTRY_HAS_UIKIT
 

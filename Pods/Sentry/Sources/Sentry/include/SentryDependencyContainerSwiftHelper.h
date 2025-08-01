@@ -5,15 +5,12 @@
 #    import <UIKit/UIKit.h>
 #endif // SENTRY_HAS_UIKIT
 
-@protocol SentryObjCRuntimeWrapper;
-@class SentryHub;
-
 NS_ASSUME_NONNULL_BEGIN
 
-// Some Swift code needs to access Sentry types that we don’t want to completely
-// expose to Swift. This class is exposed to Swift
-// and bridges some functionality from without importing large amounts of the
-// codebase to Swift.
+// Some Swift code needs to access SentryDependencyContainer. To
+// make that possible without requiring all of SentryDependencyContainer
+// to be exposed to Swift this class is exposed to Swift
+// and bridges some functionality from SentryDependencyContainer
 @interface SentryDependencyContainerSwiftHelper : NSObject
 
 #if SENTRY_HAS_UIKIT
@@ -23,8 +20,6 @@ NS_ASSUME_NONNULL_BEGIN
 #endif // SENTRY_HAS_UIKIT
 
 + (void)dispatchSyncOnMainQueue:(void (^)(void))block;
-+ (id<SentryObjCRuntimeWrapper>)objcRuntimeWrapper;
-+ (SentryHub *)currentHub;
 
 @end
 

@@ -437,8 +437,8 @@ static BOOL appStartMeasurementRead;
                 _traceContext = [[SentryTraceContext alloc] initWithTracer:self
                                                                      scope:_hub.scope
                                                                    options:_hub.client.options
-                        ?: SentrySDKInternal.options]; // We should remove static classes and always
-                                                       // inject dependencies.
+                        ?: SentrySDK.options]; // We should remove static classes and always
+                                               // inject dependencies.
             }
         }
     }
@@ -812,7 +812,7 @@ static BOOL appStartMeasurementRead;
             return nil;
         }
 
-        measurement = [SentrySDKInternal getAppStartMeasurement];
+        measurement = [SentrySDK getAppStartMeasurement];
         if (measurement == nil) {
             SENTRY_LOG_DEBUG(@"No app start measurement available.");
             return nil;

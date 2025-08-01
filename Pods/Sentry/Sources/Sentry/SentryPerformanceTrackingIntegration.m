@@ -2,6 +2,7 @@
 
 #if SENTRY_HAS_UIKIT
 
+#    import "SentryDefaultObjCRuntimeWrapper.h"
 #    import "SentryDependencyContainer.h"
 #    import "SentryLogC.h"
 #    import "SentryNSProcessInfoWrapper.h"
@@ -33,13 +34,13 @@
 
     SentrySubClassFinder *subClassFinder = [[SentrySubClassFinder alloc]
            initWithDispatchQueue:dispatchQueue
-              objcRuntimeWrapper:[SentryDependencyContainer.sharedInstance objcRuntimeWrapper]
+              objcRuntimeWrapper:[SentryDefaultObjCRuntimeWrapper sharedInstance]
         swizzleClassNameExcludes:options.swizzleClassNameExcludes];
 
     self.swizzling = [[SentryUIViewControllerSwizzling alloc]
            initWithOptions:options
              dispatchQueue:dispatchQueue
-        objcRuntimeWrapper:[SentryDependencyContainer.sharedInstance objcRuntimeWrapper]
+        objcRuntimeWrapper:[SentryDefaultObjCRuntimeWrapper sharedInstance]
             subClassFinder:subClassFinder
         processInfoWrapper:[SentryDependencyContainer.sharedInstance processInfoWrapper]
           binaryImageCache:[SentryDependencyContainer.sharedInstance binaryImageCache]];

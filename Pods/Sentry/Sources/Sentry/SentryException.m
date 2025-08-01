@@ -1,6 +1,5 @@
 #import "SentryException.h"
 #import "SentryMechanism.h"
-#import "SentryModels+Serializable.h"
 #import "SentryStacktrace.h"
 #import "SentryThread.h"
 

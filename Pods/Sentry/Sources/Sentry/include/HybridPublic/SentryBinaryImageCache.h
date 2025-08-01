@@ -18,7 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface SentryBinaryImageCache : NSObject
 
-- (void)start:(BOOL)isDebug;
+- (void)start;
 
 - (void)stop;
 

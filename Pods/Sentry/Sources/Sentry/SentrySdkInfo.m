@@ -15,21 +15,18 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)global
 {
-    SentryClient *_Nullable client = [SentrySDKInternal.currentHub getClient];
+    SentryClient *_Nullable client = [SentrySDK.currentHub getClient];
     return [[SentrySdkInfo alloc] initWithOptions:client.options];
 }
 
 - (instancetype)initWithOptions:(SentryOptions *_Nullable)options
 {
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     NSArray<NSString *> *features =
         [SentryEnabledFeaturesBuilder getEnabledFeaturesWithOptions:options];
-#pragma clang diagnostic pop
 
     NSMutableArray<NSString *> *integrations =
-        [SentrySDKInternal.currentHub trimmedInstalledIntegrationNames];
+        [SentrySDK.currentHub trimmedInstalledIntegrationNames];
 
 #if SENTRY_HAS_UIKIT
     if (options.enablePreWarmedAppStartTracing) {

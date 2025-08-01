@@ -1,7 +1,6 @@
 #import "SentryMechanism.h"
 #import "NSMutableDictionary+Sentry.h"
 #import "SentryMechanismMeta.h"
-#import "SentryModels+Serializable.h"
 #import "SentryNSDictionarySanitize.h"
 #import "SentryNSError.h"
 

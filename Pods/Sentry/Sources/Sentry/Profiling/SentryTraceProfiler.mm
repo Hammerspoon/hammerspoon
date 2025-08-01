@@ -9,7 +9,7 @@
 #    import "SentryNSTimerFactory.h"
 #    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfiler+Private.h"
-#    import "SentryProfilingSwiftHelpers.h"
+#    import "SentrySwift.h"
 #    include <mutex>
 
 #    pragma mark - Private
@@ -49,7 +49,7 @@ SentryProfiler *_Nullable _threadUnsafe_gTraceProfiler;
             return NO;
         }
 
-        _threadUnsafe_gTraceProfiler.profilerId = sentry_getSentryId();
+        _threadUnsafe_gTraceProfiler.profilerId = [[SentryId alloc] init];
         sentry_trackTransactionProfilerForTrace(_threadUnsafe_gTraceProfiler, traceId);
     }
 
@@ -82,7 +82,7 @@ SentryProfiler *_Nullable _threadUnsafe_gTraceProfiler;
  */
 + (void)scheduleTimeoutTimer
 {
-    sentry_dispatchAsyncOnMain(SentryDependencyContainer.sharedInstance.dispatchQueueWrapper, ^{
+    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncOnMainQueue:^{
         std::lock_guard<std::mutex> l(_threadUnsafe_gTraceProfilerLock);
         if (_sentry_threadUnsafe_traceProfileTimeoutTimer != nil) {
             return;
@@ -95,7 +95,7 @@ SentryProfiler *_Nullable _threadUnsafe_gTraceProfiler;
                                          block:^(NSTimer *_Nonnull timer) {
                                              [self timeoutTimerExpired];
                                          }];
-    });
+    }];
 }
 
 + (void)timeoutTimerExpired

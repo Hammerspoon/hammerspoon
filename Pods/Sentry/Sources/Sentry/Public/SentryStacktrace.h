@@ -6,19 +6,13 @@
 #else
 #    import <SentryDefines.h>
 #endif
-#if !SDK_V9
-#    import SENTRY_HEADER(SentrySerializable)
-#endif
+#import SENTRY_HEADER(SentrySerializable)
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryFrame;
 
-@interface SentryStacktrace : NSObject
-#if !SDK_V9
-                              <SentrySerializable>
-#endif
-
+@interface SentryStacktrace : NSObject <SentrySerializable>
 SENTRY_NO_INIT
 
 /**

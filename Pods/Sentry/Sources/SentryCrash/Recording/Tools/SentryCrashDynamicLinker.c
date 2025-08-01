@@ -480,7 +480,6 @@ getCrashInfo(const struct mach_header *header, SentryCrashBinaryImage *buffer)
     }
 }
 
-#if !SDK_V9
 int
 sentrycrashdl_imageCount(void)
 {
@@ -498,7 +497,6 @@ sentrycrashdl_getBinaryImage(int index, SentryCrashBinaryImage *buffer, bool isC
     const char *imageName = _dyld_get_image_name((unsigned)index);
     return sentrycrashdl_getBinaryImageForHeader((const void *)header, imageName, buffer, isCrash);
 }
-#endif // !SDK_V9
 
 void
 sentrycrashdl_getCrashInfo(uint64_t address, SentryCrashBinaryImage *buffer)
