@@ -1,12 +1,13 @@
+@_implementationOnly import _SentryPrivate
 import Foundation
 
 @objc
-protocol SentryReplayBreadcrumbConverter: NSObjectProtocol {
+@_spi(Private) public protocol SentryReplayBreadcrumbConverter: NSObjectProtocol {
     func convert(from breadcrumb: Breadcrumb) -> SentryRRWebEventProtocol?
 }
 
 @objcMembers
-class SentrySRDefaultBreadcrumbConverter: NSObject, SentryReplayBreadcrumbConverter {
+@_spi(Private) public class SentrySRDefaultBreadcrumbConverter: NSObject, SentryReplayBreadcrumbConverter {
     
     private let supportedNetworkData = Set<String>([
         "status_code",
@@ -22,7 +23,7 @@ class SentrySRDefaultBreadcrumbConverter: NSObject, SentryReplayBreadcrumbConver
      * Any deviation in the information will cause the breadcrumb or the information itself to be discarded
      * in order to avoid unknown behavior in the front-end.
      */
-    func convert(from breadcrumb: Breadcrumb) -> SentryRRWebEventProtocol? {
+    public func convert(from breadcrumb: Breadcrumb) -> SentryRRWebEventProtocol? {
         guard let timestamp = breadcrumb.timestamp else { return nil }
         if breadcrumb.category == "http" {
             return networkSpan(breadcrumb)
@@ -84,5 +85,11 @@ class SentrySRDefaultBreadcrumbConverter: NSObject, SentryReplayBreadcrumbConver
     
     private func getLevel(breadcrumb: Breadcrumb) -> SentryLevel {
         return SentryLevelHelper.breadcrumbLevel(breadcrumb) ?? .none
+    }
+}
+
+extension SentryLevelHelper {
+    static func breadcrumbLevel(_ breadcrumb: Breadcrumb) -> SentryLevel? {
+        SentryLevel(rawValue: SentryLevelBridge.breadcrumbLevel(breadcrumb))
     }
 }

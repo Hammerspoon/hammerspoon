@@ -2,8 +2,6 @@
 
 #if SENTRY_HAS_UIKIT
 
-#    import "SentrySwift.h"
-
 @class SentryDispatchQueueWrapper;
 @class SentryAppStateManager;
 @class SentryFramesTracker;

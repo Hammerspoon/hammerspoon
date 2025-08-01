@@ -3,7 +3,6 @@
 #    import "SentryAsyncSafeLog.h"
 #    import "SentryBacktrace.hpp"
 #    import "SentryDependencyContainer.h"
-#    import "SentryDispatchQueueWrapper.h"
 #    import "SentryFormatter.h"
 #    import "SentryProfileTimeseries.h"
 #    import "SentrySample.h"
@@ -127,7 +126,7 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
 
         const auto stack = [NSMutableArray<NSNumber *> array];
         for (std::vector<uintptr_t>::size_type backtraceAddressIdx = 0;
-             backtraceAddressIdx < backtrace.addresses.size(); backtraceAddressIdx++) {
+            backtraceAddressIdx < backtrace.addresses.size(); backtraceAddressIdx++) {
             const auto instructionAddress
                 = sentry_formatHexAddressUInt64(backtrace.addresses[backtraceAddressIdx]);
             const auto frameIndex = state.frameIndexLookup[instructionAddress];

@@ -1,6 +1,5 @@
 #import "SentryAttachment.h"
 #import "SentryDefines.h"
-#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -19,8 +18,7 @@ NSString *nameForSentryAttachmentType(SentryAttachmentType attachmentType);
 
 SentryAttachmentType typeForSentryAttachmentName(NSString *name);
 
-@interface
-SentryAttachment ()
+@interface SentryAttachment ()
 SENTRY_NO_INIT
 
 /**

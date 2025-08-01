@@ -2,9 +2,10 @@
 #import "SentryEnvelope.h"
 #import "SentryEnvelopeItemHeader.h"
 #import "SentryEnvelopeItemType.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentrySerialization.h"
 #import "SentrySession+Private.h"
+#import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -105,10 +106,10 @@ NS_ASSUME_NONNULL_BEGIN
                                     error:&error];
 
     if (nil != error) {
-        [SentryLog
+        [SentrySDKLog
             logWithMessage:[NSString stringWithFormat:@"Could not migrate session init, because "
                                                       @"storing the updated envelope failed: %@",
-                                     error.description]
+                               error.description]
                   andLevel:kSentryLevelError];
     }
 }

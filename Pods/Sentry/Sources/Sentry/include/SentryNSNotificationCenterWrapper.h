@@ -1,5 +1,15 @@
 #import "SentryDefines.h"
 
+#if SENTRY_HAS_UIKIT
+#    define SentryDidBecomeActiveNotification UIApplicationDidBecomeActiveNotification
+#    define SentryWillResignActiveNotification UIApplicationWillResignActiveNotification
+#    define SentryWillTerminateNotification UIApplicationWillTerminateNotification
+#elif SENTRY_TARGET_MACOS_HAS_UI
+#    define SentryDidBecomeActiveNotification NSApplicationDidBecomeActiveNotification
+#    define SentryWillResignActiveNotification NSApplicationWillResignActiveNotification
+#    define SentryWillTerminateNotification NSApplicationWillTerminateNotification
+#endif
+
 NS_ASSUME_NONNULL_BEGIN
 
 /**
@@ -11,12 +21,6 @@ NS_ASSUME_NONNULL_BEGIN
  * @c NSNotificationCenter.
  */
 @interface SentryNSNotificationCenterWrapper : NSObject
-
-#if SENTRY_HAS_UIKIT || SENTRY_TARGET_MACOS_HAS_UI
-@property (nonatomic, readonly, copy, class) NSNotificationName didBecomeActiveNotificationName;
-@property (nonatomic, readonly, copy, class) NSNotificationName willResignActiveNotificationName;
-@property (nonatomic, readonly, copy, class) NSNotificationName willTerminateNotificationName;
-#endif
 
 - (void)addObserver:(NSObject *)observer
            selector:(SEL)aSelector

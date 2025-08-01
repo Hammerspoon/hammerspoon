@@ -1,13 +1,12 @@
 #import "SentryUIDeviceWrapper.h"
 #import "SentryDependencyContainer.h"
-#import "SentryDispatchQueueWrapper.h"
+#import "SentrySwift.h"
 
 #if SENTRY_HAS_UIKIT
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryUIDeviceWrapper ()
+@interface SentryUIDeviceWrapper ()
 @property (nonatomic) BOOL cleanupDeviceOrientationNotifications;
 @property (nonatomic) BOOL cleanupBatteryMonitoring;
 @property (nonatomic, copy) NSString *systemVersion;

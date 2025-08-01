@@ -1,11 +1,9 @@
 #import "SentryCrashSysCtl.h"
 #import "SentryDependencyContainer.h"
 #import "SentrySysctl.h"
-#import <Foundation/Foundation.h>
 #import <SentryAppState.h>
 #import <SentryAppStateManager.h>
 #import <SentryCrashWrapper.h>
-#import <SentryDispatchQueueWrapper.h>
 #import <SentryFileManager.h>
 #import <SentryNSNotificationCenterWrapper.h>
 #import <SentryOptions.h>
@@ -17,8 +15,7 @@
 #    import <UIKit/UIKit.h>
 #endif
 
-@interface
-SentryAppStateManager ()
+@interface SentryAppStateManager ()
 
 @property (nonatomic, strong) SentryOptions *options;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
@@ -53,24 +50,21 @@ SentryAppStateManager ()
 - (void)start
 {
     if (self.startCount == 0) {
-        [self.notificationCenterWrapper
-            addObserver:self
-               selector:@selector(didBecomeActive)
-                   name:SentryNSNotificationCenterWrapper.didBecomeActiveNotificationName];
+        [self.notificationCenterWrapper addObserver:self
+                                           selector:@selector(didBecomeActive)
+                                               name:SentryDidBecomeActiveNotification];
 
         [self.notificationCenterWrapper addObserver:self
                                            selector:@selector(didBecomeActive)
                                                name:SentryHybridSdkDidBecomeActiveNotificationName];
 
-        [self.notificationCenterWrapper
-            addObserver:self
-               selector:@selector(willResignActive)
-                   name:SentryNSNotificationCenterWrapper.willResignActiveNotificationName];
+        [self.notificationCenterWrapper addObserver:self
+                                           selector:@selector(willResignActive)
+                                               name:SentryWillResignActiveNotification];
 
-        [self.notificationCenterWrapper
-            addObserver:self
-               selector:@selector(willTerminate)
-                   name:SentryNSNotificationCenterWrapper.willTerminateNotificationName];
+        [self.notificationCenterWrapper addObserver:self
+                                           selector:@selector(willTerminate)
+                                               name:SentryWillTerminateNotification];
 
         [self storeCurrentAppState];
     }
@@ -102,21 +96,16 @@ SentryAppStateManager ()
     if (self.startCount == 0) {
         // Remove the observers with the most specific detail possible, see
         // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
-        [self.notificationCenterWrapper
-            removeObserver:self
-                      name:SentryNSNotificationCenterWrapper.didBecomeActiveNotificationName];
+        [self.notificationCenterWrapper removeObserver:self name:SentryDidBecomeActiveNotification];
 
         [self.notificationCenterWrapper
             removeObserver:self
                       name:SentryHybridSdkDidBecomeActiveNotificationName];
 
-        [self.notificationCenterWrapper
-            removeObserver:self
-                      name:SentryNSNotificationCenterWrapper.willResignActiveNotificationName];
+        [self.notificationCenterWrapper removeObserver:self
+                                                  name:SentryWillResignActiveNotification];
 
-        [self.notificationCenterWrapper
-            removeObserver:self
-                      name:SentryNSNotificationCenterWrapper.willTerminateNotificationName];
+        [self.notificationCenterWrapper removeObserver:self name:SentryWillTerminateNotification];
     }
 }
 
@@ -152,7 +141,7 @@ SentryAppStateManager ()
 {
     // The app is terminating so it is fine to do this on the main thread.
     // Furthermore, so users can manually post UIApplicationWillTerminateNotification and then call
-    // exit(0), to avoid getting false OOM when using exit(0), see GH-1252.
+    // exit(0), to avoid getting false watchdog terminations when using exit(0), see GH-1252.
     [self updateAppState:^(SentryAppState *appState) { appState.wasTerminated = YES; }];
 }
 

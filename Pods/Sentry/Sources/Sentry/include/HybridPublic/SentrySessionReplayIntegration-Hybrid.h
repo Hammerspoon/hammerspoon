@@ -1,25 +1,24 @@
-#import <Foundation/Foundation.h>
-#import <Sentry/SentryDefines.h>
+#if __has_include(<Sentry/SentryDefines.h>)
+#    import <Sentry/SentryDefines.h>
+#else
+#    import "SentryDefines.h"
+#endif
+
+#if __has_include(<Sentry/SentrySessionReplayIntegration.h>)
+#    import <Sentry/SentrySessionReplayIntegration.h>
+#else
+#    import "SentrySessionReplayIntegration.h"
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
-#if SENTRY_UIKIT_AVAILABLE
+#if SENTRY_TARGET_REPLAY_SUPPORTED
 @class SentryReplayOptions;
 
 @protocol SentryViewScreenshotProvider;
 @protocol SentryReplayBreadcrumbConverter;
 @protocol SentryRRWebEvent;
 
-@interface SentrySessionReplayIntegration : NSObject
-
-- (void)startWithOptions:(SentryReplayOptions *)replayOptions
-      screenshotProvider:(id<SentryViewScreenshotProvider>)screenshotProvider
-     breadcrumbConverter:(id<SentryReplayBreadcrumbConverter>)breadcrumbConverter
-             fullSession:(BOOL)shouldReplayFullSession;
-
-@end
-
-@interface
-SentrySessionReplayIntegration ()
+@interface SentrySessionReplayIntegration ()
 
 + (id<SentryRRWebEvent>)createBreadcrumbwithTimestamp:(NSDate *)timestamp
                                              category:(NSString *)category

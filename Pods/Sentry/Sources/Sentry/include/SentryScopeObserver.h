@@ -17,6 +17,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)setContext:(nullable NSDictionary<NSString *, id> *)context;
 
+- (void)setTraceContext:(nullable NSDictionary<NSString *, id> *)traceContext;
+
 - (void)setDist:(nullable NSString *)dist;
 
 - (void)setEnvironment:(nullable NSString *)environment;

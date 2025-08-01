@@ -1,5 +1,5 @@
 #import "SentryDispatchSourceWrapper.h"
-#import "SentryDispatchQueueWrapper.h"
+#import "SentrySwift.h"
 
 @implementation SentryDispatchSourceWrapper {
     SentryDispatchQueueWrapper *_queueWrapper;
@@ -25,5 +25,17 @@
 {
     dispatch_cancel(_source);
 }
+
+#if SENTRY_TEST || SENTRY_TEST_CI
+- (dispatch_source_t)source
+{
+    return _source;
+}
+
+- (SentryDispatchQueueWrapper *)queue
+{
+    return _queueWrapper;
+}
+#endif // SENTRY_TEST || SENTRY_TEST_CI
 
 @end

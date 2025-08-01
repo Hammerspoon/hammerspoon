@@ -1,7 +1,7 @@
 #import "SentryNSProcessInfoWrapper.h"
 
 @implementation SentryNSProcessInfoWrapper {
-#if defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
     NSString *_executablePath;
 }
 - (void)setProcessPath:(NSString *)path
@@ -20,15 +20,7 @@
 #else
 }
 #    define SENTRY_BINARY_EXECUTABLE_PATH NSBundle.mainBundle.executablePath;
-#endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
-
-+ (SentryNSProcessInfoWrapper *)shared
-{
-    static SentryNSProcessInfoWrapper *instance = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{ instance = [[self alloc] init]; });
-    return instance;
-}
+#endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 
 - (NSString *)processDirectoryPath
 {
@@ -43,6 +35,16 @@
 - (NSUInteger)processorCount
 {
     return NSProcessInfo.processInfo.processorCount;
+}
+
+- (NSProcessInfoThermalState)thermalState
+{
+    return NSProcessInfo.processInfo.thermalState;
+}
+
+- (NSDictionary<NSString *, NSString *> *)environment
+{
+    return NSProcessInfo.processInfo.environment;
 }
 
 @end

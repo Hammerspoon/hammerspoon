@@ -233,7 +233,7 @@ bool
 sentrycrashsysctl_getMacAddress(const char *const name, char *const macAddressBuffer)
 {
     // Based off
-    // http://iphonedevelopertips.com/device/determine-mac-address.html
+    // http://web.archive.org/web/20111109013928/http://iphonedevelopertips.com/device/determine-mac-address.html
 
     int mib[6] = { CTL_NET, AF_ROUTE, 0, AF_LINK, NET_RT_IFLIST, (int)if_nametoindex(name) };
     if (mib[5] == 0) {

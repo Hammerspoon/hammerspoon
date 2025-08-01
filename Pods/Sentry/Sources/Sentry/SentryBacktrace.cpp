@@ -110,8 +110,8 @@ namespace profiling {
     }
 
     void
-    enumerateBacktracesForAllThreads(const std::function<void(const Backtrace &)> &f,
-        const std::shared_ptr<ThreadMetadataCache> &cache)
+    enumerateBacktracesForAllThreads(
+        const std::function<void(const Backtrace &)> &f, ThreadMetadataCache *cache)
     {
         const auto pair = ThreadHandle::allExcludingCurrent();
         for (const auto &thread : pair.first) {

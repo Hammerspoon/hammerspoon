@@ -3,17 +3,15 @@
 #if SENTRY_HAS_UIKIT
 
 #    import "SentryAppStartTracker.h"
-#    import "SentryLog.h"
+#    import "SentryLogC.h"
 #    import "SentryOptions.h"
-#    import <Foundation/Foundation.h>
+#    import "SentrySwift.h"
 #    import <PrivateSentrySDKOnly.h>
 #    import <SentryAppStateManager.h>
 #    import <SentryCrashWrapper.h>
 #    import <SentryDependencyContainer.h>
-#    import <SentryDispatchQueueWrapper.h>
 
-@interface
-SentryAppStartTrackingIntegration ()
+@interface SentryAppStartTrackingIntegration ()
 
 @property (nonatomic, strong) SentryAppStartTracker *tracker;
 

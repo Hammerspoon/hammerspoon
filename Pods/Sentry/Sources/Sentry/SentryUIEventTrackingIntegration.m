@@ -2,15 +2,14 @@
 
 #if SENTRY_HAS_UIKIT
 
-#    import <SentryLog.h>
+#    import <SentryLogC.h>
 #    import <SentryNSDataSwizzling.h>
 #    import <SentryOptions+Private.h>
 #    import <SentryOptions.h>
 #    import <SentryUIEventTracker.h>
 #    import <SentryUIEventTrackerTransactionMode.h>
 
-@interface
-SentryUIEventTrackingIntegration ()
+@interface SentryUIEventTrackingIntegration ()
 
 @property (nonatomic, strong) SentryUIEventTracker *uiEventTracker;
 
@@ -27,7 +26,9 @@ SentryUIEventTrackingIntegration ()
     SentryUIEventTrackerTransactionMode *mode =
         [[SentryUIEventTrackerTransactionMode alloc] initWithIdleTimeout:options.idleTimeout];
 
-    self.uiEventTracker = [[SentryUIEventTracker alloc] initWithMode:mode];
+    self.uiEventTracker =
+        [[SentryUIEventTracker alloc] initWithMode:mode
+                     reportAccessibilityIdentifier:options.reportAccessibilityIdentifier];
 
     [self.uiEventTracker start];
 

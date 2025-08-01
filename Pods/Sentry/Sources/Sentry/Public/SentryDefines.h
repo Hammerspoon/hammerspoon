@@ -1,5 +1,16 @@
 #import <Foundation/Foundation.h>
 
+// Clang warns if a double quoted include is used instead of angle brackets in a public header
+// These 3 import variations are how public headers can be imported with angle brackets
+// for Sentry, SentryWithoutUIKit, and SPM
+#if __has_include(<Sentry/Sentry.h>)
+#    define SENTRY_HEADER(file) <Sentry/file.h>
+#elif __has_include(<SentryWithoutUIKit/Sentry.h>)
+#    define SENTRY_HEADER(file) <SentryWithoutUIKit/file.h>
+#else
+#    define SENTRY_HEADER(file) <file.h>
+#endif
+
 #ifdef __cplusplus
 #    define SENTRY_EXTERN extern "C" __attribute__((visibility("default")))
 #else
@@ -60,7 +71,10 @@
 #    define SENTRY_HAS_REACHABILITY 0
 #endif
 
-@class SentryEvent, SentryBreadcrumb, SentrySamplingContext;
+@class SentryBreadcrumb;
+@class SentryEvent;
+@class SentrySamplingContext;
+@class SentryUserFeedbackConfiguration;
 @protocol SentrySpan;
 
 /**
@@ -133,18 +147,10 @@ typedef NSNumber *_Nullable (^SentryTracesSamplerCallback)(
  * Function pointer for span manipulation.
  * @param span The span to be used.
  */
-typedef void (^SentrySpanCallback)(id<SentrySpan> _Nullable span);
+typedef void (^SentrySpanCallback)(id<SentrySpan> _Nullable span DEPRECATED_MSG_ATTRIBUTE(
+    "See `SentryScope.useSpan` for reasoning of deprecation."));
 
-/**
- * A callback block which gets called right before a metric is about to be emitted.
-
- * @param key  The key of the metric.
- * @param tags A dictionary of key-value pairs associated with the metric.
- * @return BOOL YES if the metric should be emitted, NO otherwise.
- */
-typedef BOOL (^SentryBeforeEmitMetricCallback)(
-    NSString *_Nonnull key, NSDictionary<NSString *, NSString *> *_Nonnull tags);
-
+#if !SDK_V9
 /**
  * Log level.
  */
@@ -154,6 +160,7 @@ typedef NS_ENUM(NSInteger, SentryLogLevel) {
     kSentryLogLevelDebug,
     kSentryLogLevelVerbose
 };
+#endif // !SDK_V9
 
 /**
  * Sentry level.
@@ -185,3 +192,14 @@ static NSString *_Nonnull const kSentryFalseString = @"false";
  */
 typedef NS_ENUM(NSInteger, SentryTransactionNameSource); // This is a forward declaration, the
                                                          // actual enum is implemented in Swift.
+
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
+
+/**
+ * Block used to configure the user feedback widget, form, behaviors and submission data.
+ */
+API_AVAILABLE(ios(13.0))
+typedef void (^SentryUserFeedbackConfigurationBlock)(
+    SentryUserFeedbackConfiguration *_Nonnull configuration);
+
+#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT

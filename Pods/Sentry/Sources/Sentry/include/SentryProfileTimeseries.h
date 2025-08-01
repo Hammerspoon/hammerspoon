@@ -15,6 +15,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+#    if defined(__cplusplus)
+extern "C" {
+#    endif
+
 NSArray<SentrySample *> *_Nullable sentry_slicedProfileSamples(
     NSArray<SentrySample *> *samples, uint64_t startSystemTime, uint64_t endSystemTime);
 
@@ -40,6 +44,10 @@ NSArray<NSDictionary<NSString *, NSNumber *> *> *sentry_sliceContinuousProfileGP
     BOOL useMostRecentFrameRate);
 
 #    endif // SENTRY_HAS_UIKIT
+
+#    if defined(__cplusplus)
+}
+#    endif
 
 NS_ASSUME_NONNULL_END
 

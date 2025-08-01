@@ -1,29 +1,27 @@
-#import "SentryCrashExceptionApplication.h"
-#import "SentryCrash.h"
-#import "SentryDependencyContainer.h"
-#import "SentrySDK.h"
-
-@implementation SentryCrashExceptionApplication
+#import <Foundation/Foundation.h>
 
 #if TARGET_OS_OSX
 
+#    import "SentryCrashExceptionApplication.h"
+#    import "SentryCrashExceptionApplicationHelper.h"
+#    import "SentryUncaughtNSExceptions.h"
+
+@implementation SentryCrashExceptionApplication
+
 - (void)reportException:(NSException *)exception
 {
-    [[NSUserDefaults standardUserDefaults]
-        registerDefaults:@{ @"NSApplicationCrashOnExceptions" : @YES }];
-    SentryCrash *crash = SentryDependencyContainer.sharedInstance.crashReporter;
-    if (nil != crash.uncaughtExceptionHandler && nil != exception) {
-        crash.uncaughtExceptionHandler(exception);
-    }
+    [SentryUncaughtNSExceptions configureCrashOnExceptions];
+    // We cannot test an NSApplication because you create more than one at a time, so we use a
+    // helper to hold the logic.
+    [SentryCrashExceptionApplicationHelper reportException:exception];
     [super reportException:exception];
 }
 
 - (void)_crashOnException:(NSException *)exception
 {
-    [SentrySDK captureException:exception];
-    abort();
+    [SentryCrashExceptionApplicationHelper _crashOnException:exception];
 }
 
-#endif
-
 @end
+
+#endif // TARGET_OS_OSX

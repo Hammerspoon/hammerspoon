@@ -84,7 +84,7 @@ typedef enum { CPUFamilyUnknown, CPUFamilyArm, CPUFamilyX86, CPUFamilyX86_64 } C
                 [string appendString:param.previousClassName];
             } else if (param.className != nil) {
                 [string appendFormat:@"%@ (%@)", param.className,
-                        param.isInstance ? @"instance" : @"class"];
+                    param.isInstance ? @"instance" : @"class"];
             } else {
                 [string appendString:@"?"];
             }
@@ -117,7 +117,7 @@ typedef enum { CPUFamilyUnknown, CPUFamilyArm, CPUFamilyX86, CPUFamilyX86_64 } C
         [str appendFormat:@"Param %d:  ", i + 1];
         if (param.className != nil) {
             [str appendFormat:@"%@ (%@) ", param.className,
-                 param.isInstance ? @"instance" : @"class"];
+                param.isInstance ? @"instance" : @"class"];
         }
         if (param.value != nil) {
             [str appendFormat:@"%@ ", param.value];
@@ -368,9 +368,9 @@ typedef enum { CPUFamilyUnknown, CPUFamilyArm, CPUFamilyX86, CPUFamilyX86_64 } C
     CPUFamily family = [self cpuFamily:report];
     NSDictionary *registers = [self basicRegistersFromThreadReport:crashedThread];
     NSArray *regNames = [NSArray arrayWithObjects:[self registerNameForFamily:family paramIndex:0],
-                                 [self registerNameForFamily:family paramIndex:1],
-                                 [self registerNameForFamily:family paramIndex:2],
-                                 [self registerNameForFamily:family paramIndex:3], nil];
+        [self registerNameForFamily:family paramIndex:1],
+        [self registerNameForFamily:family paramIndex:2],
+        [self registerNameForFamily:family paramIndex:3], nil];
     NSMutableArray *params = [NSMutableArray arrayWithCapacity:4];
     for (NSString *regName in regNames) {
         SentryCrashDoctorParam *param = [[SentryCrashDoctorParam alloc] init];
@@ -459,8 +459,8 @@ typedef enum { CPUFamilyUnknown, CPUFamilyArm, CPUFamilyX86, CPUFamilyX86_64 } C
         }
 
         if ([self isInvalidAddress:errorReport]) {
-            uintptr_t address = (uintptr_t)[
-                [errorReport objectForKey:@SentryCrashField_Address] unsignedLongLongValue];
+            uintptr_t address = (uintptr_t)[[errorReport objectForKey:@SentryCrashField_Address]
+                unsignedLongLongValue];
             if (address == 0) {
                 return @"Attempted to dereference null pointer.";
             }
@@ -473,7 +473,7 @@ typedef enum { CPUFamilyUnknown, CPUFamilyArm, CPUFamilyX86, CPUFamilyX86_64 } C
             } else {
                 return
                     [NSString stringWithFormat:@"Attempted to dereference garbage pointer at %p.",
-                              (void *)address];
+                        (void *)address];
             }
         }
 
@@ -487,11 +487,11 @@ typedef enum { CPUFamilyUnknown, CPUFamilyArm, CPUFamilyX86, CPUFamilyX86_64 } C
         if (symbols) {
             return [NSString stringWithFormat:@"No diagnosis due to exception %@:\n%@\nPlease "
                                               @"file a bug report to the SentryCrash project.",
-                             e, symbols];
+                e, symbols];
         }
         return [NSString stringWithFormat:@"No diagnosis due to exception %@\nPlease file a "
                                           @"bug report to the SentryCrash project.",
-                         e];
+            e];
     }
 }
 

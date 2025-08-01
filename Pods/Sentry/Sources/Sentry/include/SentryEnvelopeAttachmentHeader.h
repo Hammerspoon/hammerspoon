@@ -10,7 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithType:(NSString *)type
                       length:(NSUInteger)length
                     filename:(NSString *)filename
-                 contentType:(NSString *)contentType
+                 contentType:(nullable NSString *)contentType
               attachmentType:(SentryAttachmentType)attachmentType;
 
 @end

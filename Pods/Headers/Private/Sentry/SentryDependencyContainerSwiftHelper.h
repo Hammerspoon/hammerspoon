@@ -1,0 +1,1 @@
+../../../Sentry/Sources/Sentry/include/SentryDependencyContainerSwiftHelper.h

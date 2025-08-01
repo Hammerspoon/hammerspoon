@@ -2,7 +2,7 @@
 "5.title" = "Programoppdatering";
 
 /* Class = "NSTextFieldCell"; title = "Release Notes:"; ObjectID = "170"; */
-"170.title" = "Om oppdateringen:";
+"170.title" = "Om oppdateringa:";
 
 /* Class = "NSButtonCell"; title = "Remind Me Later"; ObjectID = "171"; */
 "171.title" = "Utsett";

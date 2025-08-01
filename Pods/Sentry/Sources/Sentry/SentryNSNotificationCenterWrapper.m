@@ -14,39 +14,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryNSNotificationCenterWrapper
 
-#if SENTRY_HAS_UIKIT
-+ (NSNotificationName)didBecomeActiveNotificationName
-{
-    return UIApplicationDidBecomeActiveNotification;
-}
-
-+ (NSNotificationName)willResignActiveNotificationName
-{
-    return UIApplicationWillResignActiveNotification;
-}
-
-+ (NSNotificationName)willTerminateNotificationName
-{
-    return UIApplicationWillTerminateNotification;
-}
-
-#elif SENTRY_TARGET_MACOS_HAS_UI
-+ (NSNotificationName)didBecomeActiveNotificationName
-{
-    return NSApplicationDidBecomeActiveNotification;
-}
-
-+ (NSNotificationName)willResignActiveNotificationName
-{
-    return NSApplicationWillResignActiveNotification;
-}
-
-+ (NSNotificationName)willTerminateNotificationName
-{
-    return NSApplicationWillTerminateNotification;
-}
-#endif
-
 - (void)addObserver:(NSObject *)observer
            selector:(SEL)aSelector
                name:(NSNotificationName)aName
