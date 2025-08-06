@@ -1,8 +1,10 @@
 #import "SentryDataCategoryMapper.h"
 #import "SentryDataCategory.h"
 #import "SentryEnvelopeItemType.h"
-#import <Foundation/Foundation.h>
 
+// While these data categories names might look similar to the envelope item types, they are not
+// identical, and have slight differences. Just open them side by side and you'll see the
+// differences.
 NSString *const kSentryDataCategoryNameAll = @"";
 NSString *const kSentryDataCategoryNameDefault = @"default";
 NSString *const kSentryDataCategoryNameError = @"error";
@@ -11,10 +13,11 @@ NSString *const kSentryDataCategoryNameTransaction = @"transaction";
 NSString *const kSentryDataCategoryNameAttachment = @"attachment";
 NSString *const kSentryDataCategoryNameUserFeedback = @"user_report";
 NSString *const kSentryDataCategoryNameProfile = @"profile";
-NSString *const kSentryDataCategoryNameProfileChunk = @"profile_chunk";
+NSString *const kSentryDataCategoryNameProfileChunk = @"profile_chunk_ui";
 NSString *const kSentryDataCategoryNameReplay = @"replay";
 NSString *const kSentryDataCategoryNameMetricBucket = @"metric_bucket";
 NSString *const kSentryDataCategoryNameSpan = @"span";
+NSString *const kSentryDataCategoryNameFeedback = @"feedback";
 NSString *const kSentryDataCategoryNameUnknown = @"unknown";
 
 NS_ASSUME_NONNULL_BEGIN
@@ -42,6 +45,9 @@ sentryDataCategoryForEnvelopItemType(NSString *itemType)
     }
     if ([itemType isEqualToString:SentryEnvelopeItemTypeReplayVideo]) {
         return kSentryDataCategoryReplay;
+    }
+    if ([itemType isEqualToString:SentryEnvelopeItemTypeFeedback]) {
+        return kSentryDataCategoryFeedback;
     }
     // The envelope item type used for metrics is statsd whereas the client report category for
     // discarded events is metric_bucket.
@@ -101,6 +107,9 @@ sentryDataCategoryForString(NSString *value)
     if ([value isEqualToString:kSentryDataCategoryNameSpan]) {
         return kSentryDataCategorySpan;
     }
+    if ([value isEqualToString:kSentryDataCategoryNameFeedback]) {
+        return kSentryDataCategoryFeedback;
+    }
 
     return kSentryDataCategoryUnknown;
 }
@@ -108,13 +117,10 @@ sentryDataCategoryForString(NSString *value)
 NSString *
 nameForSentryDataCategory(SentryDataCategory category)
 {
-    if (category < kSentryDataCategoryAll && category > kSentryDataCategoryUnknown) {
-        return kSentryDataCategoryNameUnknown;
-    }
-
     switch (category) {
     case kSentryDataCategoryAll:
         return kSentryDataCategoryNameAll;
+
     case kSentryDataCategoryDefault:
         return kSentryDataCategoryNameDefault;
     case kSentryDataCategoryError:
@@ -133,12 +139,16 @@ nameForSentryDataCategory(SentryDataCategory category)
         return kSentryDataCategoryNameProfileChunk;
     case kSentryDataCategoryMetricBucket:
         return kSentryDataCategoryNameMetricBucket;
-    case kSentryDataCategoryUnknown:
-        return kSentryDataCategoryNameUnknown;
     case kSentryDataCategoryReplay:
         return kSentryDataCategoryNameReplay;
     case kSentryDataCategorySpan:
         return kSentryDataCategoryNameSpan;
+    case kSentryDataCategoryFeedback:
+        return kSentryDataCategoryNameFeedback;
+
+    default: // !!!: fall-through!
+    case kSentryDataCategoryUnknown:
+        return kSentryDataCategoryNameUnknown;
     }
 }
 

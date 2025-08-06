@@ -20,11 +20,11 @@
 #import "streamdeck.h"
 
 
-typedef enum : NSUInteger {
+typedef NS_ENUM(NSUInteger, HSStreamDeckImageCodec) {
     STREAMDECK_CODEC_UNKNOWN,
     STREAMDECK_CODEC_BMP,
     STREAMDECK_CODEC_JPEG,
-} HSStreamDeckImageCodec;
+};
 
 @interface HSStreamDeckDevice : NSObject {
     NSString *serialNumberCache;

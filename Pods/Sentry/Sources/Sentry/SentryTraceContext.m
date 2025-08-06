@@ -26,6 +26,29 @@ NS_ASSUME_NONNULL_BEGIN
                         sampled:(nullable NSString *)sampled
                        replayId:(nullable NSString *)replayId
 {
+    return [self initWithTraceId:traceId
+                       publicKey:publicKey
+                     releaseName:releaseName
+                     environment:environment
+                     transaction:transaction
+                     userSegment:userSegment
+                      sampleRate:sampleRate
+                      sampleRand:nil
+                         sampled:sampled
+                        replayId:replayId];
+}
+
+- (instancetype)initWithTraceId:(SentryId *)traceId
+                      publicKey:(NSString *)publicKey
+                    releaseName:(nullable NSString *)releaseName
+                    environment:(nullable NSString *)environment
+                    transaction:(nullable NSString *)transaction
+                    userSegment:(nullable NSString *)userSegment
+                     sampleRate:(nullable NSString *)sampleRate
+                     sampleRand:(nullable NSString *)sampleRand
+                        sampled:(nullable NSString *)sampled
+                       replayId:(nullable NSString *)replayId
+{
     if (self = [super init]) {
         _traceId = traceId;
         _publicKey = publicKey;
@@ -33,6 +56,7 @@ NS_ASSUME_NONNULL_BEGIN
         _releaseName = releaseName;
         _transaction = transaction;
         _userSegment = userSegment;
+        _sampleRand = sampleRand;
         _sampleRate = sampleRate;
         _sampled = sampled;
         _replayId = replayId;
@@ -66,12 +90,17 @@ NS_ASSUME_NONNULL_BEGIN
     }
 #pragma clang diagnostic pop
 
-    NSString *sampleRate = nil;
-    if ([tracer isKindOfClass:[SentryTransactionContext class]]) {
-        sampleRate =
-            [NSString stringWithFormat:@"%@", [(SentryTransactionContext *)tracer sampleRate]];
+    NSString *serializedSampleRand = nil;
+    NSNumber *sampleRand = [tracer.transactionContext sampleRand];
+    if (sampleRand != nil) {
+        serializedSampleRand = [NSString stringWithFormat:@"%f", sampleRand.doubleValue];
     }
 
+    NSString *serializedSampleRate = nil;
+    NSNumber *sampleRate = [tracer.transactionContext sampleRate];
+    if (sampleRate != nil) {
+        serializedSampleRate = [NSString stringWithFormat:@"%f", sampleRate.doubleValue];
+    }
     NSString *sampled = nil;
     if (tracer.sampled != kSentrySampleDecisionUndecided) {
         sampled
@@ -84,7 +113,8 @@ NS_ASSUME_NONNULL_BEGIN
                      environment:options.environment
                      transaction:tracer.transactionContext.name
                      userSegment:userSegment
-                      sampleRate:sampleRate
+                      sampleRate:serializedSampleRate
+                      sampleRand:serializedSampleRand
                          sampled:sampled
                         replayId:scope.replayId];
 }
@@ -101,6 +131,7 @@ NS_ASSUME_NONNULL_BEGIN
                                            transaction:nil
                                            userSegment:userSegment
                                             sampleRate:nil
+                                            sampleRand:nil
                                                sampled:nil
                                               replayId:replayId];
 }
@@ -128,6 +159,7 @@ NS_ASSUME_NONNULL_BEGIN
                      transaction:dictionary[@"transaction"]
                      userSegment:userSegment
                       sampleRate:dictionary[@"sample_rate"]
+                      sampleRand:dictionary[@"sample_rand"]
                          sampled:dictionary[@"sampled"]
                         replayId:dictionary[@"replay_id"]];
 }
@@ -141,6 +173,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                        transaction:_transaction
                                                        userSegment:_userSegment
                                                         sampleRate:_sampleRate
+                                                        sampleRand:_sampleRand
                                                            sampled:_sampled
                                                           replayId:_replayId];
     return result;
@@ -165,6 +198,10 @@ NS_ASSUME_NONNULL_BEGIN
 
     if (_userSegment != nil) {
         [result setValue:_userSegment forKey:@"user_segment"];
+    }
+
+    if (_sampleRand != nil) {
+        [result setValue:_sampleRand forKey:@"sample_rand"];
     }
 
     if (_sampleRate != nil) {

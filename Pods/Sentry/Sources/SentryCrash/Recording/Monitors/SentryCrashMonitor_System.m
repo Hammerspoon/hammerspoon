@@ -39,7 +39,6 @@
 #import "SentryDefines.h"
 
 #import <CommonCrypto/CommonDigest.h>
-#import <Foundation/Foundation.h>
 #include <mach-o/dyld.h>
 #include <mach/mach.h>
 
@@ -533,7 +532,7 @@ initialize(void)
             stringWithFormat:@"%d.%d", (int)version.majorVersion, (int)version.minorVersion];
     } else {
         systemVersion = [NSString stringWithFormat:@"%d.%d.%d", (int)version.majorVersion,
-                                  (int)version.minorVersion, (int)version.patchVersion];
+            (int)version.minorVersion, (int)version.patchVersion];
     }
     g_systemData.systemVersion = cString(systemVersion);
 

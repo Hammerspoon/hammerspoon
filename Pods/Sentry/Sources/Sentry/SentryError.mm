@@ -31,7 +31,7 @@ SENTRY_EXTERN NSError *_Nullable NSErrorFromSentryErrorWithKernelError(
 {
     return _SentryError(error, @ {
         NSLocalizedDescriptionKey : [NSString stringWithFormat:@"%@ (%s)", description,
-                                              sentry::kernelReturnCodeDescription(kernelErrorCode)],
+            sentry::kernelReturnCodeDescription(kernelErrorCode)],
     });
 }
 

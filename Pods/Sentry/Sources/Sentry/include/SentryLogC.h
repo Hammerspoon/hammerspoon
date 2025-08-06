@@ -1,4 +1,9 @@
 #ifndef SentryLogC_h
 #define SentryLogC_h
-void sentry_initializeAsyncLogFile(void);
+#import <Foundation/Foundation.h>
+
+@interface SentryAsyncLogWrapper : NSObject
++ (void)initializeAsyncLogFile;
+@end
+
 #endif

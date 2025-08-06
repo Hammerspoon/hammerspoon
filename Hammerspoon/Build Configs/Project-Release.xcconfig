@@ -26,3 +26,5 @@ GCC_OPTIMIZATION_LEVEL = s
 
 // Preprocessor Macros
 GCC_PREPROCESSOR_DEFINITIONS =
+
+#include? "../../../Hammerspoon-Downstream.xcconfig"

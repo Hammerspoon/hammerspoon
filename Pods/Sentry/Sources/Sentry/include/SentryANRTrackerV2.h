@@ -1,5 +1,4 @@
 #import "SentryDefines.h"
-#import "SentrySwift.h"
 
 #if SENTRY_HAS_UIKIT
 
@@ -7,6 +6,7 @@
 @class SentryDispatchQueueWrapper;
 @class SentryThreadWrapper;
 @class SentryFramesTracker;
+@protocol SentryANRTracker;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -29,12 +29,7 @@ SENTRY_NO_INIT
                           threadWrapper:(SentryThreadWrapper *)threadWrapper
                           framesTracker:(SentryFramesTracker *)framesTracker;
 
-- (void)addListener:(id<SentryANRTrackerV2Delegate>)listener;
-
-- (void)removeListener:(id<SentryANRTrackerV2Delegate>)listener;
-
-// Function used for tests
-- (void)clear;
+- (id<SentryANRTracker>)asProtocol;
 
 @end
 

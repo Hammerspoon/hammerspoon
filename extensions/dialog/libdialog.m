@@ -364,7 +364,12 @@ static int chooseFileOrFolder(lua_State *L) {
             [allowedFileTypes addObject:item];
             lua_pop(L, 1);
         }
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         [panel setAllowedFileTypes:allowedFileTypes];
+#pragma clang diagnostic pop
+
     }
 
     // Message:

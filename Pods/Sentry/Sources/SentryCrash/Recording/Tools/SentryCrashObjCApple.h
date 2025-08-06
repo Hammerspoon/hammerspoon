@@ -479,7 +479,7 @@ CF_INLINE const void *
 __CFStrContents(CFStringRef str)
 {
     if (__CFStrIsInline(str)) {
-        return (const void *)(((uintptr_t) & (str->variants))
+        return (const void *)(((uintptr_t)&(str->variants))
             + (__CFStrHasExplicitLength(str) ? sizeof(CFIndex) : 0));
     } else { // Not inline; pointer is always word 2
         return str->variants.notInlineImmutable1.buffer;

@@ -1,8 +1,17 @@
-#import "SentryDefines.h"
-#import "SentrySerializable.h"
-#import "SentrySpanProtocol.h"
+#if __has_include(<Sentry/Sentry.h>)
+#    import <Sentry/SentryDefines.h>
+#elif __has_include(<SentryWithoutUIKit/Sentry.h>)
+#    import <SentryWithoutUIKit/SentryDefines.h>
+#else
+#    import <SentryDefines.h>
+#endif
+#import SENTRY_HEADER(SentrySerializable)
+#import SENTRY_HEADER(SentrySpanProtocol)
 
-@class SentryUser, SentryOptions, SentryBreadcrumb, SentryAttachment;
+@class SentryAttachment;
+@class SentryBreadcrumb;
+@class SentryOptions;
+@class SentryUser;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -149,7 +158,16 @@ NS_SWIFT_NAME(Scope)
  * Mutates the current transaction atomically.
  * @param callback the SentrySpanCallback.
  */
-- (void)useSpan:(SentrySpanCallback)callback;
+- (void)useSpan:(SentrySpanCallback)callback
+    DEPRECATED_MSG_ATTRIBUTE(
+        "This method was used to create an atomic block that could be used to mutate the current "
+        "span. It is not atomic anymore and due to issues with memory safety in `NSBlock` it is "
+        "now considered unsafe and deprecated. Use `span` instead.");
+
+/**
+ * Returns the current span.
+ */
+- (id<SentrySpan> _Nullable)span;
 
 @end
 

@@ -1,5 +1,4 @@
 #import "SentryThreadInspector.h"
-#import "SentryBinaryImageCache.h"
 #import "SentryCrashDefaultMachineContextWrapper.h"
 #import "SentryCrashStackCursor.h"
 #include "SentryCrashStackCursor_MachineContext.h"
@@ -13,8 +12,7 @@
 #import "SentryThread.h"
 #include <pthread.h>
 
-@interface
-SentryThreadInspector ()
+@interface SentryThreadInspector ()
 
 @property (nonatomic, strong) SentryStacktraceBuilder *stacktraceBuilder;
 @property (nonatomic, strong) id<SentryCrashMachineContextWrapper> machineContextWrapper;

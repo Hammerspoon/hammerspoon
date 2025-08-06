@@ -69,7 +69,7 @@ namespace profiling {
 #    elif CPU(ARM64)
             // fp is an alias for frame pointer register x29:
             // https://developer.apple.com/library/archive/documentation/Xcode/Conceptual/iPhoneOSABIReference/Articles/ARM64FunctionCallingConventions.html
-            return context->__ss.__fp;
+            return arm_thread_state64_get_fp(context->__ss);
 #    elif CPU(ARM)
             // https://developer.apple.com/library/archive/documentation/Xcode/Conceptual/iPhoneOSABIReference/Articles/ARMv6FunctionCallingConventions.html#//apple_ref/doc/uid/TP40009021-SW1
             return context->__ss.__r[7];
@@ -104,7 +104,7 @@ namespace profiling {
         getLinkRegister(const MachineContext *context) noexcept
         {
             // https://stackoverflow.com/a/8236974
-            return context->__ss.__lr;
+            return arm_thread_state64_get_lr(context->__ss);
 #    else
         ALWAYS_INLINE std::uintptr_t
         getLinkRegister(__unused const MachineContext *context) noexcept
@@ -123,7 +123,7 @@ namespace profiling {
         getProgramCounter(const MachineContext *context) noexcept
         {
 #    if CPU(ARM64) || CPU(ARM)
-            return context->__ss.__pc;
+            return arm_thread_state64_get_pc(context->__ss);
 #    elif CPU(X86_64)
             return context->__ss.__rip;
 #    elif CPU(X86)

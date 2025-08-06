@@ -20,6 +20,29 @@
                         sampled:(nullable NSString *)sampled
                        replayId:(nullable NSString *)replayId
 {
+    return [self initWithTraceId:traceId
+                       publicKey:publicKey
+                     releaseName:releaseName
+                     environment:environment
+                     transaction:transaction
+                     userSegment:userSegment
+                      sampleRate:sampleRate
+                      sampleRand:nil
+                         sampled:sampled
+                        replayId:replayId];
+}
+
+- (instancetype)initWithTraceId:(SentryId *)traceId
+                      publicKey:(NSString *)publicKey
+                    releaseName:(nullable NSString *)releaseName
+                    environment:(nullable NSString *)environment
+                    transaction:(nullable NSString *)transaction
+                    userSegment:(nullable NSString *)userSegment
+                     sampleRate:(nullable NSString *)sampleRate
+                     sampleRand:(nullable NSString *)sampleRand
+                        sampled:(nullable NSString *)sampled
+                       replayId:(nullable NSString *)replayId
+{
 
     if (self = [super init]) {
         _traceId = traceId;
@@ -29,6 +52,7 @@
         _transaction = transaction;
         _userSegment = userSegment;
         _sampleRate = sampleRate;
+        _sampleRand = sampleRand;
         _sampled = sampled;
         _replayId = replayId;
     }
@@ -58,6 +82,10 @@
 
     if (_userSegment != nil) {
         [information setValue:_userSegment forKey:@"sentry-user_segment"];
+    }
+
+    if (_sampleRand != nil) {
+        [information setValue:_sampleRand forKey:@"sentry-sample_rand"];
     }
 
     if (_sampleRate != nil) {

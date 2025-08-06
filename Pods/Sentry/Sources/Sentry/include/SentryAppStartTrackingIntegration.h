@@ -3,15 +3,13 @@
 #if SENTRY_HAS_UIKIT
 
 #    import "SentryBaseIntegration.h"
-#    import "SentrySwift.h"
-#    import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Tracks cold and warm app start time for iOS, tvOS, and Mac Catalyst.
  */
-@interface SentryAppStartTrackingIntegration : SentryBaseIntegration <SentryIntegrationProtocol>
+@interface SentryAppStartTrackingIntegration : SentryBaseIntegration
 
 - (void)stop;
 

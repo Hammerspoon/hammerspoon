@@ -25,15 +25,17 @@ SENTRY_NO_INIT
 
 @property (nonatomic, readonly) BOOL waitForFullDisplay;
 
-- (instancetype)initForController:(UIViewController *)controller
-               waitForFullDisplay:(BOOL)waitForFullDisplay
-             dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
+- (instancetype)initWithName:(NSString *)name
+          waitForFullDisplay:(BOOL)waitForFullDisplay
+        dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
 
 - (BOOL)startForTracer:(SentryTracer *)tracer;
 
 - (void)reportInitialDisplay;
 
 - (void)reportFullyDisplayed;
+
+- (void)finishSpansIfNotFinished;
 
 @end
 

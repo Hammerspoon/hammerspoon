@@ -113,8 +113,7 @@ newAuthHeader(NSURL *url)
 {
     NSMutableString *string = [NSMutableString stringWithString:@"Sentry "];
     [string appendFormat:@"%@,", newHeaderPart(@"sentry_version", SentryServerVersionString)];
-    [string
-        appendFormat:@"%@,",
+    [string appendFormat:@"%@,",
         newHeaderPart(@"sentry_client",
             [NSString stringWithFormat:@"%@/%@", SentryMeta.sdkName, SentryMeta.versionString])];
     [string appendFormat:@"%@", newHeaderPart(@"sentry_key", url.user)];

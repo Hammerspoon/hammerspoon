@@ -4,7 +4,6 @@
 
 #    import "SentryDateUtils.h"
 #    import "SentryLog.h"
-#    import <Foundation/Foundation.h>
 
 @implementation SentryAppStartTypeToString
 + (NSString *)convert:(SentryAppStartType)type

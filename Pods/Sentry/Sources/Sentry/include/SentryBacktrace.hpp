@@ -57,8 +57,8 @@ namespace profiling {
      * @param f The function to call for each entry.
      * @param cache The cache used to look up thread metadata.
      */
-    void enumerateBacktracesForAllThreads(const std::function<void(const Backtrace &)> &f,
-        const std::shared_ptr<ThreadMetadataCache> &cache);
+    void enumerateBacktracesForAllThreads(
+        const std::function<void(const Backtrace &)> &f, ThreadMetadataCache *cache);
 
 } // namespace profiling
 } // namespace sentry

@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="6249" systemVersion="14A388a" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="14868" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="6249"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14868"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
@@ -20,24 +20,25 @@
         <customObject id="YLy-65-1bz" customClass="NSFontManager"/>
         <menu title="Main Menu" systemMenu="main" id="AYu-sK-qS6">
             <items>
-                <menuItem title="Hammerspoon" id="1Xt-HY-uBw">
+                <menuItem title="CommandPost" id="1Xt-HY-uBw">
                     <modifierMask key="keyEquivalentModifierMask"/>
-                    <menu key="submenu" title="Hammerspoon" systemMenu="apple" id="uQy-DD-JDr">
+                    <menu key="submenu" title="CommandPost" systemMenu="apple" id="uQy-DD-JDr">
                         <items>
-                            <menuItem title="About Hammerspoon" id="5kV-Vb-QxS">
+                            <menuItem title="About CommandPost" hidden="YES" id="5kV-Vb-QxS">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="showAboutPanel:" target="Voe-Tx-rLC" id="bG4-ba-EWj"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Check for Updates..." id="BOF-NM-1cW">
+                            <menuItem title="Check for Updates..." hidden="YES" id="BOF-NM-1cW">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="checkForUpdates:" target="9hz-Cm-Er1" id="sY1-SF-eDC"/>
                                 </connections>
                             </menuItem>
-                            <menuItem isSeparatorItem="YES" id="VOq-y0-SEH"/>
-                            <menuItem title="Preferences…" keyEquivalent="," id="9Kc-1f-Fv2">
+                            <menuItem isSeparatorItem="YES" hidden="YES" id="VOq-y0-SEH"/>
+                            <menuItem title="Preferences…" hidden="YES" id="9Kc-1f-Fv2">
+                                <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="showPreferencesWindow:" target="Voe-Tx-rLC" id="AdW-ZP-V8p"/>
                                 </connections>
@@ -48,7 +49,7 @@
                                 <menu key="submenu" title="Services" systemMenu="services" id="hz9-B4-Xy5"/>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="4je-JR-u6R"/>
-                            <menuItem title="Hide Hammerspoon" keyEquivalent="h" id="Olw-nP-bQN">
+                            <menuItem title="Hide CommandPost" keyEquivalent="h" id="Olw-nP-bQN">
                                 <connections>
                                     <action selector="hide:" target="-1" id="PnN-Uc-m68"/>
                                 </connections>
@@ -65,7 +66,7 @@
                                     <action selector="unhideAllApplications:" target="-1" id="Dhg-Le-xox"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Quit Hammerspoon" keyEquivalent="q" id="4sb-4s-VLi">
+                            <menuItem title="Quit CommandPost" keyEquivalent="q" id="4sb-4s-VLi">
                                 <connections>
                                     <action selector="quitHammerspoon:" target="Voe-Tx-rLC" id="gjE-dV-WIu"/>
                                 </connections>
@@ -77,30 +78,33 @@
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="File" id="bib-Uj-vzu">
                         <items>
-                            <menuItem title="Reload Config" keyEquivalent="R" id="Was-JA-tGl">
+                            <menuItem title="Restart" id="Was-JA-tGl">
+                                <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="reloadConfig:" target="Voe-Tx-rLC" id="9tp-b3-puT"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Open Config" keyEquivalent="o" id="gTe-IJ-37j">
+                            <menuItem title="Open Config" hidden="YES" id="gTe-IJ-37j">
+                                <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="openConfig:" target="Voe-Tx-rLC" id="BnO-mw-Wbz"/>
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="m54-Is-iLE"/>
-                            <menuItem title="Console..." keyEquivalent="r" id="8rK-CR-NrT">
+                            <menuItem title="Open Debug Console" id="8rK-CR-NrT">
+                                <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="showConsoleWindow:" target="Voe-Tx-rLC" id="crn-jm-3G0"/>
                                 </connections>
                             </menuItem>
-                            <menuItem isSeparatorItem="YES" id="aJh-i4-bef"/>
-                            <menuItem title="Page Setup…" keyEquivalent="P" id="qIS-W8-SiK">
+                            <menuItem isSeparatorItem="YES" hidden="YES" id="aJh-i4-bef"/>
+                            <menuItem title="Page Setup…" hidden="YES" keyEquivalent="P" id="qIS-W8-SiK">
                                 <modifierMask key="keyEquivalentModifierMask" shift="YES" command="YES"/>
                                 <connections>
                                     <action selector="runPageLayout:" target="-1" id="Din-rz-gC5"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Print…" keyEquivalent="p" id="aTl-1u-JFS">
+                            <menuItem title="Print…" hidden="YES" keyEquivalent="p" id="aTl-1u-JFS">
                                 <connections>
                                     <action selector="print:" target="-1" id="qaZ-4w-aoO"/>
                                 </connections>
@@ -358,11 +362,12 @@
                         </items>
                     </menu>
                 </menuItem>
-                <menuItem title="Help" id="wpr-3q-Mcd">
+                <menuItem title="Help" hidden="YES" id="wpr-3q-Mcd">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="Help" systemMenu="help" id="F2S-fz-NVQ">
                         <items>
-                            <menuItem title="Hammerspoon Help" keyEquivalent="?" id="FKE-Sm-Kum">
+                            <menuItem title="CommandPost Help" id="FKE-Sm-Kum">
+                                <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="showHelp:" target="-1" id="y7X-2Q-9no"/>
                                 </connections>
@@ -371,6 +376,7 @@
                     </menu>
                 </menuItem>
             </items>
+            <point key="canvasLocation" x="139" y="154"/>
         </menu>
         <menu id="QDI-lT-VMy" userLabel="Status Item Menu">
             <items>
@@ -420,6 +426,7 @@
                     </connections>
                 </menuItem>
             </items>
+            <point key="canvasLocation" x="139" y="152"/>
         </menu>
         <customObject id="9hz-Cm-Er1" customClass="SUUpdater"/>
         <userDefaultsController representsSharedInstance="YES" id="b8h-DN-29z"/>

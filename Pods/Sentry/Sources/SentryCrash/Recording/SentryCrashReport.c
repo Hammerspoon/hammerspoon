@@ -163,7 +163,7 @@ addTextFileElement(
     char buffer[512];
     int bytesRead;
     for (bytesRead = (int)read(fd, buffer, sizeof(buffer)); bytesRead > 0;
-         bytesRead = (int)read(fd, buffer, sizeof(buffer))) {
+        bytesRead = (int)read(fd, buffer, sizeof(buffer))) {
         if (sentrycrashjson_appendStringElement(getJsonContext(writer), buffer, bytesRead)
             != SentryCrashJSON_OK) {
             SENTRY_ASYNC_SAFE_LOG_ERROR("Could not append string element");
@@ -1169,10 +1169,6 @@ writeBinaryImage(const SentryCrashReportWriter *const writer, const char *const 
         writer->addUUIDElement(writer, SentryCrashField_UUID, image->uuid);
         writer->addIntegerElement(writer, SentryCrashField_CPUType, image->cpuType);
         writer->addIntegerElement(writer, SentryCrashField_CPUSubType, image->cpuSubType);
-        writer->addUIntegerElement(writer, SentryCrashField_ImageMajorVersion, image->majorVersion);
-        writer->addUIntegerElement(writer, SentryCrashField_ImageMinorVersion, image->minorVersion);
-        writer->addUIntegerElement(
-            writer, SentryCrashField_ImageRevisionVersion, image->revisionVersion);
         if (image->crashInfoMessage != NULL) {
             writer->addStringElement(
                 writer, SentryCrashField_ImageCrashInfoMessage, image->crashInfoMessage);
@@ -1189,6 +1185,10 @@ static void
 binaryImagesIteratorCallback(SentryCrashBinaryImage *image, void *context)
 {
     SentryCrashReportWriter *writer = (SentryCrashReportWriter *)context;
+    // We can only retrieve the crash info after a crash occurred. So we need to
+    // fetch it when writing the crash report.
+    // Swift puts its fatalErrors into the crash info message.
+    sentrycrashdl_getCrashInfo(image->address, image);
     writeBinaryImage(writer, NULL, image);
 }
 
@@ -1474,8 +1474,8 @@ sentrycrashreport_writeRecrashReport(
     char writeBuffer[1024];
     SentryCrashBufferedWriter bufferedWriter;
     static char tempPath[SentryCrashFU_MAX_PATH_LENGTH];
-    strncpy(tempPath, path, sizeof(tempPath) - 10);
-    strncpy(tempPath + strlen(tempPath) - 5, ".old", 5);
+    strlcpy(tempPath, path, sizeof(tempPath) - 10);
+    strlcpy(tempPath + strlen(tempPath) - 5, ".old", 5);
     SENTRY_ASYNC_SAFE_LOG_INFO("Writing recrash report to %s", path);
 
     if (rename(path, tempPath) < 0) {
@@ -1611,6 +1611,9 @@ writeScopeJson(const SentryCrashReportWriter *const writer)
         }
         if (scope->context) {
             addJSONElement(writer, "context", scope->context, false);
+        }
+        if (scope->traceContext) {
+            addJSONElement(writer, "traceContext", scope->traceContext, false);
         }
         if (scope->environment) {
             addJSONElement(writer, "environment", scope->environment, false);

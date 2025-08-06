@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dictionary SYSTEM "file://localhost/System/Library/DTDs/sdef.dtd">
+
+<dictionary title="CommandPost">
+    
+    <!-- STANDARD SUIE -->
+    <suite name="Standard Suite" code="????" description="Common classes and commands for all applications.">
+        
+        <command name="quit" code="aevtquit" description="Quit the application.">
+            <cocoa class="NSQuitCommand"/>
+        </command>
+        
+        <class name="application" code="capp" description="The application's top-level scripting object.">
+            <cocoa class="NSApplication"/>
+            <property name="name" code="pnam" type="text" access="r" description="The name of the application."/>
+            <property name="frontmost" code="pisf" type="boolean" access="r" description="Is this the active application?">
+                <cocoa key="isActive"/>
+            </property>
+            <property name="version" code="vers" type="text" access="r" description="The version number of the application."/>
+            <responds-to command="quit">
+                <cocoa method="handleQuitScriptCommand:"/>
+            </responds-to>
+        </class>
+        
+    </suite>
+    
+    <!-- COMMANDPOST SUITE -->
+    <suite name="CommandPost Suite" code="CmPt" description="CommandPost-specific classes.">
+        
+        <!-- APPLICATION -->
+        <class name="application" code="capp" description="CommandPost’s top level scripting object." plural="applications" inherits="application">
+            <cocoa class="NSApplication"/>
+        </class>
+        
+        <!-- EXECUTE LUA CODE -->
+        <command name="execute lua code" code="CmPtEXEC" description="Execute Lua Code.">
+            <cocoa class="executeLua"/>
+            <direct-parameter description="The string to execute">
+                <type type="text"/>
+            </direct-parameter>
+            <result type="text" description="Returns the Lua Code Execution Result."/>
+        </command>
+        
+    </suite>
+    
+</dictionary>

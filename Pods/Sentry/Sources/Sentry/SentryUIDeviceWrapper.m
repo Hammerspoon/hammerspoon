@@ -6,8 +6,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryUIDeviceWrapper ()
+@interface SentryUIDeviceWrapper ()
 @property (nonatomic) BOOL cleanupDeviceOrientationNotifications;
 @property (nonatomic) BOOL cleanupBatteryMonitoring;
 @property (nonatomic, copy) NSString *systemVersion;

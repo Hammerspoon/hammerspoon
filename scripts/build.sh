@@ -7,7 +7,7 @@ export IS_CI=${IS_CI:-0}
 export IS_NIGHTLY=${IS_NIGHTLY:-0}
 
 # Make it easy to fork us
-export APP_NAME="${APP_NAME:-"Hammerspoon"}"
+export APP_NAME="${APP_NAME:-"CommandPost"}"
 
 # Set some defaults that we'll override based on command line arguments
 XCODE_SCHEME="Hammerspoon"

@@ -21,7 +21,7 @@ namespace profiling {
      * Samples the stacks on all threads at a specified interval, using the mach clock
      * alarm API for scheduling.
      */
-    class SamplingProfiler : public std::enable_shared_from_this<SamplingProfiler> {
+    class SamplingProfiler {
     public:
         /**
          * Creates a new sampling profiler that samples at the specified rate.
@@ -56,7 +56,7 @@ namespace profiling {
     private:
         mach_timespec_t delaySpec_;
         std::function<void(const Backtrace &)> callback_;
-        std::shared_ptr<ThreadMetadataCache> cache_;
+        std::unique_ptr<ThreadMetadataCache> cache_;
         bool isInitialized_;
         std::mutex isSamplingLock_;
         bool isSampling_;

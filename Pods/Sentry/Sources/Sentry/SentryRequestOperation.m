@@ -9,8 +9,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryRequestOperation ()
+@interface SentryRequestOperation ()
 
 @property (nonatomic, strong) NSURLSessionTask *task;
 @property (nonatomic, strong) NSURLRequest *request;

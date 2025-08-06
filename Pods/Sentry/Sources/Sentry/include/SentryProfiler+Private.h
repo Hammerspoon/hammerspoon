@@ -4,7 +4,6 @@
 
 #    import "SentryDefines.h"
 #    import "SentryProfilerDefines.h"
-#    import <Foundation/Foundation.h>
 
 @class SentryEnvelopeItem;
 @class SentryHub;
@@ -12,6 +11,7 @@
 @class SentryMetricProfiler;
 @class SentryOptions;
 @class SentryProfilerState;
+@class SentrySamplerDecision;
 @class SentryTransaction;
 
 #    if SENTRY_HAS_UIKIT
@@ -26,7 +26,17 @@ NS_ASSUME_NONNULL_BEGIN
  * launch's profiling, stop tracer profiling if no automatic performance transaction is running,
  * start the continuous profiler if enabled and not profiling from launch.
  */
-SENTRY_EXTERN void sentry_manageTraceProfilerOnStartSDK(SentryOptions *options, SentryHub *hub);
+SENTRY_EXTERN void sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub);
+
+/**
+ * Continuous profiling will respect its own sampling rate, which is computed once for each Sentry
+ * session.
+ */
+SENTRY_EXTERN SentrySamplerDecision *_Nullable sentry_profilerSessionSampleDecision;
+
+SENTRY_EXTERN void sentry_reevaluateSessionSampleRate(float sessionSampleRate);
+
+SENTRY_EXTERN void sentry_configureContinuousProfiling(SentryOptions *options);
 
 /**
  * A wrapper around the low-level components used to gather sampled backtrace profiles.

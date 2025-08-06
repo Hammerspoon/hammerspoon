@@ -5,131 +5,51 @@
 #    import <SentryBreadcrumb.h>
 #    import <SentryFileManager.h>
 #    import <SentryLog.h>
+#    import <SentrySwift.h>
+#    import <SentryWatchdogTerminationBreadcrumbProcessor.h>
 
-@interface
-SentryWatchdogTerminationScopeObserver ()
+@interface SentryWatchdogTerminationScopeObserver ()
 
-@property (strong, nonatomic) SentryFileManager *fileManager;
-@property (strong, nonatomic) NSFileHandle *fileHandle;
-@property (nonatomic) NSInteger maxBreadcrumbs;
-@property (nonatomic) NSInteger breadcrumbCounter;
-@property (strong, nonatomic) NSString *activeFilePath;
+@property (nonatomic, strong) SentryWatchdogTerminationBreadcrumbProcessor *breadcrumbProcessor;
+@property (nonatomic, strong) SentryWatchdogTerminationContextProcessor *contextProcessor;
 
 @end
 
 @implementation SentryWatchdogTerminationScopeObserver
 
-- (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs
-                           fileManager:(SentryFileManager *)fileManager
+- (instancetype)
+    initWithBreadcrumbProcessor:(SentryWatchdogTerminationBreadcrumbProcessor *)breadcrumbProcessor
+               contextProcessor:(SentryWatchdogTerminationContextProcessor *)contextProcessor;
 {
     if (self = [super init]) {
-        self.maxBreadcrumbs = maxBreadcrumbs;
-        self.fileManager = fileManager;
-        self.breadcrumbCounter = 0;
-
-        [self switchFileHandle];
+        self.breadcrumbProcessor = breadcrumbProcessor;
+        self.contextProcessor = contextProcessor;
     }
 
     return self;
 }
 
-- (void)dealloc
-{
-    [self.fileHandle closeFile];
-}
-
-// PRAGMA MARK: - Helper methods
-
-- (void)deleteFiles
-{
-    [self.fileHandle closeFile];
-    self.fileHandle = nil;
-    self.activeFilePath = nil;
-    self.breadcrumbCounter = 0;
-
-    [self.fileManager removeFileAtPath:self.fileManager.breadcrumbsFilePathOne];
-    [self.fileManager removeFileAtPath:self.fileManager.breadcrumbsFilePathTwo];
-}
-
-- (void)switchFileHandle
-{
-    if ([self.activeFilePath isEqualToString:self.fileManager.breadcrumbsFilePathOne]) {
-        self.activeFilePath = self.fileManager.breadcrumbsFilePathTwo;
-    } else {
-        self.activeFilePath = self.fileManager.breadcrumbsFilePathOne;
-    }
-
-    // Close the current filehandle (if any)
-    [self.fileHandle closeFile];
-
-    // Create a fresh file for the new active path
-    [self.fileManager removeFileAtPath:self.activeFilePath];
-    [[NSFileManager defaultManager] createFileAtPath:self.activeFilePath
-                                            contents:nil
-                                          attributes:nil];
-
-    // Open the file for writing
-    self.fileHandle = [NSFileHandle fileHandleForWritingAtPath:self.activeFilePath];
-
-    if (!self.fileHandle) {
-        SENTRY_LOG_ERROR(@"Couldn't open file handle for %@", self.activeFilePath);
-    }
-}
-
-- (void)store:(NSData *)data
-{
-    unsigned long long fileSize;
-    @try {
-        fileSize = [self.fileHandle seekToEndOfFile];
-
-        [self.fileHandle writeData:data];
-        [self.fileHandle writeData:[@"\n" dataUsingEncoding:NSASCIIStringEncoding]];
-
-        self.breadcrumbCounter += 1;
-    } @catch (NSException *exception) {
-        SENTRY_LOG_ERROR(@"Error while writing data to end file with size (%llu): %@ ", fileSize,
-            exception.description);
-    } @finally {
-        if (self.breadcrumbCounter >= self.maxBreadcrumbs) {
-            [self switchFileHandle];
-            self.breadcrumbCounter = 0;
-        }
-    }
-}
-
 // PRAGMA MARK: - SentryScopeObserver
-
-- (void)addSerializedBreadcrumb:(NSDictionary *)crumb
-{
-    if (![NSJSONSerialization isValidJSONObject:crumb]) {
-        SENTRY_LOG_ERROR(@"Breadcrumb is not a valid JSON object: %@", crumb);
-        return;
-    }
-
-    NSError *error;
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:crumb options:0 error:&error];
-
-    if (error) {
-        SENTRY_LOG_ERROR(@"Error serializing breadcrumb: %@", error);
-    } else {
-        [self store:jsonData];
-    }
-}
 
 - (void)clear
 {
-    [self clearBreadcrumbs];
+    [self.breadcrumbProcessor clear];
+    [self.contextProcessor clear];
+}
+
+- (void)addSerializedBreadcrumb:(NSDictionary *)crumb
+{
+    [self.breadcrumbProcessor addSerializedBreadcrumb:crumb];
 }
 
 - (void)clearBreadcrumbs
 {
-    [self deleteFiles];
-    [self switchFileHandle];
+    [self.breadcrumbProcessor clearBreadcrumbs];
 }
 
 - (void)setContext:(nullable NSDictionary<NSString *, id> *)context
 {
-    // Left blank on purpose
+    [self.contextProcessor setContext:context];
 }
 
 - (void)setDist:(nullable NSString *)dist
@@ -163,6 +83,11 @@ SentryWatchdogTerminationScopeObserver ()
 }
 
 - (void)setUser:(nullable SentryUser *)user
+{
+    // Left blank on purpose
+}
+
+- (void)setTraceContext:(nullable NSDictionary<NSString *, id> *)traceContext
 {
     // Left blank on purpose
 }

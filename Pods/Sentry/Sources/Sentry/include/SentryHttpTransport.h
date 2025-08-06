@@ -4,9 +4,10 @@
 #import "SentryRateLimits.h"
 #import "SentryRequestManager.h"
 #import "SentryTransport.h"
-#import <Foundation/Foundation.h>
 
-@class SentryOptions, SentryDispatchQueueWrapper, SentryNSURLRequestBuilder;
+@class SentryDispatchQueueWrapper;
+@class SentryNSURLRequestBuilder;
+@class SentryOptions;
 
 NS_ASSUME_NONNULL_BEGIN
 

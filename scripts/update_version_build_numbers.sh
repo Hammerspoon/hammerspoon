@@ -18,6 +18,11 @@ echo "Updating version info to ${versionNumber} (${buildNumber}) in ${TARGET_BUI
 /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${buildNumber}" "${TARGET_BUILD_DIR}/${INFOPLIST_PATH}"
 /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${versionNumber}" "${TARGET_BUILD_DIR}/${INFOPLIST_PATH}"
 
+# Match the versions for the CommandPost Final Cut Pro Workflow Extension:
+echo "Updating version info to ${versionNumber} (${buildNumber}) in ${TARGET_BUILD_DIR}/CommandPost.app/Contents/PlugIns/CommandPost.appex/Contents/Info.plist"
+/usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${buildNumber}" "${TARGET_BUILD_DIR}/CommandPost.app/Contents/PlugIns/CommandPost.appex/Contents/Info.plist"
+/usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${versionNumber}" "${TARGET_BUILD_DIR}/CommandPost.app/Contents/PlugIns/CommandPost.appex/Contents/Info.plist"
+
 if [ -f "${BUILT_PRODUCTS_DIR}/${WRAPPER_NAME}.dSYM/Contents/Info.plist" ]; then
   /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${buildNumber}" "${BUILT_PRODUCTS_DIR}/${WRAPPER_NAME}.dSYM/Contents/Info.plist"
   /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${versionNumber}" "${BUILT_PRODUCTS_DIR}/${WRAPPER_NAME}.dSYM/Contents/Info.plist"

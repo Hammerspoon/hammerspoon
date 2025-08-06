@@ -32,6 +32,17 @@
     return self;
 }
 
+- (instancetype)initWithType:(NSString *)type
+                      length:(NSUInteger)length
+                 contentType:(NSString *)contentType
+                   itemCount:(NSNumber *)itemCount
+{
+    if (self = [self initWithType:type length:length contentType:contentType]) {
+        _itemCount = itemCount;
+    }
+    return self;
+}
+
 - (NSDictionary *)serialize
 {
 
@@ -46,6 +57,14 @@
 
     if (self.contentType) {
         [target setValue:self.contentType forKey:@"content_type"];
+    }
+
+    if (self.platform) {
+        [target setValue:self.contentType forKey:@"platform"];
+    }
+
+    if (self.itemCount) {
+        [target setValue:self.itemCount forKey:@"item_count"];
     }
 
     [target setValue:[NSNumber numberWithUnsignedInteger:self.length] forKey:@"length"];

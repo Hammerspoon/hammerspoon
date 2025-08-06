@@ -1,5 +1,37 @@
 #import <Foundation/Foundation.h>
 
+// SentryDefines.h is a key header and will be checked early,
+// ensuring this error appears first during the compile process.
+//
+// Setting APPLICATION_EXTENSION_API_ONLY to YES has a side effect of
+// including all Swift classes in the `Sentry-Swift.h` header which is
+// required for the SDK to work.
+//
+// https://github.com/getsentry/sentry-cocoa/issues/4426
+//
+// This mainly came up in RN SDK, because
+// some libraries advice to users
+// to set APPLICATION_EXTENSION_API_ONLY_NO
+// for all cocoapods targets, instead of
+// only to their pod.
+// https://github.com/getsentry/sentry-react-native/issues/3908
+#if APPLICATION_EXTENSION_API_ONLY_NO
+#    error "Set APPLICATION_EXTENSION_API_ONLY to YES in the Sentry build settings.\
+ Setting the flag to YES is required for the SDK to work.\
+ For more information, visit https://docs.sentry.io/platforms/apple/troubleshooting/#unknown-receiver-somereceiver-use-of-undeclared-identifier-someidentifier
+#endif
+
+// Clang warns if a double quoted include is used instead of angle brackets in a public header
+// These 3 import variations are how public headers can be imported with angle brackets
+// for Sentry, SentryWithoutUIKit, and SPM
+#if __has_include(<Sentry/Sentry.h>)
+#    define SENTRY_HEADER(file) <Sentry/file.h>
+#elif __has_include(<SentryWithoutUIKit/Sentry.h>)
+#    define SENTRY_HEADER(file) <SentryWithoutUIKit/file.h>
+#else
+#    define SENTRY_HEADER(file) <file.h>
+#endif
+
 #ifdef __cplusplus
 #    define SENTRY_EXTERN extern "C" __attribute__((visibility("default")))
 #else
@@ -60,7 +92,10 @@
 #    define SENTRY_HAS_REACHABILITY 0
 #endif
 
-@class SentryEvent, SentryBreadcrumb, SentrySamplingContext;
+@class SentryBreadcrumb;
+@class SentryEvent;
+@class SentrySamplingContext;
+@class SentryUserFeedbackConfiguration;
 @protocol SentrySpan;
 
 /**
@@ -133,17 +168,8 @@ typedef NSNumber *_Nullable (^SentryTracesSamplerCallback)(
  * Function pointer for span manipulation.
  * @param span The span to be used.
  */
-typedef void (^SentrySpanCallback)(id<SentrySpan> _Nullable span);
-
-/**
- * A callback block which gets called right before a metric is about to be emitted.
-
- * @param key  The key of the metric.
- * @param tags A dictionary of key-value pairs associated with the metric.
- * @return BOOL YES if the metric should be emitted, NO otherwise.
- */
-typedef BOOL (^SentryBeforeEmitMetricCallback)(
-    NSString *_Nonnull key, NSDictionary<NSString *, NSString *> *_Nonnull tags);
+typedef void (^SentrySpanCallback)(id<SentrySpan> _Nullable span DEPRECATED_MSG_ATTRIBUTE(
+    "See `SentryScope.useSpan` for reasoning of deprecation."));
 
 /**
  * Log level.
@@ -185,3 +211,14 @@ static NSString *_Nonnull const kSentryFalseString = @"false";
  */
 typedef NS_ENUM(NSInteger, SentryTransactionNameSource); // This is a forward declaration, the
                                                          // actual enum is implemented in Swift.
+
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
+
+/**
+ * Block used to configure the user feedback widget, form, behaviors and submission data.
+ */
+API_AVAILABLE(ios(13.0))
+typedef void (^SentryUserFeedbackConfigurationBlock)(
+    SentryUserFeedbackConfiguration *_Nonnull configuration);
+
+#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT

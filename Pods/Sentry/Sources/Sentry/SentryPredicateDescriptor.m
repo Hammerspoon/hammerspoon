@@ -32,8 +32,8 @@
 
     if (expressions.count == 1) {
         return [NSString stringWithFormat:@"%@ %@",
-                         [self compoundPredicateTypeDescription:predicate.compoundPredicateType],
-                         expressions.firstObject];
+            [self compoundPredicateTypeDescription:predicate.compoundPredicateType],
+            expressions.firstObject];
     }
 
     return [expressions
@@ -76,9 +76,9 @@
     case NSConditionalExpressionType:
         if (@available(macOS 10.11, *)) {
             return [NSString stringWithFormat:@"TERNARY(%@,%@,%@)",
-                             [self predicateDescription:predicate.predicate],
-                             [self expressionDescription:predicate.trueExpression],
-                             [self expressionDescription:predicate.falseExpression]];
+                [self predicateDescription:predicate.predicate],
+                [self expressionDescription:predicate.trueExpression],
+                [self expressionDescription:predicate.falseExpression]];
         } else {
             // this is not supposed to happen, NSConditionalExpressionType was introduced in
             // macOS 10.11 but we need this version check because cocoapod lint check is failing

@@ -9,8 +9,5 @@
 #if TARGET_OS_OSX
 #    import <AppKit/NSApplication.h>
 @interface SentryCrashExceptionApplication : NSApplication
-#else
-@interface SentryCrashExceptionApplication : NSObject
-#endif
-
 @end
+#endif

@@ -63,6 +63,9 @@ function op_build() {
         export SENTRY_AUTH_TOKEN
         "${HAMMERSPOON_HOME}/scripts/sentry-cli" debug-files upload "${HAMMERSPOON_XCARCHIVE_PATH}/dSYMs/" 2>&1 | tee "${BUILD_HOME}/sentry-upload.log"
         "${HAMMERSPOON_HOME}/scripts/sentry-cli" debug-files upload "${HAMMERSPOON_HOME}/Pods/Sparkle/Symbols/" 2>&1 | tee -a "${BUILD_HOME}/sentry-upload.log"
+
+        # COMMANDPOST SPECIFIC:
+        "${HAMMERSPOON_HOME}/scripts/sentry-cli" debug-files upload "${BUILD_HOME}/../../CommandPost/src/extensions/hs/" 2>&1 | tee "${BUILD_HOME}/sentry-upload.log"
     fi
 }
 
@@ -209,7 +212,7 @@ function op_docs() {
 }
 
 function op_installdeps() {
-    echo "Installing dependencies..." 
+    echo "Installing dependencies..."
     echo "  Homebrew packages..."
     brew bundle install || fail "Unable to install Homebrew dependencies"
 
@@ -423,7 +426,7 @@ function op_release() {
     export SENTRY_AUTH_TOKEN
     "${HAMMERSPOON_HOME}/scripts/sentry-cli" releases set-commits --auto "${VERSION}" 2>&1 | tee "${BUILD_HOME}/sentry-release.log"
     "${HAMMERSPOON_HOME}/scripts/sentry-cli" releases finalize "${VERSION}" 2>&1 | tee -a "${BUILD_HOME}/sentry-release.log"
- 
+
     echo " Creating PR for Dash docs..."
     pushd "${HAMMERSPOON_HOME}/../" >/dev/null || fail "Unable to access ${HAMMERSPOON_HOME}/../"
     ${RM} -rf dash

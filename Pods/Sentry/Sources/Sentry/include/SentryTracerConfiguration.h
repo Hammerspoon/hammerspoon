@@ -9,7 +9,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryDispatchQueueWrapper;
-@class SentryNSTimerFactory;
+@class SentryProfileOptions;
 @class SentrySamplerDecision;
 
 @interface SentryTracerConfiguration : NSObject
@@ -28,11 +28,25 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic) BOOL waitForChildren;
 
+/**
+ * This flag indicates whether the trace should be captured when the timeout triggers.
+ * If Yes, this tracer will be discarced in case the timeout triggers.
+ * Default @c NO
+ */
+@property (nonatomic) BOOL finishMustBeCalled;
+
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 /**
  * Whether to sample a profile corresponding to this transaction
  */
 @property (nonatomic, strong, nullable) SentrySamplerDecision *profilesSamplerDecision;
+
+/**
+ * For launch continuous v2 profiles that must start for trace lifecycle, we must explicitly be able
+ * to indicate that to the tracer here, since there's no hub or options attached to it for the
+ * profiler system to know whether it's a old-style trace profile or a trace continuous v2 profile.
+ */
+@property (nonatomic, strong, nullable) SentryProfileOptions *profileOptions;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED"
 
 /**
@@ -41,11 +55,6 @@ NS_ASSUME_NONNULL_BEGIN
  * Default is 0 seconds
  */
 @property (nonatomic) NSTimeInterval idleTimeout;
-
-/**
- * A writer around NSTimer, to make it testable
- */
-@property (nonatomic, strong, nullable) SentryNSTimerFactory *timerFactory;
 
 + (SentryTracerConfiguration *)configurationWithBlock:
     (void (^)(SentryTracerConfiguration *configuration))block;

@@ -1,6 +1,12 @@
-#import "SentryDefines.h"
-#import "SentrySerializable.h"
 #import <Foundation/Foundation.h>
+#if __has_include(<Sentry/Sentry.h>)
+#    import <Sentry/SentryDefines.h>
+#elif __has_include(<SentryWithoutUIKit/Sentry.h>)
+#    import <SentryWithoutUIKit/SentryDefines.h>
+#else
+#    import <SentryDefines.h>
+#endif
+#import SENTRY_HEADER(SentrySerializable)
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -15,7 +21,7 @@ SENTRY_NO_INIT
 /**
  * Returns a @c SentryMessage with setting formatted.
  * @param formatted The fully formatted message. If missing, Sentry will try to interpolate the
- * message. It must not exceed 8192 characters. Longer messages will be truncated.
+ * message. The backend will truncate messages longer than 8192 characters.
  */
 - (instancetype)initWithFormatted:(NSString *)formatted;
 
