@@ -57,11 +57,29 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
         NSString *vendorIDKey = @(kIOHIDVendorIDKey);
         NSString *productIDKey = @(kIOHIDProductIDKey);
 
-        NSDictionary *matchTartarusV2   =   @{vendorIDKey:  @USB_VID_RAZER,
-                                              productIDKey: @USB_PID_RAZER_TARTARUS_V2};
+        NSDictionary *matchNostromo         =   @{vendorIDKey:  @USB_VID_RAZER,
+                                                  productIDKey: @USB_PID_RAZER_NOSTROMO};
+        
+        NSDictionary *matchOrbweaver        =   @{vendorIDKey:  @USB_VID_RAZER,
+                                                  productIDKey: @USB_PID_RAZER_ORBWEAVER};
+        
+        NSDictionary *matchOrbweaverChroma  =   @{vendorIDKey:  @USB_VID_RAZER,
+                                                  productIDKey: @USB_PID_RAZER_ORBWEAVER_CHROMA};
+        
+        NSDictionary *matchTartarus         =   @{vendorIDKey:  @USB_VID_RAZER,
+                                                  productIDKey: @USB_PID_RAZER_TARTARUS};
+        
+        NSDictionary *matchTartarusChroma   =   @{vendorIDKey:  @USB_VID_RAZER,
+                                                  productIDKey: @USB_PID_RAZER_TARTARUS_CHROMA};
+        
+        NSDictionary *matchTartarusV2       =   @{vendorIDKey:  @USB_VID_RAZER,
+                                                  productIDKey: @USB_PID_RAZER_TARTARUS_V2};
+        
+        NSDictionary *matchTartarusPro      =   @{vendorIDKey:  @USB_VID_RAZER,
+                                                  productIDKey: @USB_PID_RAZER_TARTARUS_PRO};
 
         IOHIDManagerSetDeviceMatchingMultiple((__bridge IOHIDManagerRef)self.ioHIDManager,
-                                              (__bridge CFArrayRef)@[matchTartarusV2]);
+                                              (__bridge CFArrayRef)@[matchNostromo, matchOrbweaver, matchOrbweaverChroma, matchTartarus, matchTartarusChroma, matchTartarusPro, matchTartarusV2]);
 
         // Add our callbacks for relevant events:
         IOHIDManagerRegisterDeviceMatchingCallback((__bridge IOHIDManagerRef)self.ioHIDManager,
@@ -138,6 +156,138 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
 
     // Make sure the product ID matches:
     switch (productID.intValue) {
+        case USB_PID_RAZER_NOSTROMO:
+            // We only want to register each device once, as they might have multiple
+            // HID objects for the same physical hardware:
+            alreadyRegistered = NO;
+            for (HSRazerDevice *checkDevice in self.devices) {
+                if (checkDevice.locationID == locationID) {
+                    alreadyRegistered = YES;
+                }
+            }
+
+            if (!alreadyRegistered) {
+                //NSLog(@"[hs.razer] Razer Nostromo detected.");
+                razerDevice = [[HSRazerNostromoDevice alloc] initWithDevice:device manager:self];
+
+                // Save the location ID for making sure we're communicating with the right hardware
+                // when changing LED backlights:
+                razerDevice.locationID = locationID;
+
+                // Setup Event Tap:
+                [razerDevice setupEventTap];
+                break;
+            }
+        case USB_PID_RAZER_ORBWEAVER:
+            // We only want to register each device once, as they might have multiple
+            // HID objects for the same physical hardware:
+            alreadyRegistered = NO;
+            for (HSRazerDevice *checkDevice in self.devices) {
+                if (checkDevice.locationID == locationID) {
+                    alreadyRegistered = YES;
+                }
+            }
+
+            if (!alreadyRegistered) {
+                //NSLog(@"[hs.razer] Razer Orbweaver detected.");
+                razerDevice = [[HSRazerOrbweaverDevice alloc] initWithDevice:device manager:self];
+
+                // Save the location ID for making sure we're communicating with the right hardware
+                // when changing LED backlights:
+                razerDevice.locationID = locationID;
+
+                // Setup Event Tap:
+                [razerDevice setupEventTap];
+                break;
+            }
+        case USB_PID_RAZER_ORBWEAVER_CHROMA:
+            // We only want to register each device once, as they might have multiple
+            // HID objects for the same physical hardware:
+            alreadyRegistered = NO;
+            for (HSRazerDevice *checkDevice in self.devices) {
+                if (checkDevice.locationID == locationID) {
+                    alreadyRegistered = YES;
+                }
+            }
+
+            if (!alreadyRegistered) {
+                //NSLog(@"[hs.razer] Razer Orbweaver Chroma detected.");
+                razerDevice = [[HSRazerOrbweaverChromaDevice alloc] initWithDevice:device manager:self];
+
+                // Save the location ID for making sure we're communicating with the right hardware
+                // when changing LED backlights:
+                razerDevice.locationID = locationID;
+
+                // Setup Event Tap:
+                [razerDevice setupEventTap];
+                break;
+            }
+        case USB_PID_RAZER_TARTARUS:
+            // We only want to register each device once, as they might have multiple
+            // HID objects for the same physical hardware:
+            alreadyRegistered = NO;
+            for (HSRazerDevice *checkDevice in self.devices) {
+                if (checkDevice.locationID == locationID) {
+                    alreadyRegistered = YES;
+                }
+            }
+
+            if (!alreadyRegistered) {
+                //NSLog(@"[hs.razer] Razer Tartarus detected.");
+                razerDevice = [[HSRazerTartarusDevice alloc] initWithDevice:device manager:self];
+
+                // Save the location ID for making sure we're communicating with the right hardware
+                // when changing LED backlights:
+                razerDevice.locationID = locationID;
+
+                // Setup Event Tap:
+                [razerDevice setupEventTap];
+                break;
+            }
+        case USB_PID_RAZER_TARTARUS_CHROMA:
+            // We only want to register each device once, as they might have multiple
+            // HID objects for the same physical hardware:
+            alreadyRegistered = NO;
+            for (HSRazerDevice *checkDevice in self.devices) {
+                if (checkDevice.locationID == locationID) {
+                    alreadyRegistered = YES;
+                }
+            }
+
+            if (!alreadyRegistered) {
+                //NSLog(@"[hs.razer] Razer Tartarus detected.");
+                razerDevice = [[HSRazerTartarusChromaDevice alloc] initWithDevice:device manager:self];
+
+                // Save the location ID for making sure we're communicating with the right hardware
+                // when changing LED backlights:
+                razerDevice.locationID = locationID;
+
+                // Setup Event Tap:
+                [razerDevice setupEventTap];
+                break;
+            }
+        case USB_PID_RAZER_TARTARUS_PRO:
+            // We only want to register each device once, as they might have multiple
+            // HID objects for the same physical hardware:
+            alreadyRegistered = NO;
+            for (HSRazerDevice *checkDevice in self.devices) {
+                if (checkDevice.locationID == locationID) {
+                    alreadyRegistered = YES;
+                }
+            }
+
+            if (!alreadyRegistered) {
+                //NSLog(@"[hs.razer] Razer Tartarus Pro detected.");
+                razerDevice = [[HSRazerTartarusProDevice alloc] initWithDevice:device manager:self];
+
+                // Save the location ID for making sure we're communicating with the right hardware
+                // when changing LED backlights:
+                razerDevice.locationID = locationID;
+
+                // Setup Event Tap:
+                [razerDevice setupEventTap];
+                break;
+            }
         case USB_PID_RAZER_TARTARUS_V2:
             // We only want to register each device once, as they might have multiple
             // HID objects for the same physical hardware:

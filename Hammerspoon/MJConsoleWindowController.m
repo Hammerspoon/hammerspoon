@@ -139,10 +139,12 @@ typedef NS_ENUM(NSUInteger, MJReplLineType) {
     [self.outputView setEditable:NO];
     [self.outputView setSelectable:YES];
 
+    /*
     [self appendString:@""
      "Welcome to the Hammerspoon Console!\n"
      "You can run any Lua code in here.\n\n"
                   type:MJReplLineTypeStdout];
+     */
 
     for (NSString* str in self.preshownStdouts)
         [self appendString:str type:MJReplLineTypeStdout];

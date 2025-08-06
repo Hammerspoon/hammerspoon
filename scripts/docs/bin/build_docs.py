@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """Hammerspoon API Documentation Builder"""
 
+import subprocess # ADDED BY CHRIS FOR BBEDIT LAUNCHING
 
 import argparse
 import json
@@ -442,16 +443,25 @@ def process_module(modulename, raw_module):
                     item["examples"] = []
 
         except:
+            print("Exception occurred")
             message = "Unable to parse parameters for %s\n%s\n" % (item["signature"], sys.exc_info()[1])
-            warn(message)
-            LINTS.append({
+            new_lint = {
                 "file": item["file"],
                 "line": int(item["lineno"]),
                 "title": "Docstring Parameters parse failure",
                 "message": message,
                 "annotation_level": "failure"
-            })
+            }
+            LINTS.append(new_lint)
+
             if FAIL_ON_WARN:
+                #################################################################
+                # LAUNCH BBEDIT - ADDED BY CHRIS FOR COMMANDPOST:
+                #################################################################
+                file_path = os.path.abspath(new_lint["file"])
+                print(f"Opening file {file_path} at line {new_lint['line']}")
+                subprocess.run(["/usr/local/bin/bbedit", "+" + str(new_lint["line"]), file_path])
+                #################################################################
                 sys.exit(1)
     return module
 
@@ -583,6 +593,13 @@ def emit_lints(lints):
         print("::error file=%s,line=%s,title=%s::%s" % (lint["file"], lint["line"], lint["title"], lint["message"]), file=sys.stderr)
 
     if len(lints) > 0:
+        #################################################################
+        # LAUNCH BBEDIT - ADDED BY CHRIS FOR COMMANDPOST:
+        #################################################################
+        file_path = os.path.abspath(lint["file"])
+        print(f"Opening file {file_path} at line {lint['line']}")
+        subprocess.run(["/usr/local/bin/bbedit", "+" + str(lint["line"]), file_path])
+        #################################################################
         sys.exit(1)
 
 def write_json(filepath, data):
@@ -647,7 +664,6 @@ def write_sql(filepath, data):
 
     db.commit()
     cur.execute("VACUUM;")
-
 
 def write_templated_output(output_dir, template_dir, title, source_url_base, data, extension):
     """Write out a templated version of the docs"""

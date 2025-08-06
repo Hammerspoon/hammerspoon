@@ -14,7 +14,7 @@ static char *inputBuffer = NULL;
 
 static void HIDReport(void* deviceRef, IOReturn result, void* sender, IOHIDReportType type, uint32_t reportID, uint8_t *report, CFIndex reportLength) {
     HSStreamDeckDevice *device = (__bridge HSStreamDeckDevice*)deviceRef;
-    
+
     uint8_t inputType = report[1];
     if (inputType == 0x00 || inputType == 0x01) { // An `inputType` of `0x01` was observed for button 1 on a Stream Deck Mini (Model 20GAI9901).
         // -------------
@@ -45,7 +45,7 @@ static void HIDReport(void* deviceRef, IOReturn result, void* sender, IOHIDRepor
         uint16_t startY = ((uint16_t)report[8]) | (((uint16_t)report[9]) << 8);
         uint16_t endX = 0;
         uint16_t endY = 0;
-        
+
         uint8_t eventType = report[4];
         if (eventType == 0x01) {
             // ------------
@@ -65,7 +65,7 @@ static void HIDReport(void* deviceRef, IOReturn result, void* sender, IOHIDRepor
             endX = ((uint16_t)report[10]) | (((uint16_t)report[11]) << 8);
             endY = ((uint16_t)report[12]) | (((uint16_t)report[13]) << 8);
         }
-        
+
         [device deviceDidSendScreenTouch:eventTypeString startX:startX startY:startY endX:endX endY:endY];
     } else if (inputType == 0x03) {
         // --------------
@@ -260,7 +260,7 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
         case USB_PID_STREAMDECK_MINI:
             deck = [[HSStreamDeckDeviceMini alloc] initWithDevice:device manager:self];
             break;
-            
+
         case USB_PID_STREAMDECK_MINI_V2:
             deck = [[HSStreamDeckDeviceMini alloc] initWithDevice:device manager:self];
             break;

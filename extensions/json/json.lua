@@ -2,7 +2,7 @@
 ---
 --- JSON encoding and decoding
 ---
---- This module is based partially on code from the previous incarnation of Mjolnir by [Steven Degutis](https://github.com/sdegutis/).
+--- This module is based partially on code from the previous incarnation of Mjolnir.
 ---
 
 local module = require("hs.libjson")

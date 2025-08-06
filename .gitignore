@@ -43,4 +43,6 @@ xcuserdata/
 *.xccheckout
 *.xcscmblueprint
 
+.vscode
+
 Brewfile.lock.json

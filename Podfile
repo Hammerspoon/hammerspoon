@@ -18,6 +18,7 @@ pod 'Sparkle', '2.6.4', :configurations => ['Release']
 pod 'MIKMIDI', '1.7.1'
 pod 'SocketRocket', '0.7.1'
 pod 'ORSSerialPort', '2.1.0'
+pod 'F53OSC', :git => 'https://github.com/Figure53/F53OSC.git', :tag => '1.2.0'
 end
 
 post_install do |installer|
