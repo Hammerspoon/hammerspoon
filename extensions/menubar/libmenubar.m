@@ -381,6 +381,22 @@ void erase_all_menu_parts(lua_State *L, NSStatusItem *statusItem) {
    return;
 }
 
+// Prepare an existing menu on a menubar item for reuse or create a new menu
+NSMenu* create_or_reuse_menu(lua_State *L, NSStatusItem *statusItem, NSString *menuTitle) {
+    NSMenu *menu = [statusItem menu];
+    if (menu) {
+        erase_menu_delegate(L, menu);
+        erase_menu_items(L, menu);
+
+        [statusItem setMenu:nil];
+        [menu setTitle:menuTitle];
+        return menu;
+    }
+
+    // no existing menu
+    return [[NSMenu alloc] initWithTitle:menuTitle];
+}
+
 // Create and push a lua geometry rect
 static void geom_pushrect(lua_State* L, NSRect rect) {
     lua_newtable(L);
@@ -753,13 +769,11 @@ static int menubarSetMenu(lua_State *L) {
     NSMenu *menu = nil;
     HSMenubarItemMenuDelegate *delegate = nil;
 
-    // We always need to start by erasing any preexisting menu stuff
-    erase_all_menu_parts(L, statusItem);
-
     switch (lua_type(L, 2)) {
         case LUA_TTABLE:
             // This is a static menu, so we can just parse the table and the menu will be populated
-            menu = [[NSMenu alloc] initWithTitle:@"HammerspoonMenuItemStaticMenu"];
+            menu = create_or_reuse_menu(L, statusItem, @"HammerspoonMenuItemStaticMenu");
+
             if (menu) {
                 [menu setAutoenablesItems:NO];
                 parse_table(L, 2, menu, menuBarItem->stateBoxImageSize);
@@ -773,7 +787,8 @@ static int menubarSetMenu(lua_State *L) {
 
         case LUA_TFUNCTION:
             // This is a dynamic menu, so create a delegate object that will allow us to fetch a table whenever the menu is about to be displayed
-            menu = [[NSMenu alloc] initWithTitle:@"HammerspoonMenuItemDynamicMenu"];
+            menu = create_or_reuse_menu(L, statusItem, @"HammerspoonMenuItemDynamicMenu");
+
             if (menu) {
                 [menu setAutoenablesItems:NO];
 
@@ -787,7 +802,10 @@ static int menubarSetMenu(lua_State *L) {
             break;
     }
 
-    if (menu) {
+    if (menu == nil) {
+        // clear out any previous menu
+        erase_all_menu_parts(L, statusItem);
+    } else {
         [statusItem setMenu:menu];
         if (delegate) {
             [menu setDelegate:delegate];
