@@ -1375,7 +1375,14 @@ local windowWatcherDelayed={}
 
 appWindowEvent=function(win,event,_,pid,retry)
   if not win:isWindow() then return end
-  local appname = application.applicationForPID(pid):name()
+  local app = application.applicationForPID(pid)
+  if not app then
+    -- it is very likely the PID died/terminated before this code
+    -- gets executed
+    -- simply ignore event
+    return
+  end
+  local appname = app:name()
   local role=win.subrole and win:subrole()
   if appname=='Hammerspoon' and (not role or role=='AXUnknown') then return end
   local id = win.id and win:id()
