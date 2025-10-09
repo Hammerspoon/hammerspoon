@@ -493,7 +493,16 @@ static int window_application(lua_State* L) {
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSwindow *win = [skin toNSObjectAtIndex:1];
     HSapplication *app = [[HSapplication alloc] initWithPid:win.pid withState:L];
-    [skin pushNSObject:app];
+    // Ensure return value is the only item on the stack to avoid leaking the receiver in coroutines
+    lua_settop(L, 0);
+    // When app is nil (process terminated), push nil directly to the caller's L
+    // instead of going through pushNSObject which may push to a different lua_State
+    // if the shared LuaSkin instance's L has been temporarily swapped by class-level logging
+    if (!app) {
+        lua_pushnil(L);
+    } else {
+        [skin pushNSObject:app];
+    }
     return 1;
 }
 
