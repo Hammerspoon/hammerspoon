@@ -1,8 +1,8 @@
 #import "SentryEnvelopeRateLimit.h"
 #import "SentryDataCategoryMapper.h"
-#import "SentryEnvelope.h"
 #import "SentryEnvelopeItemHeader.h"
 #import "SentryRateLimits.h"
+#import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

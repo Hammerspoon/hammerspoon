@@ -1,1 +1,1 @@
-../../../Sentry/Sources/SentryCrash/Reporting/Filters/SentryCrashReportFilter.h
+../../../Sentry/Sources/Sentry/include/SentryCrashReportFilter.h

@@ -1,1 +1,1 @@
-../../../Sentry/Sources/SentryCrash/Recording/SentryCrashBinaryImageCache.h
+../../../Sentry/Sources/Sentry/include/SentryCrashBinaryImageCache.h

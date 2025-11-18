@@ -30,7 +30,7 @@
 #import "SentryCrashVarArgs.h"
 #import "SentryDictionaryDeepSearch.h"
 
-#import "SentryLog.h"
+#import "SentryLogC.h"
 
 @implementation SentryCrashReportFilterPassthrough
 

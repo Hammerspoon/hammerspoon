@@ -11,6 +11,7 @@ public class SentryUserFeedbackWidgetConfiguration: NSObject {
     /**
      * Automatically inject the widget button into the application UI.
      * - note: Default: `true`
+     * - warning: Does not currently work for SwiftUI apps. See https://docs.sentry.io/platforms/apple/user-feedback/#swiftui
      */
     public var autoInject: Bool = true
     

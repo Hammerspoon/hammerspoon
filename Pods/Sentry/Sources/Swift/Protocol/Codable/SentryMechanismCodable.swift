@@ -1,7 +1,16 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-extension Mechanism: Decodable {
+#if SDK_V9
+final class MechanismDecodable: Mechanism {
+    convenience public init(from decoder: any Decoder) throws {
+        try self.init(decodedFrom: decoder)
+    }
+}
+#else
+typealias MechanismDecodable = Mechanism
+#endif
+extension MechanismDecodable: Decodable {
 
     enum CodingKeys: String, CodingKey {
         case type
@@ -13,7 +22,13 @@ extension Mechanism: Decodable {
         case meta
     }
     
+    #if !SDK_V9
     required convenience public init(from decoder: any Decoder) throws {
+        try self.init(decodedFrom: decoder)
+    }
+    #endif
+
+    private convenience init(decodedFrom decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
         let type = try container.decode(String.self, forKey: .type)
@@ -26,6 +41,6 @@ extension Mechanism: Decodable {
         self.handled = try container.decodeIfPresent(NSNumberDecodableWrapper.self, forKey: .handled)?.value
         self.synthetic = try container.decodeIfPresent(NSNumberDecodableWrapper.self, forKey: .synthetic)?.value
         self.helpLink = try container.decodeIfPresent(String.self, forKey: .helpLink)
-        self.meta = try container.decodeIfPresent(MechanismMeta.self, forKey: .meta)
+        self.meta = try container.decodeIfPresent(MechanismMetaDecodable.self, forKey: .meta)
     }
 }

@@ -13,7 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
                                    attributes:(dispatch_queue_attr_t)attributes;
 
 /**
- * Creates a low priority queue with the given name and relative priority, wrapped in a @c
+ * Creates a utility QoS queue with the given name and relative priority, wrapped in a @c
  * SentryDispatchQueueWrapper.
  *
  * @note This method is only a factory method and does not keep a reference to the created queue.
@@ -25,8 +25,8 @@ NS_ASSUME_NONNULL_BEGIN
  * quality-of-service.
  * @return Unretained reference to the created queue.
  */
-- (SentryDispatchQueueWrapper *)createLowPriorityQueue:(const char *)name
-                                      relativePriority:(int)relativePriority;
+- (SentryDispatchQueueWrapper *)createUtilityQueue:(const char *)name
+                                  relativePriority:(int)relativePriority;
 
 @end
 

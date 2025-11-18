@@ -5,9 +5,9 @@
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryCrashSymbolicator.h"
 #import "SentryFrame.h"
-#import "SentryFrameRemover.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentryStacktrace.h"
+#import "SentrySwift.h"
 #import <dlfcn.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -47,15 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
         }
     }
 
-    NSArray<SentryFrame *> *framesCleared = [SentryFrameRemover removeNonSdkFrames:frames];
-
-    // The frames must be ordered from caller to callee, or oldest to youngest
-    NSArray<SentryFrame *> *framesReversed = [[framesCleared reverseObjectEnumerator] allObjects];
-
-    SentryStacktrace *stacktrace = [[SentryStacktrace alloc] initWithFrames:framesReversed
-                                                                  registers:@{}];
-
-    return stacktrace;
+    return [SentryStacktraceBuilder buildStacktraceFromFrames:frames];
 }
 
 - (SentryStacktrace *)buildStackTraceFromStackEntries:(SentryCrashStackEntry *)entries
@@ -76,12 +68,7 @@ NS_ASSUME_NONNULL_BEGIN
         [frames addObject:frame];
     }
 
-    NSArray<SentryFrame *> *framesCleared = [SentryFrameRemover removeNonSdkFrames:frames];
-
-    // The frames must be ordered from caller to callee, or oldest to youngest
-    NSArray<SentryFrame *> *framesReversed = [[framesCleared reverseObjectEnumerator] allObjects];
-
-    return [[SentryStacktrace alloc] initWithFrames:framesReversed registers:@{}];
+    return [SentryStacktraceBuilder buildStacktraceFromFrames:frames];
 }
 
 - (SentryStacktrace *)buildStacktraceForThread:(SentryCrashThread)thread
@@ -111,6 +98,16 @@ NS_ASSUME_NONNULL_BEGIN
     sentrycrashsc_initSelfThread(&stackCursor, 0);
     stackCursor.symbolicate = sentrycrashsymbolicator_symbolicate_async_unsafe;
     return [self retrieveStacktraceFromCursor:stackCursor];
+}
+
++ (SentryStacktrace *_Nonnull)buildStacktraceFromFrames:(NSArray<SentryFrame *> *)frames
+{
+    NSArray<SentryFrame *> *framesCleared = [SentryFrameRemover removeNonSdkFrames:frames];
+
+    // The frames must be ordered from caller to callee, or oldest to youngest
+    NSArray<SentryFrame *> *framesReversed = [[framesCleared reverseObjectEnumerator] allObjects];
+
+    return [[SentryStacktrace alloc] initWithFrames:framesReversed registers:@{}];
 }
 
 @end

@@ -1,7 +1,9 @@
-#import "SentryCrashDefaultBinaryImageProvider.h"
-#import "SentryCrashBinaryImageProvider.h"
-#import "SentryCrashDynamicLinker.h"
-#import <Foundation/Foundation.h>
+#if !SDK_V9
+
+#    import "SentryCrashDefaultBinaryImageProvider.h"
+#    import "SentryCrashBinaryImageProvider.h"
+#    import "SentryCrashDynamicLinker.h"
+#    import <Foundation/Foundation.h>
 
 @implementation SentryCrashDefaultBinaryImageProvider
 
@@ -18,3 +20,5 @@
 }
 
 @end
+
+#endif // !SDK_V9

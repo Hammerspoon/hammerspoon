@@ -1,6 +1,7 @@
 #include "SentryCrashBinaryImageCache.h"
 #include "SentryCrashDynamicLinker.h"
 #include <mach-o/dyld.h>
+#include <mach-o/dyld_images.h>
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -150,6 +151,43 @@ sentrycrashbic_iterateOverImages(sentrycrashbic_imageIteratorCallback callback, 
     }
 }
 
+/** Check if dyld should be added to the binary image cache.
+ *
+ * Since Apple no longer includes dyld in the images listed by _dyld_image_count and related
+ * functions, we need to check if dyld is already present in our cache before adding it.
+ *
+ * @return true if dyld is not found in the loaded images and should be added to the cache,
+ *         false if dyld is already present in the loaded images.
+ */
+bool
+sentrycrashbic_shouldAddDyld(void)
+{
+    // dyld is different from libdyld.dylib; the latter contains the public API
+    // (like dlopen, dlsym, dlclose) while the former is the actual dynamic
+    // linker executable that handles runtime library loading and symbol resolution
+    return sentrycrashdl_imageNamed("/usr/lib/dyld", false) == UINT32_MAX;
+}
+
+// Since Apple no longer includes dyld in the images listed `_dyld_image_count` and related
+// functions We manually include it to our cache.
+SentryCrashBinaryImageNode *
+sentrycrashbic_getDyldNode(void)
+{
+    const struct mach_header *header = sentryDyldHeader;
+
+    SentryCrashBinaryImage binaryImage = { 0 };
+    if (!sentrycrashdl_getBinaryImageForHeader((const void *)header, "dyld", &binaryImage, false)) {
+        return NULL;
+    }
+
+    SentryCrashBinaryImageNode *newNode = malloc(sizeof(SentryCrashBinaryImageNode));
+    newNode->available = true;
+    newNode->image = binaryImage;
+    newNode->next = NULL;
+
+    return newNode;
+}
+
 void
 sentrycrashbic_startCache(void)
 {
@@ -159,8 +197,16 @@ sentrycrashbic_startCache(void)
         pthread_mutex_unlock(&binaryImagesMutex);
         return;
     }
-    tailNode = &rootNode;
-    rootNode.next = NULL;
+
+    if (sentrycrashbic_shouldAddDyld()) {
+        sentrycrashdl_initialize();
+        SentryCrashBinaryImageNode *dyldNode = sentrycrashbic_getDyldNode();
+        tailNode = dyldNode;
+        rootNode.next = dyldNode;
+    } else {
+        tailNode = &rootNode;
+        rootNode.next = NULL;
+    }
     pthread_mutex_unlock(&binaryImagesMutex);
 
     // During a call to _dyld_register_func_for_add_image() the callback func is called for every

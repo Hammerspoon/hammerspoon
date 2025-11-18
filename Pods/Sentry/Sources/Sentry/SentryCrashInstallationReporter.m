@@ -3,7 +3,7 @@
 #import "SentryCrashInstallation+Private.h"
 #import "SentryCrashReportSink.h"
 #import "SentryDefines.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

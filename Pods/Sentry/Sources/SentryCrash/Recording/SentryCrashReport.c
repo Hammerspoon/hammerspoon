@@ -1565,10 +1565,6 @@ writeSystemInfo(const SentryCrashReportWriter *const writer, const char *const k
         writer->addIntegerElement(writer, SentryCrashField_CPUType, monitorContext->System.cpuType);
         writer->addIntegerElement(
             writer, SentryCrashField_CPUSubType, monitorContext->System.cpuSubType);
-        writer->addIntegerElement(
-            writer, SentryCrashField_BinaryCPUType, monitorContext->System.binaryCPUType);
-        writer->addIntegerElement(
-            writer, SentryCrashField_BinaryCPUSubType, monitorContext->System.binaryCPUSubType);
         writer->addStringElement(
             writer, SentryCrashField_ProcessName, monitorContext->System.processName);
         writer->addIntegerElement(

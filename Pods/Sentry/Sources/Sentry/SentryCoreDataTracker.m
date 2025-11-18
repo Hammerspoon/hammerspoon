@@ -3,8 +3,7 @@
 #import "SentryFrame.h"
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
-#import "SentryLog.h"
-#import "SentryNSProcessInfoWrapper.h"
+#import "SentryLogC.h"
 #import "SentryPredicateDescriptor.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
@@ -19,11 +18,11 @@
 @implementation SentryCoreDataTracker {
     SentryPredicateDescriptor *predicateDescriptor;
     SentryThreadInspector *_threadInspector;
-    SentryNSProcessInfoWrapper *_processInfoWrapper;
+    id<SentryProcessInfoSource> _processInfoWrapper;
 }
 
 - (instancetype)initWithThreadInspector:(SentryThreadInspector *)threadInspector
-                     processInfoWrapper:(SentryNSProcessInfoWrapper *)processInfoWrapper;
+                     processInfoWrapper:(id<SentryProcessInfoSource>)processInfoWrapper;
 {
     if (self = [super init]) {
         predicateDescriptor = [[SentryPredicateDescriptor alloc] init];
@@ -38,7 +37,7 @@
                             error:(NSError **)error
                       originalImp:(NSArray *(NS_NOESCAPE ^)(NSFetchRequest *, NSError **))original
 {
-    id<SentrySpan> _Nullable currentSpan = [SentrySDK.currentHub.scope span];
+    id<SentrySpan> _Nullable currentSpan = [SentrySDKInternal.currentHub.scope span];
     id<SentrySpan> _Nullable fetchSpan;
     if (currentSpan) {
         NSString *spanDescription = [self descriptionFromRequest:request];
@@ -57,7 +56,7 @@
     NSArray *result = original(request, error);
 
     if (fetchSpan) {
-        [self addExtraInfoToSpan:fetchSpan withContext:context];
+        [self addExtraInfoToSpan:(SentrySpan *)fetchSpan withContext:context];
 
         [fetchSpan setDataValue:[NSNumber numberWithInteger:result.count] forKey:@"read_count"];
         [fetchSpan
@@ -80,7 +79,7 @@
         __block NSDictionary<NSString *, NSDictionary *> *operations =
             [self groupEntitiesOperations:context];
 
-        id<SentrySpan> _Nullable currentSpan = [SentrySDK.currentHub.scope span];
+        id<SentrySpan> _Nullable currentSpan = [SentrySDKInternal.currentHub.scope span];
         if (currentSpan) {
             NSString *spanDescription = [self descriptionForOperations:operations
                                                              inContext:context];
@@ -104,7 +103,7 @@
     BOOL result = original(error);
 
     if (saveSpan) {
-        [self addExtraInfoToSpan:saveSpan withContext:context];
+        [self addExtraInfoToSpan:(SentrySpan *)saveSpan withContext:context];
         [saveSpan finishWithStatus:result ? kSentrySpanStatusOk : kSentrySpanStatusInternalError];
 
         SENTRY_LOG_DEBUG(@"SentryCoreDataTracker automatically finished span with status: %@",
@@ -125,7 +124,7 @@
         __kindof NSPersistentStore *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
         [systems addObject:obj.type];
         if (obj.URL != nil) {
-            [names addObject:obj.URL.path];
+            [names addObject:SENTRY_UNWRAP_NULLABLE(NSString, obj.URL.path)];
         } else {
             [names addObject:@"(null)"];
         }
@@ -204,7 +203,8 @@
 
     if (request.predicate) {
         [result appendFormat:@" WHERE %@",
-            [predicateDescriptor predicateDescription:request.predicate]];
+            [predicateDescriptor
+                predicateDescription:SENTRY_UNWRAP_NULLABLE(NSPredicate, request.predicate)]];
     }
 
     if (request.sortDescriptors.count > 0) {

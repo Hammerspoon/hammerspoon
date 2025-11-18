@@ -9,11 +9,13 @@
 #import "SentryLevelMapper.h"
 #import "SentryMessage.h"
 #import "SentryMeta.h"
+#import "SentryModels+Serializable.h"
 #import "SentryNSDictionarySanitize.h"
 #import "SentryRequest.h"
 #import "SentryStacktrace.h"
 #import "SentrySwift.h"
 #import "SentryThread.h"
+#import "SentryUser+Serialize.h"
 #import "SentryUser.h"
 
 #if SENTRY_HAS_METRIC_KIT
@@ -25,14 +27,23 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryEvent
 
+// This is a designated initializer so that it can be called by the Swift
+// sublcass that adds a `Decodable` conformance. It shares an implementation
+// with `initWithLevel:`.
 - (instancetype)init
 {
-    return [self initWithLevel:kSentryLevelNone];
+    self = [super init];
+    return [self commonInit:kSentryLevelNone];
 }
 
 - (instancetype)initWithLevel:(enum SentryLevel)level
 {
     self = [super init];
+    return [self commonInit:level];
+}
+
+- (instancetype)commonInit:(enum SentryLevel)level
+{
     if (self) {
         self.eventId = [[SentryId alloc] init];
         self.level = level;
@@ -192,7 +203,8 @@ NS_ASSUME_NONNULL_BEGIN
 
     SentryException *exception = self.exceptions[0];
     if (exception.mechanism != nil &&
-        [metricKitMechanisms containsObject:exception.mechanism.type]) {
+        [metricKitMechanisms
+            containsObject:SENTRY_UNWRAP_NULLABLE(NSString, exception.mechanism).type]) {
         return YES;
     } else {
         return NO;
@@ -205,12 +217,10 @@ NS_ASSUME_NONNULL_BEGIN
 {
     return self.exceptions.count == 1 &&
         [SentryAppHangTypeMapper
-            isExceptionTypeAppHangWithExceptionType:self.exceptions.firstObject.type];
+            isExceptionTypeAppHangWithExceptionType:SENTRY_UNWRAP_NULLABLE(
+                                                        NSString, self.exceptions.firstObject)
+                                                        .type];
 }
-
-@end
-
-@implementation SentryEventDecodable
 
 @end
 

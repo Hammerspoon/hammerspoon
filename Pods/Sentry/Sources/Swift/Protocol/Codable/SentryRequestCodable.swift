@@ -1,7 +1,16 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-extension SentryRequest: Decodable {
+#if SDK_V9
+final class SentryRequestDecodable: SentryRequest {
+    convenience public init(from decoder: any Decoder) throws {
+        try self.init(decodedFrom: decoder)
+    }
+}
+#else
+typealias SentryRequestDecodable = SentryRequest
+#endif
+extension SentryRequestDecodable: Decodable {
     
     private enum CodingKeys: String, CodingKey {
         case bodySize = "body_size"
@@ -13,7 +22,13 @@ extension SentryRequest: Decodable {
         case url
     }
     
+    #if !SDK_V9
     required convenience public init(from decoder: any Decoder) throws {
+        try self.init(decodedFrom: decoder)
+    }
+    #endif
+
+    private convenience init(decodedFrom decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
         self.init()

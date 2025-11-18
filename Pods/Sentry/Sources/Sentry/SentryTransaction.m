@@ -1,6 +1,6 @@
 #import "SentryTransaction.h"
-#import "SentryEnvelopeItemType.h"
-#import "SentryMeasurementValue.h"
+#import "SentryEvent+Serialize.h"
+#import "SentryInternalDefines.h"
 #import "SentryNSDictionarySanitize.h"
 #import "SentryProfilingConditionals.h"
 #import "SentrySpan+Private.h"
@@ -18,7 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
         self.startTimestamp = trace.startTimestamp;
         self.trace = trace;
         self.spans = children;
-        self.type = SentryEnvelopeItemTypeTransaction;
+        self.type = SentryEnvelopeItemTypes.transaction;
     }
     return self;
 }
@@ -35,8 +35,10 @@ NS_ASSUME_NONNULL_BEGIN
     serializedData[@"spans"] = serializedSpans;
 
     NSMutableDictionary<NSString *, id> *mutableContext = [[NSMutableDictionary alloc] init];
-    if (serializedData[@"contexts"] != nil) {
-        [mutableContext addEntriesFromDictionary:serializedData[@"contexts"]];
+    if (serializedData[@"contexts"] != nil &&
+        [serializedData[@"contexts"] isKindOfClass:NSDictionary.class]) {
+        [mutableContext addEntriesFromDictionary:SENTRY_UNWRAP_NULLABLE(
+                                                     NSDictionary, serializedData[@"contexts"])];
     }
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -50,13 +52,13 @@ NS_ASSUME_NONNULL_BEGIN
     [serializedData setValue:mutableContext forKey:@"contexts"];
 
     NSMutableDictionary<NSString *, id> *traceTags = [sentry_sanitize(self.trace.tags) mutableCopy];
-    [traceTags addEntriesFromDictionary:sentry_sanitize(self.trace.tags)];
 
     // Adding tags from Trace to serializedData dictionary
     if (serializedData[@"tags"] != nil &&
         [serializedData[@"tags"] isKindOfClass:NSDictionary.class]) {
         NSMutableDictionary *tags = [NSMutableDictionary new];
-        [tags addEntriesFromDictionary:serializedData[@"tags"]];
+        [tags
+            addEntriesFromDictionary:SENTRY_UNWRAP_NULLABLE(NSDictionary, serializedData[@"tags"])];
         [tags addEntriesFromDictionary:traceTags];
         serializedData[@"tags"] = tags;
     } else {
@@ -69,7 +71,8 @@ NS_ASSUME_NONNULL_BEGIN
     if (serializedData[@"extra"] != nil &&
         [serializedData[@"extra"] isKindOfClass:NSDictionary.class]) {
         NSMutableDictionary *extra = [NSMutableDictionary new];
-        [extra addEntriesFromDictionary:serializedData[@"extra"]];
+        [extra addEntriesFromDictionary:SENTRY_UNWRAP_NULLABLE(
+                                            NSDictionary, serializedData[@"extra"])];
         [extra addEntriesFromDictionary:traceData];
         serializedData[@"extra"] = extra;
     } else {

@@ -5,8 +5,8 @@
 #import <Foundation/Foundation.h>
 
 @class SentryCrashStackEntryMapper;
-@class SentryFrameRemover;
 @class SentryStacktrace;
+@class SentryFrame;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -52,6 +52,10 @@ SENTRY_NO_INIT
 
 - (SentryStacktrace *)buildStackTraceFromStackEntries:(SentryCrashStackEntry *)entries
                                                amount:(unsigned int)amount;
+/**
+ * Buils a stacktrace with the provided frames
+ */
++ (SentryStacktrace *)buildStacktraceFromFrames:(NSArray<SentryFrame *> *)frames;
 @end
 
 NS_ASSUME_NONNULL_END

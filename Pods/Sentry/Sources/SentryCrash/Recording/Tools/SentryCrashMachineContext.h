@@ -65,7 +65,7 @@ void sentrycrashmc_resumeEnvironment(thread_act_array_t threads, mach_msg_type_n
  * @param NAME The C identifier to give the pointer.
  */
 #define SentryCrashMC_NEW_CONTEXT(NAME)                                                            \
-    char sentrycrashmc_##NAME##_storage[sentrycrashmc_contextSize];                                \
+    char sentrycrashmc_##NAME##_storage[sizeof(SentryCrashMachineContext)];                        \
     struct SentryCrashMachineContext *NAME                                                         \
         = (struct SentryCrashMachineContext *)sentrycrashmc_##NAME##_storage
 

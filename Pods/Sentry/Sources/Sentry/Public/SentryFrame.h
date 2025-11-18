@@ -6,12 +6,17 @@
 #else
 #    import <SentryDefines.h>
 #endif
-#import SENTRY_HEADER(SentrySerializable)
+#if !SDK_V9
+#    import SENTRY_HEADER(SentrySerializable)
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
 NS_SWIFT_NAME(Frame)
-@interface SentryFrame : NSObject <SentrySerializable>
+@interface SentryFrame : NSObject
+#if !SDK_V9
+                         <SentrySerializable>
+#endif
 
 /**
  * SymbolAddress of the frame
@@ -70,6 +75,24 @@ NS_SWIFT_NAME(Frame)
 @property (nonatomic, copy) NSNumber *_Nullable columnNumber;
 
 /**
+ * Source code line at the error location.
+ * Mostly used for Godot errors.
+ */
+@property (nonatomic, copy) NSString *_Nullable contextLine;
+
+/**
+ * Source code lines before the error location (up to 5 lines).
+ * Mostly used for Godot errors.
+ */
+@property (nonatomic, copy) NSArray<NSString *> *_Nullable preContext;
+
+/**
+ * Source code lines after the error location (up to 5 lines).
+ * Mostly used for Godot errors.
+ */
+@property (nonatomic, copy) NSArray<NSString *> *_Nullable postContext;
+
+/**
  * Determines if the Frame is inApp or not
  */
 @property (nonatomic, copy) NSNumber *_Nullable inApp;
@@ -78,6 +101,12 @@ NS_SWIFT_NAME(Frame)
  * Determines if the Frame is the base of an async continuation.
  */
 @property (nonatomic, copy) NSNumber *_Nullable stackStart;
+
+/**
+ * A mapping of variables which were available within this frame.
+ * Mostly used for Godot errors.
+ */
+@property (nonatomic, copy) NSDictionary<NSString *, id> *_Nullable vars;
 
 - (instancetype)init;
 + (instancetype)new NS_UNAVAILABLE;

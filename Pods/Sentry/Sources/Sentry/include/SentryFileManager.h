@@ -4,8 +4,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol SentryFileManagerDelegate;
-
 @class SentryAppState;
 @class SentryDispatchQueueWrapper;
 @class SentryEvent;
@@ -15,12 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryOptions;
 @class SentrySession;
 
-@protocol SentryFileManagerDelegate <NSObject>
-
-- (void)envelopeItemDeleted:(SentryEnvelopeItem *)envelopeItem
-               withCategory:(SentryDataCategory)dataCategory;
-
-@end
+@protocol SentryCurrentDateProvider;
 
 NS_SWIFT_NAME(SentryFileManager)
 @interface SentryFileManager : NSObject
@@ -34,13 +27,12 @@ SENTRY_NO_INIT
 @property (nonatomic, readonly) NSString *previousBreadcrumbsFilePathOne;
 @property (nonatomic, readonly) NSString *previousBreadcrumbsFilePathTwo;
 
-- (nullable instancetype)initWithOptions:(SentryOptions *)options error:(NSError **)error;
-
 - (nullable instancetype)initWithOptions:(SentryOptions *)options
+                            dateProvider:(id<SentryCurrentDateProvider>)dateProvider
                     dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                                    error:(NSError **)error NS_DESIGNATED_INITIALIZER;
 
-- (void)setDelegate:(id<SentryFileManagerDelegate>)delegate;
+- (void)setEnvelopeDeletedCallback:(void (^)(SentryEnvelopeItem *, SentryDataCategory))callback;
 
 #pragma mark - Envelope
 
@@ -154,8 +146,8 @@ SENTRY_EXTERN BOOL appLaunchProfileConfigFileExists(void);
  * Retrieve the contents of the launch profile config file, which stores the sample rates used to
  * decide whether or not to profile this launch.
  */
-SENTRY_EXTERN NSDictionary<NSString *, NSNumber *> *_Nullable sentry_appLaunchProfileConfiguration(
-    void);
+SENTRY_EXTERN NSDictionary<NSString *, NSNumber *>
+    *_Nullable sentry_persistedLaunchProfileConfigurationOptions(void);
 
 /**
  * Write a config file that stores the sample rates used to determine whether this launch should
@@ -174,9 +166,9 @@ SENTRY_EXTERN void removeAppLaunchProfilingConfigFile(void);
 
 SENTRY_EXTERN NSString *_Nullable sentryStaticBasePath(void);
 
-#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 SENTRY_EXTERN void removeSentryStaticBasePath(void);
-#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 

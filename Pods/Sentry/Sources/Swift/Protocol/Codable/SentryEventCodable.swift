@@ -1,8 +1,41 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-extension SentryEventDecodable: Decodable {
-    
+/**
+ * Subclass of SentryEvent so we can add the Decodable implementation via a Swift extension. We need
+ * this due to our mixed use of public Swift and ObjC classes. We could avoid this class by
+ * converting SentryReplayEvent back to ObjC, but we rather accept this tradeoff as we want to
+ * convert all public classes to Swift in the future.
+ *
+ * @note: We can’t add the extension for Decodable directly on SentryEvent, because we get an error
+ * in SentryReplayEvent: 'required' initializer 'init(from:)' must be provided by subclass of
+ * 'Event' Once we add the initializer with required convenience public init(from decoder: any
+ * Decoder) throws { fatalError("init(from:) has not been implemented")
+ * }
+ * we get the error initializer 'init(from:)' is declared in extension of 'Event' and cannot be
+ * overridden. Therefore, we add the Decodable implementation not on the Event, but to a subclass of
+ * the event.
+ */
+#if !SDK_V9
+@objc(SentryEventDecodable)
+open class SentryEventDecodable: Event, Decodable {
+    required convenience public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.init()
+        try writePropertiesFrom(container: container)
+    }
+}
+#else
+final class SentryEventDecodable: Event, Decodable {
+    required convenience public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.init()
+        try writePropertiesFrom(container: container)
+    }
+}
+#endif
+
+extension SentryEventDecodable {
     private enum CodingKeys: String, CodingKey {
         case eventId = "event_id"
         case message
@@ -33,14 +66,10 @@ extension SentryEventDecodable: Decodable {
         case request
     }
     
-    required convenience public init(from decoder: any Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        
-        self.init()
-
+    private func writePropertiesFrom(container: KeyedDecodingContainer<CodingKeys>) throws {
         let eventIdAsString = try container.decode(String.self, forKey: .eventId)
-        self.eventId = SentryId(uuidString: eventIdAsString)
-        self.message = try container.decodeIfPresent(SentryMessage.self, forKey: .message)
+        SentryEventSwiftHelper.setEventIdString(eventIdAsString, event: self)
+        self.message = try container.decodeIfPresent(SentryMessageDecodable.self, forKey: .message)
         self.timestamp = try container.decode(Date.self, forKey: .timestamp)
         self.startTimestamp = try container.decodeIfPresent(Date.self, forKey: .startTimestamp)
 
@@ -71,27 +100,27 @@ extension SentryEventDecodable: Decodable {
 
         self.modules = try container.decodeIfPresent([String: String].self, forKey: .modules)
         self.fingerprint = try container.decodeIfPresent([String].self, forKey: .fingerprint)
-        self.user = try container.decodeIfPresent(User.self, forKey: .user)
+        self.user = try container.decodeIfPresent(UserDecodable.self, forKey: .user)
         
         self.context = decodeArbitraryData {
             try container.decodeIfPresent([String: [String: ArbitraryData]].self, forKey: .context)
         }
 
-        if let rawThreads = try container.decodeIfPresent([String: [SentryThread]].self, forKey: .threads) {
+        if let rawThreads = try container.decodeIfPresent([String: [SentryThreadDecodable]].self, forKey: .threads) {
             self.threads = rawThreads["values"]
         }
             
-        if let rawExceptions = try container.decodeIfPresent([String: [Exception]].self, forKey: .exception) {
+        if let rawExceptions = try container.decodeIfPresent([String: [ExceptionDecodable]].self, forKey: .exception) {
             self.exceptions = rawExceptions["values"]
         }
         
-        self.stacktrace = try container.decodeIfPresent(SentryStacktrace.self, forKey: .stacktrace)
+        self.stacktrace = try container.decodeIfPresent(SentryStacktraceDecodable.self, forKey: .stacktrace)
         
-        if let rawDebugMeta = try container.decodeIfPresent([String: [DebugMeta]].self, forKey: .debugMeta) {
+        if let rawDebugMeta = try container.decodeIfPresent([String: [DebugMetaDecodable]].self, forKey: .debugMeta) {
             self.debugMeta = rawDebugMeta["images"]
         }
         
-        self.breadcrumbs = try container.decodeIfPresent([Breadcrumb].self, forKey: .breadcrumbs)
-        self.request = try container.decodeIfPresent(SentryRequest.self, forKey: .request)
+        self.breadcrumbs = try container.decodeIfPresent([BreadcrumbDecodable].self, forKey: .breadcrumbs)
+        self.request = try container.decodeIfPresent(SentryRequestDecodable.self, forKey: .request)
     }
 }

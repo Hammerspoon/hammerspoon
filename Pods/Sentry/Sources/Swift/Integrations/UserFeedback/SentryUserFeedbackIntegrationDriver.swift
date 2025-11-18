@@ -4,7 +4,7 @@ import Foundation
 import UIKit
 
 @available(iOS 13.0, *) @objc
-protocol SentryUserFeedbackIntegrationDriverDelegate: NSObjectProtocol {
+@_spi(Private) public protocol SentryUserFeedbackIntegrationDriverDelegate: NSObjectProtocol {
     func capture(feedback: SentryFeedback)
 }
 
@@ -13,18 +13,19 @@ protocol SentryUserFeedbackIntegrationDriverDelegate: NSObjectProtocol {
  * - note: The default method to show the feedback form is via a floating widget placed in the bottom trailing corner of the screen. See the configuration classes for alternative options.
  */
 @available(iOS 13.0, *)
+@available(iOSApplicationExtension, unavailable)
 @objcMembers
-class SentryUserFeedbackIntegrationDriver: NSObject {
+@_spi(Private) public class SentryUserFeedbackIntegrationDriver: NSObject {
     let configuration: SentryUserFeedbackConfiguration
     private var widget: SentryUserFeedbackWidget?
     weak var delegate: (any SentryUserFeedbackIntegrationDriverDelegate)?
-    let screenshotProvider: SentryScreenshot
+    let screenshotSource: SentryScreenshotSource
     weak var customButton: UIButton?
 
-    public init(configuration: SentryUserFeedbackConfiguration, delegate: any SentryUserFeedbackIntegrationDriverDelegate, screenshotProvider: SentryScreenshot) {
+    @_spi(Private) public init(configuration: SentryUserFeedbackConfiguration, delegate: any SentryUserFeedbackIntegrationDriverDelegate, screenshotSource: SentryScreenshotSource) {
         self.configuration = configuration
         self.delegate = delegate
-        self.screenshotProvider = screenshotProvider
+        self.screenshotSource = screenshotSource
         super.init()
 
         if let uiFormConfigBuilder = configuration.configureForm {
@@ -42,6 +43,16 @@ class SentryUserFeedbackIntegrationDriver: NSObject {
         } else if let widgetConfigBuilder = configuration.configureWidget {
             widgetConfigBuilder(configuration.widgetConfig)
             validate(configuration.widgetConfig)
+
+            /*
+             * We cannot currently automatically inject a widget into a SwiftUI application, because at the recommended time to start the Sentry SDK (SwiftUIApp.init) there is nowhere to put a UIWindow overlay. SwiftUI apps must currently declare a UIApplicationDelegateAdaptor that returns a UISceneConfiguration, which we can then extract a connected UIScene from into which we can inject a UIWindow.
+             *
+             * At the time this integration is being installed, if there is no UIApplicationDelegate and no connected UIScene, it is very likely we are in a SwiftUI app, but it's possible we could instead be in a UIKit app that has some nonstandard launch procedure or doesn't call SentrySDK.start in a place we expect/recommend, in which case they will need to manually display the widget when they're ready by calling SentrySDK.feedback.showWidget.
+             */
+            if UIApplication.shared.connectedScenes.isEmpty && UIApplication.shared.delegate == nil {
+                return
+            }
+
             if configuration.widgetConfig.autoInject {
                 widget = SentryUserFeedbackWidget(config: configuration, delegate: self)
             }
@@ -57,9 +68,9 @@ class SentryUserFeedbackIntegrationDriver: NSObject {
     @objc public func showWidget() {
         if widget == nil {
             widget = SentryUserFeedbackWidget(config: configuration, delegate: self)
-        } else {
-            widget?.rootVC.setWidget(visible: true, animated: configuration.animations)
         }
+
+        widget?.rootVC.setWidget(visible: true, animated: configuration.animations)
     }
 
     @objc public func hideWidget() {
@@ -74,7 +85,8 @@ class SentryUserFeedbackIntegrationDriver: NSObject {
 }
 
 // MARK: SentryUserFeedbackFormDelegate
-@available(iOSApplicationExtension 13.0, *)
+@available(iOS 13.0, *)
+@available(iOSApplicationExtension, unavailable)
 extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackFormDelegate {
     func finished(with feedback: SentryFeedback?) {
         if let feedback = feedback {
@@ -89,7 +101,8 @@ extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackFormDelegate {
 }
 
 // MARK: SentryUserFeedbackWidgetDelegate
-@available(iOSApplicationExtension 13.0, *)
+@available(iOS 13.0, *)
+@available(iOSApplicationExtension, unavailable)
 extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackWidgetDelegate {
     func showForm() {
         showForm(screenshot: nil)
@@ -97,9 +110,10 @@ extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackWidgetDelegate 
 }
 
 // MARK: UIAdaptivePresentationControllerDelegate
-@available(iOSApplicationExtension 13.0, *)
+@available(iOS 13.0, *)
+@available(iOSApplicationExtension, unavailable)
 extension SentryUserFeedbackIntegrationDriver: UIAdaptivePresentationControllerDelegate {
-    func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
+    public func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
         widget?.rootVC.setWidget(visible: true, animated: configuration.animations)
         displayingForm = false
         configuration.onFormClose?()
@@ -107,7 +121,8 @@ extension SentryUserFeedbackIntegrationDriver: UIAdaptivePresentationControllerD
 }
 
 // MARK: Private
-@available(iOSApplicationExtension 13.0, *)
+@available(iOS 13.0, *)
+@available(iOSApplicationExtension, unavailable)
 private extension SentryUserFeedbackIntegrationDriver {
     func showForm(screenshot: UIImage?) {
         let form = SentryUserFeedbackFormController(config: configuration, delegate: self, screenshot: screenshot)
@@ -134,7 +149,7 @@ private extension SentryUserFeedbackIntegrationDriver {
         assert(valid, "Invalid widget location specified: \(config.location). Must specify either one edge or one corner of the screen rect to place the widget.")
 #endif // DEBUG
         if !valid {
-            SentryLog.warning("Invalid widget location specified: \(config.location). Must specify either one edge or one corner of the screen rect to place the widget.")
+            SentrySDKLog.warning("Invalid widget location specified: \(config.location). Must specify either one edge or one corner of the screen rect to place the widget.")
         }
     }
 
@@ -146,7 +161,7 @@ private extension SentryUserFeedbackIntegrationDriver {
 
     @objc func userCapturedScreenshot() {
         stopObservingScreenshots()
-        showForm(screenshot: screenshotProvider.appScreenshots().first)
+        showForm(screenshot: screenshotSource.appScreenshots().first)
     }
 
     func stopObservingScreenshots() {

@@ -1,4 +1,5 @@
 #import "SentryGeo.h"
+#import "SentryInternalDefines.h"
 #import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -46,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
         return NO;
     }
 
-    return [self isEqualToGeo:other];
+    return [self isEqualToGeo:SENTRY_UNWRAP_NULLABLE(SentryGeo, other)];
 }
 
 - (BOOL)isEqualToGeo:(SentryGeo *)geo

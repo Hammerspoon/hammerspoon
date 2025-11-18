@@ -1,7 +1,16 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-extension DebugMeta: Decodable {
+#if SDK_V9
+final class DebugMetaDecodable: DebugMeta {
+    convenience public init(from decoder: any Decoder) throws {
+        try self.init(decodedFrom: decoder)
+    }
+}
+#else
+typealias DebugMetaDecodable = DebugMeta
+#endif
+extension DebugMetaDecodable: Decodable {
     
     private enum CodingKeys: String, CodingKey {
         case uuid
@@ -14,7 +23,13 @@ extension DebugMeta: Decodable {
         case codeFile = "code_file"
     }
     
+    #if !SDK_V9
     required convenience public init(from decoder: any Decoder) throws {
+        try self.init(decodedFrom: decoder)
+    }
+    #endif
+
+    private convenience init(decodedFrom decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
         self.init()

@@ -1,6 +1,5 @@
 #import "SentryBaseIntegration.h"
-#import "SentryCrashWrapper.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentrySwift.h"
 #import <SentryDependencyContainer.h>
 #import <SentryOptions+Private.h>
@@ -78,10 +77,17 @@ NS_ASSUME_NONNULL_BEGIN
 
     if (integrationOptions & kIntegrationOptionEnableAppHangTracking) {
 #if SENTRY_HAS_UIKIT
+#    if SDK_V9
+        if (!options.enableAppHangTracking) {
+            [self logWithOptionName:@"enableAppHangTracking"];
+            return NO;
+        }
+#    else
         if (!options.enableAppHangTracking && !options.enableAppHangTrackingV2) {
             [self logWithOptionName:@"enableAppHangTracking && enableAppHangTrackingV2"];
             return NO;
         }
+#    endif
 #else
         if (!options.enableAppHangTracking) {
             [self logWithOptionName:@"enableAppHangTracking"];
@@ -180,8 +186,16 @@ NS_ASSUME_NONNULL_BEGIN
         BOOL performanceDisabled
             = !options.enableAutoPerformanceTracing || !options.isTracingEnabled;
         BOOL appHangsV2Disabled = options.isAppHangTrackingV2Disabled;
+#    if SDK_V9
+        // The V9 watchdog tracker uses the frames tracker, so frame tracking
+        // must be enabled if watchdog tracking is enabled.
+        BOOL watchdogDisabled = !options.enableWatchdogTerminationTracking;
+#    else
+        // Before V9 this should have no effect so set it to YES
+        BOOL watchdogDisabled = YES;
+#    endif // SDK_V9
 
-        if (performanceDisabled && appHangsV2Disabled) {
+        if (performanceDisabled && appHangsV2Disabled && watchdogDisabled) {
             if (appHangsV2Disabled) {
                 SENTRY_LOG_DEBUG(@"Not going to enable %@ because enableAppHangTrackingV2 is "
                                  @"disabled or the appHangTimeoutInterval is 0.",
@@ -193,6 +207,15 @@ NS_ASSUME_NONNULL_BEGIN
                                  @"isTracingEnabled are disabled.",
                     self.integrationName);
             }
+
+#    if SDK_V9
+            if (watchdogDisabled) {
+                SENTRY_LOG_DEBUG(
+                    @"Not going to enable %@ because enableWatchdogTerminationTracking "
+                    @"is disabled.",
+                    self.integrationName);
+            }
+#    endif // SKD_V9
 
             return NO;
         }

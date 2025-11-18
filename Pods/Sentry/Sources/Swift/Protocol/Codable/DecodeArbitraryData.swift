@@ -70,7 +70,7 @@ func decodeArbitraryData(decode: () throws -> [String: ArbitraryData]?) -> [Stri
         
         return unwrapArbitraryDict(rawData)
     } catch {
-        SentryLog.error("Failed to decode raw data: \(error)")
+        SentrySDKLog.error("Failed to decode raw data: \(error)")
         return nil
     }
 }
@@ -89,7 +89,7 @@ func decodeArbitraryData(decode: () throws -> [String: [String: ArbitraryData]]?
         
         return newData
     } catch {
-        SentryLog.error("Failed to decode raw data: \(error)")
+        SentrySDKLog.error("Failed to decode raw data: \(error)")
         return nil
     }
 }

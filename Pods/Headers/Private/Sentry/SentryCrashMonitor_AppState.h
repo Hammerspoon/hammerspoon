@@ -1,1 +1,1 @@
-../../../Sentry/Sources/SentryCrash/Recording/Monitors/SentryCrashMonitor_AppState.h
+../../../Sentry/Sources/Sentry/include/SentryCrashMonitor_AppState.h

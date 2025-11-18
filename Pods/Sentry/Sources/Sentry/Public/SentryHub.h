@@ -12,7 +12,6 @@
 @class SentryEvent;
 @class SentryFeedback;
 @class SentryId;
-@class SentryMetricsAPI;
 @class SentryScope;
 @class SentryTransactionContext;
 @class SentryUser;
@@ -24,8 +23,6 @@ SENTRY_NO_INIT
 
 - (instancetype)initWithClient:(SentryClient *_Nullable)client
                       andScope:(SentryScope *_Nullable)scope;
-
-@property (nonatomic, readonly) SentryMetricsAPI *metrics;
 
 /**
  * Starts a new SentrySession. If there's a running SentrySession, it ends it before starting the
@@ -173,6 +170,7 @@ SENTRY_NO_INIT
 - (SentryId *)captureMessage:(NSString *)message
                    withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(message:scope:));
 
+#if !SDK_V9
 /**
  * Captures a manually created user feedback and sends it to Sentry.
  * @param userFeedback The user feedback to send to Sentry.
@@ -180,6 +178,7 @@ SENTRY_NO_INIT
  */
 - (void)captureUserFeedback:(SentryUserFeedback *)userFeedback NS_SWIFT_NAME(capture(userFeedback:))
                                 DEPRECATED_MSG_ATTRIBUTE("Use -[SentryHub captureFeedback:].");
+#endif // !SDK_V9
 
 /**
  * Captures a new-style user feedback and sends it to Sentry.

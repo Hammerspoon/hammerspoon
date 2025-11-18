@@ -1,7 +1,16 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-extension Frame: Decodable {
+#if SDK_V9
+final class FrameDecodable: Frame {
+    convenience public init(from decoder: any Decoder) throws {
+        try self.init(decodedFrom: decoder)
+    }
+}
+#else
+typealias FrameDecodable = Frame
+#endif
+extension FrameDecodable: Decodable {
 
     enum CodingKeys: String, CodingKey {
         case symbolAddress = "symbol_addr"
@@ -18,11 +27,21 @@ extension Frame: Decodable {
         // https://github.com/getsentry/sentry-cocoa/issues/4738
         case lineNumber = "lineno"
         case columnNumber = "colno"
+        case contextLine = "context_line"
+        case preContext = "pre_context"
+        case postContext = "post_context"
+        case vars
         case inApp = "in_app"
         case stackStart = "stack_start"
     }
-    
+
+    #if !SDK_V9
     required convenience public init(from decoder: any Decoder) throws {
+        try self.init(decodedFrom: decoder)
+    }
+    #endif
+
+    private convenience init(decodedFrom decoder: Decoder) throws {
         self.init()
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -36,6 +55,12 @@ extension Frame: Decodable {
         self.instructionAddress = try container.decodeIfPresent(String.self, forKey: .instructionAddress)
         self.lineNumber = (try container.decodeIfPresent(NSNumberDecodableWrapper.self, forKey: .lineNumber))?.value
         self.columnNumber = (try container.decodeIfPresent(NSNumberDecodableWrapper.self, forKey: .columnNumber))?.value
+        self.contextLine = try container.decodeIfPresent(String.self, forKey: .contextLine)
+        self.preContext = try container.decodeIfPresent([String].self, forKey: .preContext)
+        self.postContext = try container.decodeIfPresent([String].self, forKey: .postContext)
+        self.vars = decodeArbitraryData {
+            try container.decodeIfPresent([String: ArbitraryData].self, forKey: .vars)
+        }
         self.inApp = (try container.decodeIfPresent(NSNumberDecodableWrapper.self, forKey: .inApp))?.value
         self.stackStart = (try container.decodeIfPresent(NSNumberDecodableWrapper.self, forKey: .stackStart))?.value
     }

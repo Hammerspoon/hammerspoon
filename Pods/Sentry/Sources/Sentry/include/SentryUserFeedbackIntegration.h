@@ -7,6 +7,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(13.0))
+NS_EXTENSION_UNAVAILABLE("Sentry User Feedback UI cannot be used from app extensions.")
 @interface SentryUserFeedbackIntegration : SentryBaseIntegration
 - (void)showWidget;
 - (void)hideWidget;

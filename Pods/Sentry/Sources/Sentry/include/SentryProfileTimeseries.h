@@ -15,6 +15,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+#    if defined(__cplusplus)
+extern "C" {
+#    endif
+
 NSArray<SentrySample *> *_Nullable sentry_slicedProfileSamples(
     NSArray<SentrySample *> *samples, uint64_t startSystemTime, uint64_t endSystemTime);
 
@@ -31,15 +35,19 @@ NSArray<SentrySample *> *_Nullable sentry_slicedProfileSamples(
  * recorded again unless the system changes it. In these cases, use the most recently recorded data
  * for it.
  */
-NSArray<SentrySerializedMetricEntry *> *sentry_sliceTraceProfileGPUData(
+SENTRY_EXTERN NSArray<SentrySerializedMetricEntry *> *sentry_sliceTraceProfileGPUData(
     SentryFrameInfoTimeSeries *frameInfo, uint64_t startSystemTime, uint64_t endSystemTime,
     BOOL useMostRecentRecording);
 
-NSArray<NSDictionary<NSString *, NSNumber *> *> *sentry_sliceContinuousProfileGPUData(
+SENTRY_EXTERN NSArray<NSDictionary<NSString *, NSNumber *> *> *sentry_sliceContinuousProfileGPUData(
     SentryFrameInfoTimeSeries *frameInfo, NSTimeInterval start, NSTimeInterval end,
     BOOL useMostRecentFrameRate);
 
 #    endif // SENTRY_HAS_UIKIT
+
+#    if defined(__cplusplus)
+}
+#    endif
 
 NS_ASSUME_NONNULL_END
 

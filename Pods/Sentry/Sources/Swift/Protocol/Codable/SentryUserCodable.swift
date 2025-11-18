@@ -1,7 +1,17 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-extension User: Decodable {
+#if SDK_V9
+final class UserDecodable: User {
+    @available(*, deprecated)
+    convenience public init(from decoder: any Decoder) throws {
+        try self.init(decodedFrom: decoder)
+    }
+}
+#else
+typealias UserDecodable = User
+#endif
+extension UserDecodable: Decodable {
     
     enum CodingKeys: String, CodingKey {
         case userId = "id"
@@ -14,6 +24,13 @@ extension User: Decodable {
         case data
     }
     
+    #if !SDK_V9
+    @available(*, deprecated)
+    required convenience public init(from decoder: any Decoder) throws {
+        try self.init(decodedFrom: decoder)
+    }
+    #endif
+    
      @available(*, deprecated, message: """
      This method is only deprecated to silence the deprecation warning of the property \
      segment. Our Xcode project has deprecations as warnings and warnings as errors \
@@ -23,16 +40,18 @@ extension User: Decodable {
      init method as deprecated because we don't expect many users to use it. Sadly, \
      Swift doesn't offer a better way of silencing a deprecation warning.
      """)
-    required convenience public init(from decoder: any Decoder) throws {
+    private convenience init(decodedFrom decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.init()
         self.userId = try container.decodeIfPresent(String.self, forKey: .userId)
         self.email = try container.decodeIfPresent(String.self, forKey: .email)
         self.username = try container.decodeIfPresent(String.self, forKey: .username)
         self.ipAddress = try container.decodeIfPresent(String.self, forKey: .ipAddress)
+        #if !SDK_V9
         self.segment = try container.decodeIfPresent(String.self, forKey: .segment)
+        #endif // !SDK_V9
         self.name = try container.decodeIfPresent(String.self, forKey: .name)
-        self.geo = try container.decodeIfPresent(Geo.self, forKey: .geo)
+        self.geo = try container.decodeIfPresent(GeoDecodable.self, forKey: .geo)
         
         self.data = decodeArbitraryData {
             try container.decodeIfPresent([String: ArbitraryData].self, forKey: .data)

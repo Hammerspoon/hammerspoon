@@ -2,12 +2,7 @@ import Foundation
 
 #if os(iOS) || os(macOS)
 
-/**
- * We need to check if MetricKit is available for compatibility on iOS 12 and below. As there are no compiler directives for iOS versions we use canImport.
- */
-#if canImport(MetricKit)
 import MetricKit
-#endif
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)
 @available(tvOS, unavailable)
@@ -34,7 +29,7 @@ import MetricKit
         self.disableCrashDiagnostics = disableCrashDiagnostics
     }
 
-    weak var delegate: SentryMXManagerDelegate?
+    public weak var delegate: SentryMXManagerDelegate?
     
     public func receiveReports() {
         let shared = MXMetricManager.shared

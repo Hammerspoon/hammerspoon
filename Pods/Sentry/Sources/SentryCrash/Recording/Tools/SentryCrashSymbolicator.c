@@ -51,7 +51,7 @@
 #define CALL_INSTRUCTION_FROM_RETURN_ADDRESS(A) (DETAG_INSTRUCTION_ADDRESS((A)) - 1)
 
 static bool
-symbolicate_internal(SentryCrashStackCursor *cursor, bool asyncUnsafe)
+symbolicate_internal(SentryCrashStackCursor *cursor, bool useDlAddr)
 {
     if (cursor->stackEntry.address == SentryCrashSC_ASYNC_MARKER) {
         cursor->stackEntry.imageAddress = 0;
@@ -65,7 +65,7 @@ symbolicate_internal(SentryCrashStackCursor *cursor, bool asyncUnsafe)
 
     bool symbols_succeed = false;
 
-    if (asyncUnsafe) {
+    if (useDlAddr) {
         symbols_succeed = dladdr((void *)cursor->stackEntry.address, &symbolsBuffer) != 0;
     } else {
         // sentrycrashdl_dladdr isn't async safe, but we've been using it for
@@ -91,13 +91,15 @@ symbolicate_internal(SentryCrashStackCursor *cursor, bool asyncUnsafe)
 }
 
 bool
-sentrycrashsymbolicator_symbolicate(SentryCrashStackCursor *cursor)
+sentrycrashsymbolicator_symbolicate_async_unsafe_sentryDlAddr(SentryCrashStackCursor *cursor)
 {
+    // Symbolicate using `sentrycrashdl_dladdr` note this is not async-signal-safe
     return symbolicate_internal(cursor, false);
 }
 
 bool
 sentrycrashsymbolicator_symbolicate_async_unsafe(SentryCrashStackCursor *cursor)
 {
+    // Symbolicate using `dladdr` note this is not async-signal-safe
     return symbolicate_internal(cursor, true);
 }

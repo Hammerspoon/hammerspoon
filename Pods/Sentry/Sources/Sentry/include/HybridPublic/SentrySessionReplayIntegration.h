@@ -45,6 +45,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)hideMaskPreview;
 
+/**
+ * Verifies the device environment and options and returns wether it is safe to enable
+ *  SessionReplay or not
+ */
++ (BOOL)shouldEnableForOptions:(SentryOptions *)options;
+
 @end
 #endif // SENTRY_TARGET_REPLAY_SUPPORTED
 NS_ASSUME_NONNULL_END

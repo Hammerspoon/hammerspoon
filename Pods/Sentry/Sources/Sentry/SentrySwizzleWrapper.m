@@ -1,5 +1,5 @@
 #import "SentrySwizzleWrapper.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentrySwizzle.h"
 
 #if SENTRY_HAS_UIKIT

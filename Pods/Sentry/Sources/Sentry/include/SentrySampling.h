@@ -19,8 +19,10 @@ SENTRY_EXTERN SentrySamplerDecision *sentry_sampleTrace(
  * whether the trace corresponding to the profile was sampled, to decide whether to configure the
  * next launch to start a trace profile.
  */
+#    if !SDK_V9
 SENTRY_EXTERN SentrySamplerDecision *sentry_sampleTraceProfile(SentrySamplingContext *context,
     SentrySamplerDecision *tracesSamplerDecision, SentryOptions *options);
+#    endif // !SDK_V9
 
 SENTRY_EXTERN SentrySamplerDecision *sentry_sampleProfileSession(float sessionSampleRate);
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED

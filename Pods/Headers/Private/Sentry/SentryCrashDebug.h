@@ -1,1 +1,1 @@
-../../../Sentry/Sources/SentryCrash/Recording/Tools/SentryCrashDebug.h
+../../../Sentry/Sources/Sentry/include/SentryCrashDebug.h

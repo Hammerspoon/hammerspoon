@@ -4,7 +4,7 @@ import Foundation
 import UIKit
 
 @available(iOS 13.0, *)
-class SentryUserFeedbackWidgetButtonView: UIView {
+final class SentryUserFeedbackWidgetButtonView: UIView {
     // MARK: Measurements
     let svgSize: CGFloat = 16
     
@@ -37,7 +37,7 @@ class SentryUserFeedbackWidgetButtonView: UIView {
         precondition(atLeastOneElement, preconditionMessage)
 #endif // DEBUG
         guard atLeastOneElement else {
-            SentryLog.warning(preconditionMessage)
+            SentrySDKLog.warning(preconditionMessage)
             return
         }
         
@@ -70,8 +70,8 @@ class SentryUserFeedbackWidgetButtonView: UIView {
             }
             constraints.append(contentsOf: [
                 label.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -config.padding),
-                label.topAnchor.constraint(equalTo: topAnchor),
-                label.bottomAnchor.constraint(equalTo: bottomAnchor)
+                label.topAnchor.constraint(equalTo: topAnchor, constant: config.padding),
+                label.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -config.padding)
             ])
         } else if config.widgetConfig.showIcon {
             addSubview(megaphone)
@@ -120,7 +120,7 @@ class SentryUserFeedbackWidgetButtonView: UIView {
 #endif // DEBUG
         
         if text.isEmpty {
-            SentryLog.warning("Attempted to show widget button with empty text label. If you don't want to show text, set `SentryUserFeedbackWidgetConfiguration.labelText` to `nil`.")
+            SentrySDKLog.warning("Attempted to show widget button with empty text label. If you don't want to show text, set `SentryUserFeedbackWidgetConfiguration.labelText` to `nil`.")
         }
         
         label.isAccessibilityElement = false
@@ -140,6 +140,8 @@ class SentryUserFeedbackWidgetButtonView: UIView {
     }()
     
     lazy var lozengeLayer: CAShapeLayer = {
+        let isFontFamilyDamascus: Bool = config.theme.font.familyName == "Damascus"
+
         var finalSize = label?.intrinsicContentSize ?? sizeWithoutLabel
         
         let hasText = config.widgetConfig.labelText != nil
@@ -150,7 +152,7 @@ class SentryUserFeedbackWidgetButtonView: UIView {
             let iconWidthAdditions = config.widgetConfig.showIcon ? scaledLeftPadding + scaledIconSize + scaledSpacing : config.padding
             finalSize.width += iconWidthAdditions + config.padding
             
-            let lozengeHeight = config.theme.font.familyName == "Damascus" ? config.theme.font.lineHeight : (2 * (config.theme.font.ascender - config.textEffectiveHeightCenter))
+            let lozengeHeight = isFontFamilyDamascus ? config.theme.font.lineHeight : (2 * (config.theme.font.ascender - config.textEffectiveHeightCenter))
             finalSize.height = lozengeHeight + 2 * config.padding * config.paddingScaleFactor
         }
         
@@ -180,7 +182,7 @@ class SentryUserFeedbackWidgetButtonView: UIView {
             let paddingDifference = (scaledLeftPadding - config.padding) / 2
             let spacingDifference = scaledSpacing - config.spacing
             let increasedIconLeftPadAmountDueToScaling: CGFloat = config.widgetConfig.showIcon ? SentryLocale.isRightToLeftLanguage() ? paddingDifference : paddingDifference + iconSizeDifference + spacingDifference : 0
-            let yTranslation = config.theme.font.familyName == "Damascus" ? -(config.padding * config.paddingScaleFactor + (config.theme.font.capHeight - config.theme.font.ascender) * config.paddingScaleFactor) : (-config.padding * config.paddingScaleFactor)
+            let yTranslation = isFontFamilyDamascus ? -(config.theme.font.capHeight - config.theme.font.ascender) * config.paddingScaleFactor : 0
             lozengeLayer.transform = CATransform3DTranslate(lozengeLayer.transform, -increasedIconLeftPadAmountDueToScaling, yTranslation, 0)
         } else {
             lozengeLayer.transform = CATransform3DTranslate(lozengeLayer.transform, -iconSizeDifference, -iconSizeDifference, 0)

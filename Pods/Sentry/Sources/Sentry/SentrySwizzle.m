@@ -1,5 +1,5 @@
 #import "SentrySwizzle.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 
 #import <objc/runtime.h>
 #include <pthread.h>

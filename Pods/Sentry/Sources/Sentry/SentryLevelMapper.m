@@ -3,7 +3,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 SentryLevel
-sentryLevelForString(NSString *string)
+sentryLevelForString(NSString *_Nullable string)
 {
     return [SentryLevelHelper levelForName:string];
 }

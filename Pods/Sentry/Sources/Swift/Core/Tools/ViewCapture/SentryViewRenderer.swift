@@ -3,7 +3,7 @@
 
 import UIKit
 
-@objc protocol SentryViewRenderer {
+@objc @_spi(Private) public protocol SentryViewRenderer {
     func render(view: UIView) -> UIImage
 }
 
