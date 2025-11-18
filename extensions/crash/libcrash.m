@@ -22,7 +22,9 @@
 /// Notes:
 ///  * This is for testing purposes only, you are extremely unlikely to need this in normal Hammerspoon usage
 static int burnTheWorld(lua_State *L __unused) {
+#ifdef SENTRY_API_URL
     [SentrySDK crash];
+#endif
     int *x = NULL;
     *x = 42;
     return 0;
@@ -86,10 +88,12 @@ static int crashKV(lua_State *L) {
     NSString *key = [skin toNSObjectAtIndex:1];
     NSString *value = [skin toNSObjectAtIndex:2];
 
+#ifdef SENTRY_API_URL
     [SentrySDK configureScope:^(SentryScope * _Nonnull scope) {
         [scope setExtraValue:value forKey:key];
     }];
-     
+#endif
+
     return 0;
 }
 

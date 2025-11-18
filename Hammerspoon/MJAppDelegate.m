@@ -13,6 +13,10 @@
 #import "variables.h"
 #import "secrets.h"
 
+#ifdef SENTRY_API_URL
+@import Sentry;
+#endif
+
 @implementation MJAppDelegate
 
 - (BOOL) applicationShouldHandleReopen:(NSApplication*)theApplication hasVisibleWindows:(BOOL)hasVisibleWindows {

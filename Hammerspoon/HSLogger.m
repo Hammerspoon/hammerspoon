@@ -11,6 +11,7 @@
 
 #ifdef SENTRY_API_URL
 #   pragma message "BUILD NOTE: Sentry API URL available"
+@import Sentry;
 #else
 #   pragma message "BUILD NOTE: Sentry API URL unavailable"
 #endif
@@ -85,7 +86,9 @@
     NSLog(@"BREADCRUMB: %@", message);
     SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] init];
     crumb.message = message;
+#ifdef SENTRY_API_URL
     [SentrySDK addBreadcrumb:crumb];
+#endif
 }
 
 - (void)logKnownBug:(NSString *)format, ... {
@@ -98,6 +101,8 @@
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:4];
     event.message = [[SentryMessage alloc] initWithFormatted:message];
 
+#ifdef SENTRY_API_URL
     [SentrySDK captureEvent:event];
+#endif
 }
 @end
