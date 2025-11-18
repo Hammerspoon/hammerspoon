@@ -25,9 +25,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 SENTRY_EXTERN_C_BEGIN
 
-void sentry_captureTransactionWithProfile(SentryHub *hub, SentryDispatchQueueWrapper *dispatchQueue,
-    SentryTransaction *transaction, NSDate *startTimestamp);
-
 /**
  * @Returns An ID to use as a unique, unchanging ID for the tracer that started the profiler. It's
  * different from the profiler's internal ID.

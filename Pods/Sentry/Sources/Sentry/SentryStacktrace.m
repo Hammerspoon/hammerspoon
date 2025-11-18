@@ -1,7 +1,8 @@
 #import "SentryStacktrace.h"
 #import "NSMutableDictionary+Sentry.h"
 #import "SentryFrame.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
+#import "SentryModels+Serializable.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

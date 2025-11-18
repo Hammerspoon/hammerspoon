@@ -1,16 +1,16 @@
 import Foundation
 
 @objcMembers
-class SentryVideoInfo: NSObject {
+@_spi(Private) public class SentryVideoInfo: NSObject {
     
-    let path: URL
+    public let path: URL
     let height: Int
     let width: Int
     let duration: TimeInterval
     let frameCount: Int
     let frameRate: Int
-    let start: Date
-    let end: Date
+    public let start: Date
+    public let end: Date
     let fileSize: Int
     let screens: [String]
     

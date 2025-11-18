@@ -1,9 +1,9 @@
 #import "SentryDispatchQueueProviderProtocol.h"
 #import "SentryDispatchSourceProviderProtocol.h"
+#import "SentrySwift.h"
 #import <Foundation/Foundation.h>
 
 @class SentryDispatchQueueWrapper;
-@class SentryDispatchSourceWrapper;
 
 NS_ASSUME_NONNULL_BEGIN
 

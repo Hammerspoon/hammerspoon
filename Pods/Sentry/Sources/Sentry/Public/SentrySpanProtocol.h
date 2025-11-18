@@ -5,7 +5,9 @@
 #else
 #    import <SentryDefines.h>
 #endif
-#import SENTRY_HEADER(SentrySerializable)
+#if !SDK_V9
+#    import SENTRY_HEADER(SentrySerializable)
+#endif // SDK_V9
 #import SENTRY_HEADER(SentrySpanContext)
 
 NS_ASSUME_NONNULL_BEGIN
@@ -17,7 +19,11 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryTraceHeader;
 
 NS_SWIFT_NAME(Span)
+#if SDK_V9
+@protocol SentrySpan <NSObject>
+#else
 @protocol SentrySpan <SentrySerializable>
+#endif
 
 /**
  * Determines which trace the Span belongs to.
@@ -118,12 +124,14 @@ NS_SWIFT_NAME(Span)
  */
 - (void)setDataValue:(nullable id)value forKey:(NSString *)key NS_SWIFT_NAME(setData(value:key:));
 
+#if !SDK_V9
 /**
  * Use @c setDataValue instead. This method calls @c setDataValue, was added by mistake, and will be
  * removed in a future version.
  */
 - (void)setExtraValue:(nullable id)value
                forKey:(NSString *)key DEPRECATED_ATTRIBUTE NS_SWIFT_NAME(setExtra(value:key:));
+#endif // !SDK_V9
 
 /**
  * Removes a data value.
@@ -187,6 +195,8 @@ NS_SWIFT_NAME(Span)
  * @return NSString.
  */
 - (nullable NSString *)baggageHttpHeader;
+
+- (NSDictionary<NSString *, id> *)serialize;
 
 @end
 

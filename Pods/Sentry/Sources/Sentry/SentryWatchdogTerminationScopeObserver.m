@@ -4,14 +4,14 @@
 
 #    import <SentryBreadcrumb.h>
 #    import <SentryFileManager.h>
-#    import <SentryLog.h>
+#    import <SentryLogC.h>
 #    import <SentrySwift.h>
 #    import <SentryWatchdogTerminationBreadcrumbProcessor.h>
 
 @interface SentryWatchdogTerminationScopeObserver ()
 
 @property (nonatomic, strong) SentryWatchdogTerminationBreadcrumbProcessor *breadcrumbProcessor;
-@property (nonatomic, strong) SentryWatchdogTerminationContextProcessor *contextProcessor;
+@property (nonatomic, strong) SentryWatchdogTerminationAttributesProcessor *attributesProcessor;
 
 @end
 
@@ -19,11 +19,11 @@
 
 - (instancetype)
     initWithBreadcrumbProcessor:(SentryWatchdogTerminationBreadcrumbProcessor *)breadcrumbProcessor
-               contextProcessor:(SentryWatchdogTerminationContextProcessor *)contextProcessor;
+            attributesProcessor:(SentryWatchdogTerminationAttributesProcessor *)attributesProcessor;
 {
     if (self = [super init]) {
         self.breadcrumbProcessor = breadcrumbProcessor;
-        self.contextProcessor = contextProcessor;
+        self.attributesProcessor = attributesProcessor;
     }
 
     return self;
@@ -34,7 +34,7 @@
 - (void)clear
 {
     [self.breadcrumbProcessor clear];
-    [self.contextProcessor clear];
+    [self.attributesProcessor clear];
 }
 
 - (void)addSerializedBreadcrumb:(NSDictionary *)crumb
@@ -49,47 +49,49 @@
 
 - (void)setContext:(nullable NSDictionary<NSString *, id> *)context
 {
-    [self.contextProcessor setContext:context];
+    [self.attributesProcessor setContext:context];
 }
 
 - (void)setDist:(nullable NSString *)dist
 {
-    // Left blank on purpose
+    [self.attributesProcessor setDist:dist];
 }
 
 - (void)setEnvironment:(nullable NSString *)environment
 {
-    // Left blank on purpose
+    [self.attributesProcessor setEnvironment:environment];
 }
 
 - (void)setExtras:(nullable NSDictionary<NSString *, id> *)extras
 {
-    // Left blank on purpose
+    [self.attributesProcessor setExtras:extras];
 }
 
 - (void)setFingerprint:(nullable NSArray<NSString *> *)fingerprint
 {
-    // Left blank on purpose
+    [self.attributesProcessor setFingerprint:fingerprint];
 }
 
 - (void)setLevel:(enum SentryLevel)level
 {
-    // Left blank on purpose
+    // Nothing to do here, watchdog termination events are always Fatal
 }
 
 - (void)setTags:(nullable NSDictionary<NSString *, NSString *> *)tags
 {
-    // Left blank on purpose
+    [self.attributesProcessor setTags:tags];
 }
 
 - (void)setUser:(nullable SentryUser *)user
 {
-    // Left blank on purpose
+    [self.attributesProcessor setUser:user];
 }
 
 - (void)setTraceContext:(nullable NSDictionary<NSString *, id> *)traceContext
 {
-    // Left blank on purpose
+    // Nothing to do here, Trace Context is not persisted for watchdog termination events
+    // On regular events, we have the current trace in memory, but there isn't time to persist one
+    // in watchdog termination events
 }
 
 @end

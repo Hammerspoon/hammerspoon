@@ -193,7 +193,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
     public var enableViewRendererV2: Bool
 
     /**
-     * Enables up to 5x faster but incommpelte view rendering used by the Session Replay integration.
+     * Enables up to 5x faster but incomplete view rendering used by the Session Replay integration.
      *
      * Enabling this flag will reduce the amount of time it takes to render each frame of the session replay on the main thread, therefore reducing
      * interruptions and visual lag. [Our benchmarks](https://github.com/getsentry/sentry-cocoa/pull/4940) have shown a significant improvement of
@@ -222,7 +222,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      *
      * - Note: See ``SentryReplayOptions.DefaultValues.quality`` for the default value.
      */
-    var replayBitRate: Int {
+    @_spi(Private) public var replayBitRate: Int {
         quality.bitrate
     }
 
@@ -231,7 +231,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      *
      * - Note: The scale is used to reduce the size of the replay.
      */
-    var sizeScale: Float {
+    @_spi(Private) public var sizeScale: Float {
         quality.sizeScale
     }
 
@@ -242,7 +242,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      *
      * - Note: See ``SentryReplayOptions.DefaultValues.frameRate`` for the default value.
      */
-    var frameRate: UInt {
+    @_spi(Private) public var frameRate: UInt {
         didSet {
             if frameRate < 1 {
                 frameRate = 1
@@ -253,19 +253,19 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
     /**
      * The maximum duration of replays for error events.
      */
-    var errorReplayDuration: TimeInterval
+    @_spi(Private) public var errorReplayDuration: TimeInterval
 
     /**
      * The maximum duration of the segment of a session replay.
      */
-    var sessionSegmentDuration: TimeInterval
+    @_spi(Private) public var sessionSegmentDuration: TimeInterval
 
     /**
      * The maximum duration of a replay session.
      *
      * - Note: See  ``SentryReplayOptions.DefaultValues.maximumDuration`` for the default value.
      */
-    var maximumDuration: TimeInterval
+    @_spi(Private) public var maximumDuration: TimeInterval
 
     /**
      * Used by hybrid SDKs to be able to configure SDK info for Session Replay
@@ -308,7 +308,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      *
      * - Warning: This initializer is primarily used by Hybrid SDKs and is not intended for public use.
      */
-    convenience init(dictionary: [String: Any]) {
+    @_spi(Private) public convenience init(dictionary: [String: Any]) {
         // This initalizer is calling the one with optional parameters, so that defaults can be applied
         // for absent values.
         self.init(

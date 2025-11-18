@@ -1,4 +1,4 @@
-#import "SentryFileManager.h"
+#import "SentryDefines.h"
 
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
@@ -6,15 +6,16 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryNSNotificationCenterWrapper;
-
+@class SentryFileManager;
+@protocol SentryNSNotificationCenterWrapper;
 @protocol SentryBreadcrumbDelegate;
 
 @interface SentrySystemEventBreadcrumbs : NSObject
 SENTRY_NO_INIT
 
 - (instancetype)initWithFileManager:(SentryFileManager *)fileManager
-       andNotificationCenterWrapper:(SentryNSNotificationCenterWrapper *)notificationCenterWrapper;
+       andNotificationCenterWrapper:
+           (id<SentryNSNotificationCenterWrapper>)notificationCenterWrapper;
 
 - (void)startWithDelegate:(id<SentryBreadcrumbDelegate>)delegate;
 

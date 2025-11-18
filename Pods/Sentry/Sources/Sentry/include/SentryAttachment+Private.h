@@ -16,7 +16,7 @@ typedef NS_ENUM(NSInteger, SentryAttachmentType) {
 
 NSString *nameForSentryAttachmentType(SentryAttachmentType attachmentType);
 
-SentryAttachmentType typeForSentryAttachmentName(NSString *name);
+SentryAttachmentType typeForSentryAttachmentName(NSString *_Nullable name);
 
 @interface SentryAttachment ()
 SENTRY_NO_INIT

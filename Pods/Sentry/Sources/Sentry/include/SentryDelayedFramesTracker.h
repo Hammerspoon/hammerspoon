@@ -21,14 +21,14 @@ SENTRY_NO_INIT
 - (instancetype)initWithKeepDelayedFramesDuration:(CFTimeInterval)keepDelayedFramesDuration
                                      dateProvider:(id<SentryCurrentDateProvider>)dateProvider;
 
-- (void)resetDelayedFramesTimeStamps;
-
 - (void)recordDelayedFrame:(uint64_t)startSystemTimestamp
     thisFrameSystemTimestamp:(uint64_t)thisFrameSystemTimestamp
             expectedDuration:(CFTimeInterval)expectedDuration
               actualDuration:(CFTimeInterval)actualDuration;
 
 - (void)setPreviousFrameSystemTimestamp:(uint64_t)previousFrameSystemTimestamp;
+
+- (void)reset;
 
 /**
  * This method returns the duration of all delayed frames between startSystemTimestamp and

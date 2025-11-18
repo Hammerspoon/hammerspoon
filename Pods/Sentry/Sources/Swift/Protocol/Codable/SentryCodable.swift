@@ -1,6 +1,12 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
+func encodeToJSONData<T: Encodable>(data: T) throws -> Data {
+    let jsonEncoder = JSONEncoder()
+    jsonEncoder.dateEncodingStrategy = .secondsSince1970
+    return try jsonEncoder.encode(data)
+}
+
 func decodeFromJSONData<T: Decodable>(jsonData: Data) -> T? {
     if jsonData.isEmpty {
         return nil
@@ -34,7 +40,7 @@ func decodeFromJSONData<T: Decodable>(jsonData: Data) -> T? {
         }
         return try decoder.decode(T.self, from: jsonData)
     } catch {
-        SentryLog.error("Could not decode object of type \(T.self) from JSON data due to error: \(error)")
+        SentrySDKLog.error("Could not decode object of type \(T.self) from JSON data due to error: \(error)")
     }
     
     return nil

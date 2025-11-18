@@ -42,7 +42,6 @@
 #import "SentrySampleDecision.h"
 #import "SentrySamplingContext.h"
 #import "SentryScope.h"
-#import "SentrySDK.h"
 #import "SentrySerializable.h"
 #import "SentrySpanContext.h"
 #import "SentrySpanId.h"
@@ -54,7 +53,6 @@
 #import "SentryTraceHeader.h"
 #import "SentryTransactionContext.h"
 #import "SentryUser.h"
-#import "SentryUserFeedback.h"
 #import "SentryWithoutUIKit.h"
 
 FOUNDATION_EXPORT double SentryVersionNumber;

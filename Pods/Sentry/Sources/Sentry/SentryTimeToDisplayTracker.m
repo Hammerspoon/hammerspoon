@@ -3,10 +3,8 @@
 #if SENTRY_HAS_UIKIT
 
 #    import "SentryDependencyContainer.h"
-#    import "SentryDispatchQueueWrapper.h"
 #    import "SentryFramesTracker.h"
-#    import "SentryLog.h"
-#    import "SentryMeasurementValue.h"
+#    import "SentryLogC.h"
 #    import "SentryOptions+Private.h"
 #    import "SentryProfilingConditionals.h"
 #    import "SentrySDK+Private.h"
@@ -22,6 +20,7 @@
 
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
 #        import "SentryLaunchProfiling.h"
+#        import "SentryProfiler+Private.h"
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @interface SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
@@ -62,16 +61,16 @@
     }
 
     SENTRY_LOG_DEBUG(@"Starting initial display span");
-    self.initialDisplaySpan =
-        [tracer startChildWithOperation:SentrySpanOperationUiLoadInitialDisplay
-                            description:[NSString stringWithFormat:@"%@ initial display", _name]];
+    self.initialDisplaySpan = (SentrySpan *)[tracer
+        startChildWithOperation:SentrySpanOperationUiLoadInitialDisplay
+                    description:[NSString stringWithFormat:@"%@ initial display", _name]];
     self.initialDisplaySpan.origin = SentryTraceOriginAutoUITimeToDisplay;
 
     if (self.waitForFullDisplay) {
         SENTRY_LOG_DEBUG(@"Starting full display span");
-        self.fullDisplaySpan =
-            [tracer startChildWithOperation:SentrySpanOperationUiLoadFullDisplay
-                                description:[NSString stringWithFormat:@"%@ full display", _name]];
+        self.fullDisplaySpan = (SentrySpan *)[tracer
+            startChildWithOperation:SentrySpanOperationUiLoadFullDisplay
+                        description:[NSString stringWithFormat:@"%@ full display", _name]];
         self.fullDisplaySpan.origin = SentryTraceOriginManualUITimeToDisplay;
 
         // By concept TTID and TTFD spans should have the same beginning,
@@ -176,8 +175,8 @@
         if (!_waitForFullDisplay) {
             [SentryDependencyContainer.sharedInstance.framesTracker removeListener:self];
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-            if ([SentrySDK.options isProfilingCorrelatedToTraces]) {
-                sentry_stopAndDiscardLaunchProfileTracer();
+            if (sentry_isLaunchProfileCorrelatedToTraces()) {
+                sentry_stopAndDiscardLaunchProfileTracer(SentrySDKInternal.currentHub);
             }
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
         }
@@ -188,8 +187,8 @@
         self.fullDisplaySpan.timestamp = newFrameDate;
         [self.fullDisplaySpan finish];
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-        if ([SentrySDK.options isProfilingCorrelatedToTraces]) {
-            sentry_stopAndDiscardLaunchProfileTracer();
+        if (sentry_isLaunchProfileCorrelatedToTraces()) {
+            sentry_stopAndDiscardLaunchProfileTracer(SentrySDKInternal.currentHub);
         }
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }

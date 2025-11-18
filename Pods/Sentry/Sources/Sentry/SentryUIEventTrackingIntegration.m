@@ -2,7 +2,7 @@
 
 #if SENTRY_HAS_UIKIT
 
-#    import <SentryLog.h>
+#    import <SentryLogC.h>
 #    import <SentryNSDataSwizzling.h>
 #    import <SentryOptions+Private.h>
 #    import <SentryOptions.h>

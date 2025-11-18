@@ -1,5 +1,6 @@
 #import "SentryDefines.h"
 #import "SentryProfilingConditionals.h"
+#import "SentrySerializable.h"
 #import "SentrySpanProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -110,7 +111,9 @@ SENTRY_NO_INIT
 #endif // SENTRY_HAS_UIKIT
 ;
 
+#if !SDK_V9
 - (void)setExtraValue:(nullable id)value forKey:(NSString *)key DEPRECATED_ATTRIBUTE;
+#endif // !SDK_V9
 @end
 
 NS_ASSUME_NONNULL_END

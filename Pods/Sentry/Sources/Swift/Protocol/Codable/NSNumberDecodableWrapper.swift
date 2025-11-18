@@ -15,7 +15,7 @@ struct NSNumberDecodableWrapper: Decodable {
         } else if let boolValue = try? container.decode(Bool.self) {
             value = NSNumber(value: boolValue)
         } else {
-            SentryLog.warning("Failed to decode NSNumber from container for key: \(container.codingPath.last?.stringValue ?? "unknown")")
+            SentrySDKLog.warning("Failed to decode NSNumber from container for key: \(container.codingPath.last?.stringValue ?? "unknown")")
             value = nil
         }
     }

@@ -1,4 +1,5 @@
 #import "SentryDateUtil.h"
+#import "SentryInternalDefines.h"
 #import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -24,7 +25,8 @@ NS_ASSUME_NONNULL_BEGIN
     if (date == nil)
         return NO;
 
-    NSComparisonResult result = [[self.currentDateProvider date] compare:date];
+    NSComparisonResult result =
+        [[self.currentDateProvider date] compare:SENTRY_UNWRAP_NULLABLE(NSDate, date)];
     return result == NSOrderedAscending;
 }
 
@@ -37,7 +39,8 @@ NS_ASSUME_NONNULL_BEGIN
     if (second == nil)
         return first;
 
-    NSComparisonResult result = [first compare:second];
+    NSComparisonResult result =
+        [SENTRY_UNWRAP_NULLABLE(NSDate, first) compare:SENTRY_UNWRAP_NULLABLE(NSDate, second)];
     if (result == NSOrderedDescending) {
         return first;
     } else {

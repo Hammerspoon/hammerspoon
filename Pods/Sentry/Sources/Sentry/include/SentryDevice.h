@@ -26,7 +26,7 @@ NSString *sentry_getOSVersion(void);
  * @return The Apple hardware descriptor, such as @c iPhone14,4 or @c MacBookPro10,8 .
  * @note If running on a simulator, this will be the model of the simulated device.
  */
-NSString *sentry_getDeviceModel(void);
+NSString *_Nullable sentry_getDeviceModel(void);
 
 /**
  * @return The Apple hardware descriptor of the simulated device, such as @c iPhone14,4 or

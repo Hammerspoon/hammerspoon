@@ -1,1 +1,1 @@
-../../../Sentry/Sources/SentryCrash/Recording/Tools/SentryCrashUUIDConversion.h
+../../../Sentry/Sources/Sentry/include/SentryCrashUUIDConversion.h

@@ -11,6 +11,7 @@ NS_SWIFT_NAME(TransportInitializer)
 @interface SentryTransportFactory : NSObject
 
 + (NSArray<id<SentryTransport>> *)initTransports:(SentryOptions *)options
+                                    dateProvider:(id<SentryCurrentDateProvider>)dateProvider
                                sentryFileManager:(SentryFileManager *)sentryFileManager
                                       rateLimits:(id<SentryRateLimits>)rateLimits;
 

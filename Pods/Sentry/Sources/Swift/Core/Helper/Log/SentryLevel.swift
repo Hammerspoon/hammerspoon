@@ -29,8 +29,8 @@ extension SentryLevel: CustomStringConvertible {
         return SentryLevel.levelNames[Int(self.rawValue)]
     }
     
-    static func fromName(_ name: String) -> SentryLevel {
-        guard let index = SentryLevel.levelNames.firstIndex(of: name) else { return .error }
+    static func fromName(_ name: String?) -> SentryLevel {
+        guard let name = name, let index = SentryLevel.levelNames.firstIndex(of: name) else { return .error }
         return SentryLevel(rawValue: UInt(index)) ?? .error
     }
 }
@@ -41,7 +41,7 @@ extension SentryLevel: CustomStringConvertible {
         return level.description
     }
     
-    public static func levelForName(_ name: String) -> SentryLevel {
+    public static func levelForName(_ name: String?) -> SentryLevel {
         .fromName(name)
     }
 }

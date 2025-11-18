@@ -5,7 +5,8 @@
 #import "SentryDefines.h"
 #import "SentryDependencyContainer.h"
 #import "SentryHub.h"
-#import "SentryLog.h"
+#import "SentryInternalDefines.h"
+#import "SentryLogC.h"
 #import "SentryReachability.h"
 #import "SentryScope.h"
 #import "SentrySwift.h"
@@ -220,9 +221,10 @@ static NSString *const SentryBreadcrumbTrackerSwizzleSendAction
 
             NSDictionary *data = nil;
             for (UITouch *touch in event.allTouches) {
-                if (touch.phase == UITouchPhaseCancelled || touch.phase == UITouchPhaseEnded) {
+                if (touch.view != nil
+                    && (touch.phase == UITouchPhaseCancelled || touch.phase == UITouchPhaseEnded)) {
                     data = [SentryBreadcrumbTracker
-                                extractDataFromView:touch.view
+                                extractDataFromView:SENTRY_UNWRAP_NULLABLE_VALUE(id, touch.view)
                         withAccessibilityIdentifier:self->_reportAccessibilityIdentifier];
                 }
             }
@@ -316,12 +318,14 @@ static NSString *const SentryBreadcrumbTrackerSwizzleSendAction
 
     if (controller.presentingViewController != nil) {
         info[@"presentingViewController"] =
-            [SwiftDescriptor getViewControllerClassName:controller.presentingViewController];
+            [SwiftDescriptor getViewControllerClassName:SENTRY_UNWRAP_NULLABLE(UIViewController,
+                                                            controller.presentingViewController)];
     }
 
     if (controller.parentViewController != nil) {
         info[@"parentViewController"] =
-            [SwiftDescriptor getViewControllerClassName:controller.parentViewController];
+            [SwiftDescriptor getViewControllerClassName:SENTRY_UNWRAP_NULLABLE(UIViewController,
+                                                            controller.parentViewController)];
     }
 
     if (controller.view.window != nil) {

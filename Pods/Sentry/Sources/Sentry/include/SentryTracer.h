@@ -88,7 +88,7 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_MAX_DURATION = 500.0;
 /**
  * Get the tracer from a span.
  */
-+ (nullable SentryTracer *)getTracer:(id<SentrySpan>)span;
++ (nullable SentryTracer *)getTracer:(id<SentrySpan> _Nullable)span;
 
 - (void)startIdleTimeout;
 

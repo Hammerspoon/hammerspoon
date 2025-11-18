@@ -1,1 +1,1 @@
-../../../Sentry/Sources/SentryCrash/Recording/Tools/SentryCrashDynamicLinker.h
+../../../Sentry/Sources/Sentry/include/SentryCrashDynamicLinker.h

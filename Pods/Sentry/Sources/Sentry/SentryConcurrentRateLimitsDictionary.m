@@ -24,7 +24,7 @@
     }
 }
 
-- (NSDate *)getRateLimitForCategory:(SentryDataCategory)category
+- (nullable NSDate *)getRateLimitForCategory:(SentryDataCategory)category
 {
     @synchronized(self.rateLimits) {
         return self.rateLimits[@(category)];

@@ -88,7 +88,7 @@ nameForSentryAttachmentType(SentryAttachmentType attachmentType)
 }
 
 SentryAttachmentType
-typeForSentryAttachmentName(NSString *name)
+typeForSentryAttachmentName(NSString *_Nullable name)
 {
     if ([name isEqualToString:kSentryAttachmentTypeNameViewHierarchy]) {
         return kSentryAttachmentTypeViewHierarchy;

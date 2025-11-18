@@ -1,7 +1,12 @@
-#if __has_include(<Sentry/SentrySerializable.h>)
-#    import <Sentry/SentrySerializable.h>
+#if __has_include(<Sentry/Sentry.h>)
+#    import <Sentry/SentryDefines.h>
+#elif __has_include(<SentryWithoutUIKit/Sentry.h>)
+#    import <SentryWithoutUIKit/SentryDefines.h>
 #else
-#    import "SentrySerializable.h"
+#    import <SentryDefines.h>
+#endif
+#if !SDK_V9
+#    import SENTRY_HEADER(SentrySerializable)
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -14,7 +19,10 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryUser;
 
 NS_SWIFT_NAME(TraceContext)
-@interface SentryTraceContext : NSObject <SentrySerializable>
+@interface SentryTraceContext : NSObject
+#if !SDK_V9
+                                <SentrySerializable>
+#endif
 
 /**
  * UUID V4 encoded as a hexadecimal sequence with no dashes (e.g. 771a43a4192642f0b136d5159a501700)
@@ -45,7 +53,9 @@ NS_SWIFT_NAME(TraceContext)
 /**
  * A subset of the scope's user context.
  */
+#if !SDK_V9
 @property (nullable, nonatomic, readonly) NSString *userSegment;
+#endif
 
 /**
  * Serialized sample rate used for this trace.
@@ -75,7 +85,9 @@ NS_SWIFT_NAME(TraceContext)
                     releaseName:(nullable NSString *)releaseName
                     environment:(nullable NSString *)environment
                     transaction:(nullable NSString *)transaction
+#if !SDK_V9
                     userSegment:(nullable NSString *)userSegment
+#endif
                      sampleRate:(nullable NSString *)sampleRate
                         sampled:(nullable NSString *)sampled
                        replayId:(nullable NSString *)replayId;
@@ -88,7 +100,9 @@ NS_SWIFT_NAME(TraceContext)
                     releaseName:(nullable NSString *)releaseName
                     environment:(nullable NSString *)environment
                     transaction:(nullable NSString *)transaction
+#if !SDK_V9
                     userSegment:(nullable NSString *)userSegment
+#endif
                      sampleRate:(nullable NSString *)sampleRate
                      sampleRand:(nullable NSString *)sampleRand
                         sampled:(nullable NSString *)sampled
@@ -111,16 +125,29 @@ NS_SWIFT_NAME(TraceContext)
                                   scope:(nullable SentryScope *)scope
                                 options:(SentryOptions *)options;
 
+#if SDK_V9
 /**
- * Initializes a SentryTraceContext with data from a traceID, options and userSegment.
+ * Initializes a SentryTraceContext with data from a traceId, options and replayId.
+ *
+ *  @param traceId The current tracer.
+ *  @param options The current active options.
+ *  @param replayId The current session replay.
+ */
+#else
+/**
+ * Initializes a SentryTraceContext with data from a traceId, options, userSegment and replayId.
  *
  *  @param traceId The current tracer.
  *  @param options The current active options.
  *  @param userSegment You can retrieve this usually from the `scope.userObject.segment`.
+ *  @param replayId The current session replay.
  */
+#endif
 - (instancetype)initWithTraceId:(SentryId *)traceId
                         options:(SentryOptions *)options
+#if !SDK_V9
                     userSegment:(nullable NSString *)userSegment
+#endif
                        replayId:(nullable NSString *)replayId;
 
 /**

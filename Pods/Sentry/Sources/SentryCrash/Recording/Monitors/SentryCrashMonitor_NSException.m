@@ -33,7 +33,7 @@
 #include "SentryCrashThread.h"
 #import "SentryDependencyContainer.h"
 
-#import "SentryLog.h"
+#import "SentryLogC.h"
 
 // ============================================================================
 #pragma mark - Globals -

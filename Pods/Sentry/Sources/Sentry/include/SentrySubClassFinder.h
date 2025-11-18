@@ -1,7 +1,8 @@
 #import "SentryDefines.h"
-#import "SentryObjCRuntimeWrapper.h"
 
 NS_ASSUME_NONNULL_BEGIN
+
+@protocol SentryObjCRuntimeWrapper;
 
 @class SentryDefaultObjCRuntimeWrapper;
 @class SentryDispatchQueueWrapper;

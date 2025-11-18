@@ -1,1 +1,1 @@
-../../../Sentry/Sources/SentryCrash/Recording/Monitors/SentryCrashMonitorType.h
+../../../Sentry/Sources/Sentry/include/SentryCrashMonitorType.h

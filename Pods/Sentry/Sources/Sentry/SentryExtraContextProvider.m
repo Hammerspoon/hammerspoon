@@ -1,11 +1,7 @@
 #import "SentryExtraContextProvider.h"
 #import "SentryCrashIntegration.h"
-#import "SentryCrashWrapper.h"
-#import "SentryDefines.h"
-#import "SentryDependencyContainer.h"
-#import "SentryLog.h"
-#import "SentryNSProcessInfoWrapper.h"
-#import "SentryUIDeviceWrapper.h"
+#import "SentryLogC.h"
+#import "SentrySwift.h"
 
 NSString *const kSentryProcessInfoThermalStateNominal = @"nominal";
 NSString *const kSentryProcessInfoThermalStateFair = @"fair";
@@ -15,24 +11,28 @@ NSString *const kSentryProcessInfoThermalStateCritical = @"critical";
 @interface SentryExtraContextProvider ()
 
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
-@property (nonatomic, strong) SentryNSProcessInfoWrapper *processInfoWrapper;
+@property (nonatomic, strong) id<SentryProcessInfoSource> processInfoWrapper;
+
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
+@property (nonatomic, strong) id<SentryUIDeviceWrapper> deviceWrapper;
+#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
 @end
 
 @implementation SentryExtraContextProvider
 
-- (instancetype)init
-{
-    return
-        [self initWithCrashWrapper:[SentryCrashWrapper sharedInstance]
-                processInfoWrapper:[SentryDependencyContainer.sharedInstance processInfoWrapper]];
-}
-
-- (instancetype)initWithCrashWrapper:(id)crashWrapper processInfoWrapper:(id)processInfoWrapper
+- (instancetype)initWithCrashWrapper:(id)crashWrapper
+                  processInfoWrapper:(id)processInfoWrapper
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
+                       deviceWrapper:(id<SentryUIDeviceWrapper>)deviceWrapper
+#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 {
     if (self = [super init]) {
         self.crashWrapper = crashWrapper;
         self.processInfoWrapper = processInfoWrapper;
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
+        self.deviceWrapper = deviceWrapper;
+#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
     }
     return self;
 }
@@ -69,16 +69,16 @@ NSString *const kSentryProcessInfoThermalStateCritical = @"critical";
     }
 
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
-    SentryUIDeviceWrapper *deviceWrapper = SentryDependencyContainer.sharedInstance.uiDeviceWrapper;
-    if (deviceWrapper.orientation != UIDeviceOrientationUnknown) {
+    if (self.deviceWrapper.orientation != UIDeviceOrientationUnknown) {
         extraDeviceContext[@"orientation"]
-            = UIDeviceOrientationIsPortrait(deviceWrapper.orientation) ? @"portrait" : @"landscape";
+            = UIDeviceOrientationIsPortrait(self.deviceWrapper.orientation) ? @"portrait"
+                                                                            : @"landscape";
     }
 
-    if (deviceWrapper.isBatteryMonitoringEnabled) {
+    if (self.deviceWrapper.isBatteryMonitoringEnabled) {
         extraDeviceContext[@"charging"]
-            = deviceWrapper.batteryState == UIDeviceBatteryStateCharging ? @(YES) : @(NO);
-        extraDeviceContext[@"battery_level"] = @((int)(deviceWrapper.batteryLevel * 100));
+            = self.deviceWrapper.batteryState == UIDeviceBatteryStateCharging ? @(YES) : @(NO);
+        extraDeviceContext[@"battery_level"] = @((int)(self.deviceWrapper.batteryLevel * 100));
     }
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
     return extraDeviceContext;

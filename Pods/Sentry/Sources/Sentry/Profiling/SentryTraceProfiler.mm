@@ -3,13 +3,13 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
 #    import "SentryDependencyContainer.h"
-#    import "SentryDispatchQueueWrapper.h"
-#    import "SentryLog.h"
+
+#    import "SentryInternalDefines.h"
+#    import "SentryLogC.h"
 #    import "SentryMetricProfiler.h"
-#    import "SentryNSTimerFactory.h"
 #    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfiler+Private.h"
-#    import "SentrySwift.h"
+#    import "SentryProfilingSwiftHelpers.h"
 #    include <mutex>
 
 #    pragma mark - Private
@@ -36,7 +36,8 @@ SentryProfiler *_Nullable _threadUnsafe_gTraceProfiler;
 
         if ([_threadUnsafe_gTraceProfiler isRunning]) {
             SENTRY_LOG_DEBUG(@"A trace profiler is already running.");
-            sentry_trackTransactionProfilerForTrace(_threadUnsafe_gTraceProfiler, traceId);
+            sentry_trackTransactionProfilerForTrace(
+                SENTRY_UNWRAP_NULLABLE(SentryProfiler, _threadUnsafe_gTraceProfiler), traceId);
             // record a new metric sample for every concurrent span start
             [_threadUnsafe_gTraceProfiler.metricProfiler recordMetrics];
             return YES;
@@ -49,8 +50,9 @@ SentryProfiler *_Nullable _threadUnsafe_gTraceProfiler;
             return NO;
         }
 
-        _threadUnsafe_gTraceProfiler.profilerId = [[SentryId alloc] init];
-        sentry_trackTransactionProfilerForTrace(_threadUnsafe_gTraceProfiler, traceId);
+        _threadUnsafe_gTraceProfiler.profilerId = sentry_getSentryId();
+        sentry_trackTransactionProfilerForTrace(
+            SENTRY_UNWRAP_NULLABLE(SentryProfiler, _threadUnsafe_gTraceProfiler), traceId);
     }
 
     [self scheduleTimeoutTimer];
@@ -82,20 +84,15 @@ SentryProfiler *_Nullable _threadUnsafe_gTraceProfiler;
  */
 + (void)scheduleTimeoutTimer
 {
-    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncOnMainQueue:^{
+    sentry_dispatchAsyncOnMain(SentryDependencyContainer.sharedInstance.dispatchQueueWrapper, ^{
         std::lock_guard<std::mutex> l(_threadUnsafe_gTraceProfilerLock);
         if (_sentry_threadUnsafe_traceProfileTimeoutTimer != nil) {
             return;
         }
 
-        _sentry_threadUnsafe_traceProfileTimeoutTimer =
-            [SentryDependencyContainer.sharedInstance.timerFactory
-                scheduledTimerWithTimeInterval:kSentryProfilerTimeoutInterval
-                                       repeats:NO
-                                         block:^(NSTimer *_Nonnull timer) {
-                                             [self timeoutTimerExpired];
-                                         }];
-    }];
+        _sentry_threadUnsafe_traceProfileTimeoutTimer = sentry_scheduledTimer(
+            kSentryProfilerTimeoutInterval, NO, ^{ [self timeoutTimerExpired]; });
+    });
 }
 
 + (void)timeoutTimerExpired

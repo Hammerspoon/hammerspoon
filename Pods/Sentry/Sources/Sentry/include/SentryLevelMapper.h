@@ -6,7 +6,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Maps a string to a SentryLevel. If the passed string doesn't match any level this defaults to
  * the 'error' level. See https://develop.sentry.dev/sdk/event-payloads/#optional-attributes
  */
-SentryLevel sentryLevelForString(NSString *string);
+SentryLevel sentryLevelForString(NSString *_Nullable string);
 
 NSString *nameForSentryLevel(SentryLevel level);
 

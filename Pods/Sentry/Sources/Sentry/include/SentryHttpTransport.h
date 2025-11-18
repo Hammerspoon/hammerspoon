@@ -1,22 +1,24 @@
 #import "SentryDefines.h"
 #import "SentryEnvelopeRateLimit.h"
-#import "SentryFileManager.h"
 #import "SentryRateLimits.h"
 #import "SentryRequestManager.h"
 #import "SentryTransport.h"
 
+@class SentryFileManager;
 @class SentryDispatchQueueWrapper;
 @class SentryNSURLRequestBuilder;
-@class SentryOptions;
+@class SentryDsn;
+@protocol SentryCurrentDateProvider;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryHttpTransport
-    : NSObject <SentryTransport, SentryEnvelopeRateLimitDelegate, SentryFileManagerDelegate>
+@interface SentryHttpTransport : NSObject <SentryTransport, SentryEnvelopeRateLimitDelegate>
 SENTRY_NO_INIT
 
-- (id)initWithOptions:(SentryOptions *)options
+- (id)initWithDsn:(SentryDsn *)dsn
+          sendClientReports:(BOOL)sendClientReports
     cachedEnvelopeSendDelay:(NSTimeInterval)cachedEnvelopeSendDelay
+               dateProvider:(id<SentryCurrentDateProvider>)dateProvider
                 fileManager:(SentryFileManager *)fileManager
              requestManager:(id<SentryRequestManager>)requestManager
              requestBuilder:(SentryNSURLRequestBuilder *)requestBuilder

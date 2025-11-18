@@ -1,5 +1,5 @@
 #import "SentryQueueableRequestManager.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentryRequestOperation.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 #if SENTRY_TEST || SENTRY_TEST_CI
     // force every envelope to be cached in UI tests so we can inspect what the SDK would've sent
     // for a given operation
-    if ([NSProcessInfo.processInfo.environment[@"--io.sentry.sdk-environment"]
+    if ([NSProcessInfo.processInfo.environment[@"--io.sentry.scope.sdk-environment"]
             isEqualToString:@"ui-tests"]) {
         return NO;
     }

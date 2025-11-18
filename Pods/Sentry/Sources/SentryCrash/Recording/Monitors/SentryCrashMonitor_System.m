@@ -34,9 +34,10 @@
 #import "SentryCrashSysCtl.h"
 #import "SentryInternalCDefines.h"
 
-#import "SentryLog.h"
+#import "SentryLogC.h"
 
 #import "SentryDefines.h"
+#import "SentrySwift.h"
 
 #import <CommonCrypto/CommonDigest.h>
 #include <mach-o/dyld.h>
@@ -66,8 +67,6 @@ typedef struct {
     const char *cpuArchitecture;
     int cpuType;
     int cpuSubType;
-    int binaryCPUType;
-    int binaryCPUSubType;
     const char *processName;
     int processID;
     int parentProcessID;
@@ -460,15 +459,6 @@ hasAppStoreReceipt(void)
     return isAppStoreReceipt && receiptExists;
 }
 
-/**
- * Check if the app has an embdded.mobileprovision file in the bundle.
- */
-static bool
-hasEmbeddedMobileProvision(void)
-{
-    return [[NSBundle mainBundle] pathForResource:@"embedded" ofType:@"mobileprovision"] != nil;
-}
-
 static const char *
 getBuildType(void)
 {
@@ -478,8 +468,9 @@ getBuildType(void)
     if (isDebugBuild()) {
         return "debug";
     }
-    if (hasEmbeddedMobileProvision()) {
-        return "enterprise";
+    SentryMobileProvisionParser *parser = [[SentryMobileProvisionParser alloc] init];
+    if ([parser hasEmbeddedMobileProvisionProfile]) {
+        return [parser mobileProvisionProfileProvisionsAllDevices] ? "enterprise" : "adhoc";
     }
     if (isTestBuild()) {
         return "test";
@@ -506,7 +497,6 @@ initialize(void)
 
     NSBundle *mainBundle = [NSBundle mainBundle];
     NSDictionary *infoDict = [mainBundle infoDictionary];
-    const struct mach_header *header = _dyld_get_image_header(0);
 
 #if SENTRY_HOST_IOS
     g_systemData.systemName = "iOS";
@@ -566,8 +556,6 @@ initialize(void)
     g_systemData.cpuArchitecture = getCurrentCPUArch();
     g_systemData.cpuType = sentrycrashsysctl_int32ForName("hw.cputype");
     g_systemData.cpuSubType = sentrycrashsysctl_int32ForName("hw.cpusubtype");
-    g_systemData.binaryCPUType = header->cputype;
-    g_systemData.binaryCPUSubType = header->cpusubtype;
     g_systemData.processName = cString([NSProcessInfo processInfo].processName);
     g_systemData.processID = [NSProcessInfo processInfo].processIdentifier;
     g_systemData.parentProcessID = getppid();
@@ -617,8 +605,6 @@ addContextualInfoToEvent(SentryCrash_MonitorContext *eventContext)
         COPY_REFERENCE(cpuArchitecture);
         COPY_REFERENCE(cpuType);
         COPY_REFERENCE(cpuSubType);
-        COPY_REFERENCE(binaryCPUType);
-        COPY_REFERENCE(binaryCPUSubType);
         COPY_REFERENCE(processName);
         COPY_REFERENCE(processID);
         COPY_REFERENCE(parentProcessID);

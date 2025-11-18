@@ -14,7 +14,7 @@ struct TouchPosition {
     let timestamp: Date
 }
 
-class RRWebTouchEvent: SentryRRWebEvent {
+final class RRWebTouchEvent: SentryRRWebEvent {
     
     init(timestamp: Date, touchId: Int, x: Float, y: Float, phase: TouchEventPhase) {
         super.init(type: .touch,
@@ -30,7 +30,7 @@ class RRWebTouchEvent: SentryRRWebEvent {
     }
 }
 
-class RRWebMoveEvent: SentryRRWebEvent {
+final class RRWebMoveEvent: SentryRRWebEvent {
     init(timestamp: Date, touchId: Int, positions: [TouchPosition]) {
         let positions: [[String: Any]] = positions.map({[
             "id": 0,

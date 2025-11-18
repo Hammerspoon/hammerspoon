@@ -1,7 +1,6 @@
 #import "SentrySubClassFinder.h"
-#import "SentryDispatchQueueWrapper.h"
-#import "SentryLog.h"
-#import "SentryObjCRuntimeWrapper.h"
+#import "SentryInternalDefines.h"
+#import "SentryLogC.h"
 #import "SentrySwift.h"
 #import <objc/runtime.h>
 #import <string.h>
@@ -44,9 +43,14 @@
             return;
         }
 
+        const char *_Nullable cImageName = [imageName cStringUsingEncoding:NSUTF8StringEncoding];
+        if (cImageName == nil) {
+            return;
+        }
+
         unsigned int count = 0;
         const char **classes = [self.objcRuntimeWrapper
-            copyClassNamesForImage:[imageName cStringUsingEncoding:NSUTF8StringEncoding]
+            copyClassNamesForImage:SENTRY_UNWRAP_NULLABLE(const char, cImageName)
                             amount:&count];
 
         SENTRY_LOG_DEBUG(@"Found %u number of classes in image: %@.", count, imageName);

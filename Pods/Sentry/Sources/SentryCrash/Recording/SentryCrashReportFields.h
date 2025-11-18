@@ -187,8 +187,6 @@
 #define SentryCrashField_CPUArch "cpu_arch"
 #define SentryCrashField_CPUType "cpu_type"
 #define SentryCrashField_CPUSubType "cpu_subtype"
-#define SentryCrashField_BinaryCPUType "binary_cpu_type"
-#define SentryCrashField_BinaryCPUSubType "binary_cpu_subtype"
 #define SentryCrashField_DeviceAppHash "device_app_hash"
 #define SentryCrashField_Executable "CFBundleExecutable"
 #define SentryCrashField_ExecutablePath "CFBundleExecutablePath"

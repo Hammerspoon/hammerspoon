@@ -25,7 +25,7 @@
 //
 
 #import "SentryReachability.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 
 #if SENTRY_HAS_REACHABILITY
 static const SCNetworkReachabilityFlags kSCNetworkReachabilityFlagsUninitialized = UINT32_MAX;

@@ -4,7 +4,7 @@
 import UIKit
 
 class SentryDefaultMaskRenderer: NSObject, SentryMaskRenderer {
-    func maskScreenshot(screenshot image: UIImage, size: CGSize, masking: [RedactRegion]) -> UIImage {
+    func maskScreenshot(screenshot image: UIImage, size: CGSize, masking: [SentryRedactRegion]) -> UIImage {
         let image = UIGraphicsImageRenderer(size: size, format: .init(for: .init(displayScale: 1))).image { context in
             applyMasking(to: context, image: image, size: size, masking: masking)
         }
@@ -15,7 +15,7 @@ class SentryDefaultMaskRenderer: NSObject, SentryMaskRenderer {
         to context: SentryMaskRendererContext,
         image: UIImage,
         size: CGSize,
-        masking: [RedactRegion]
+        masking: [SentryRedactRegion]
     ) {
         let clipOutPath = CGMutablePath(rect: CGRect(origin: .zero, size: size), transform: nil)
         var clipPaths = [CGPath]()
@@ -27,7 +27,7 @@ class SentryDefaultMaskRenderer: NSObject, SentryMaskRenderer {
         context.cgContext.interpolationQuality = .none
         image.draw(at: .zero)
 
-        var latestRegion: RedactRegion?
+        var latestRegion: SentryRedactRegion?
         for region in masking {
             let rect = CGRect(origin: CGPoint.zero, size: region.size)
             var transform = region.transform
