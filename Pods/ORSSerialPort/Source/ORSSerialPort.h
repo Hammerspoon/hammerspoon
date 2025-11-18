@@ -340,8 +340,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  *  The delegate for the serial port object. Must implement the `ORSSerialPortDelegate` protocol.
+ *
  */
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_8
 @property (nonatomic, weak, nullable) id<ORSSerialPortDelegate> delegate;
+#else
+@property (nonatomic, unsafe_unretained, nullable) id<ORSSerialPortDelegate> delegate;
+#endif
 
 /** ---------------------------------------------------------------------------------------
  * @name Request/Response Properties

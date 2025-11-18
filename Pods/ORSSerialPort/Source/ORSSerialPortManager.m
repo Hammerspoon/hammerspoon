@@ -79,7 +79,8 @@ static ORSSerialPortManager *sharedInstance = nil;
 	if (self == sharedInstance) return sharedInstance; // Already initialized
 	
 	self = [super init];
-	if (self != nil) {
+	if (self != nil)
+	{
 		self.portsToReopenAfterSleep = [NSMutableArray array];
 		
 		[self retrieveAvailablePortsAndRegisterForChangeNotifications];
@@ -160,7 +161,8 @@ static ORSSerialPortManager *sharedInstance = nil;
 	NSArray *ports = self.availablePorts;
 	for (ORSSerialPort *port in ports)
 	{
-		if (port.isOpen) {
+		if (port.isOpen)
+		{
 			if ([port close]) [self.portsToReopenAfterSleep addObject:port];
 		}
 	}
@@ -234,9 +236,10 @@ static ORSSerialPortManager *sharedInstance = nil;
 															kIOPublishNotification,
 															matchingDict,
 															ORSSerialPortManagerPortsPublishedNotificationCallback,
-															(__bridge void *)(self), // refCon/contextInfo
+															(__bridge void *)(self),			// refCon/contextInfo
 															&portIterator);
-	if (result) {
+	if (result)
+	{
 		LOG_SERIAL_PORT_ERROR(@"Error getting serialPort list:%i", result);
 		if (portIterator) IOObjectRelease(portIterator);
 		CFRelease(matchingDict); // Above call to IOServiceAddMatchingNotification consumes one reference, but we added a retain for the below call
@@ -266,9 +269,10 @@ static ORSSerialPortManager *sharedInstance = nil;
 											  kIOTerminatedNotification,
 											  matchingDict,
 											  ORSSerialPortManagerPortsTerminatedNotificationCallback,
-											  (__bridge void *)(self), // refCon/contextInfo
+											  (__bridge void *)(self),			// refCon/contextInfo
 											  &portIterator);
-	if (result) {
+	if (result)
+	{
 		LOG_SERIAL_PORT_ERROR(@"Error registering for serial port termination notification:%i.", result);
 		if (portIterator) IOObjectRelease(portIterator);
 		return;
@@ -284,7 +288,8 @@ static ORSSerialPortManager *sharedInstance = nil;
 
 - (void)setAvailablePorts:(NSArray *)ports
 {
-	if (ports != _availablePorts) {
+	if (ports != _availablePorts)
+	{
 		_availablePorts = [ports mutableCopy];
 	}
 }
@@ -298,7 +303,8 @@ static ORSSerialPortManager *sharedInstance = nil;
 
 - (void)setPortPublishedNotificationIterator:(io_iterator_t)iterator
 {
-	if (iterator != _portPublishedNotificationIterator) {
+	if (iterator != _portPublishedNotificationIterator)
+	{
 		if (_portPublishedNotificationIterator) IOObjectRelease(_portPublishedNotificationIterator);
 		
 		_portPublishedNotificationIterator = iterator;
@@ -308,7 +314,8 @@ static ORSSerialPortManager *sharedInstance = nil;
 
 - (void)setPortTerminatedNotificationIterator:(io_iterator_t)iterator
 {
-	if (iterator != _portTerminatedNotificationIterator) {
+	if (iterator != _portTerminatedNotificationIterator)
+	{
 		if (_portTerminatedNotificationIterator) IOObjectRelease(_portTerminatedNotificationIterator);
 		
 		_portTerminatedNotificationIterator = iterator;
@@ -321,7 +328,8 @@ static ORSSerialPortManager *sharedInstance = nil;
 void ORSSerialPortManagerPortsPublishedNotificationCallback(void *refCon, io_iterator_t iterator)
 {
 	ORSSerialPortManager *manager = (__bridge ORSSerialPortManager *)refCon;
-	if (![manager isKindOfClass:[ORSSerialPortManager class]]) {
+	if (![manager isKindOfClass:[ORSSerialPortManager class]])
+	{
 		NSLog(@"Unexpected context object %@ in %s. Context object should be an instance of ORSSerialPortManager", manager, __PRETTY_FUNCTION__);
 		return;
 	}
@@ -331,7 +339,8 @@ void ORSSerialPortManagerPortsPublishedNotificationCallback(void *refCon, io_ite
 void ORSSerialPortManagerPortsTerminatedNotificationCallback(void *refCon, io_iterator_t iterator)
 {
 	ORSSerialPortManager *manager = (__bridge ORSSerialPortManager *)refCon;
-	if (![manager isKindOfClass:[ORSSerialPortManager class]]) {
+	if (![manager isKindOfClass:[ORSSerialPortManager class]])
+	{
 		NSLog(@"Unexpected context object %@ in %s. Context object should be an instance of ORSSerialPortManager", manager, __PRETTY_FUNCTION__);
 		return;
 	}
