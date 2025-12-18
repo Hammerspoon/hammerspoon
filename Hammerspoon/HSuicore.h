@@ -152,6 +152,7 @@
 -(void)setTopLeft:(NSPoint)topLeft;
 -(NSSize)getSize;
 -(void)setSize:(NSSize)size;
+-(void)setFrame:(NSRect)frame;
 -(BOOL)pushButton:(CFStringRef)buttonId;
 -(void)toggleZoom;
 -(NSRect)getZoomButtonRect;
