@@ -309,10 +309,6 @@ function objectMT._frame(self) -- get actual window frame right now
   return geometry(self:_topLeft(),self:_size())
 end
 
-function objectMT._setFrame(self, f) -- set window frame instantly
-  self:_setSize(f) self:_setTopLeft(f) return self:_setSize(f)
-end
-
 local function setFrameAnimated(self,id,f,duration)
   local frame = self:_frame()
   if not animations[id] then animations[id] = {window=self} end

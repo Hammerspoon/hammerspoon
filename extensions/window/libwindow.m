@@ -233,9 +233,6 @@ static int window__settopleft(lua_State* L) {
     return 1;
 }
 
-//TODO window__setframe, but it's Yosemite only :/
-//https://developer.apple.com/library/prerelease/mac/documentation/AppKit/Reference/NSAccessibility_Protocol_Reference/index.html#//apple_ref/occ/intfp/NSAccessibility/accessibilityFrame
-
 /// hs.window:setSize(size) -> window
 /// Method
 /// Resizes the window
@@ -250,6 +247,30 @@ static int window__setsize(lua_State* L) {
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE, LS_TBREAK];
     HSwindow *win = [skin toNSObjectAtIndex:1];
     win.size = [skin tableToSizeAtIndex:2];
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
+/// hs.window:_setFrame(frame) -> window
+/// Method
+/// Sets the frame of the window instantly using the three-step resize process with Enhanced UI management
+///
+/// Parameters:
+///  * frame - A table containing x, y, w, h keys for the window frame
+///
+/// Returns:
+///  * The `hs.window` object
+///
+/// Notes:
+///  * This is an internal method that implements the standard three-step size,position,size pattern
+///  * Disables AXEnhancedUserInterface during the operation for better reliability
+///  * This should be preferred over calling _setSize and _setTopLeft separately
+static int window__setframe(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE, LS_TBREAK];
+    HSwindow *win = [skin toNSObjectAtIndex:1];
+    NSRect frame = [skin tableToRectAtIndex:2];
+    [win setFrame:frame];
     lua_pushvalue(L, 1);
     return 1;
 }
@@ -786,6 +807,7 @@ static const luaL_Reg userdata_metaLib[] = {
     {"_size", window__size},
     {"_setTopLeft", window__settopleft},
     {"_setSize", window__setsize},
+    {"_setFrame", window__setframe},
     {"_minimize", window__minimize},
     {"_unminimize", window__unminimize},
     {"isMinimized", window_isminimized},
