@@ -745,6 +745,41 @@ cleanup:
     }
 }
 
+-(void)setFrame:(NSRect)frame {
+    // Disable Enhanced UI during operation for better reliability
+    AXUIElementRef appElement = AXUIElementCreateApplication(self.pid);
+    CFBooleanRef enhancedUI = NULL;
+    BOOL hadEnhancedUI = NO;
+
+    if (appElement) {
+        if (AXUIElementCopyAttributeValue(appElement, CFSTR("AXEnhancedUserInterface"), (CFTypeRef *)&enhancedUI) == kAXErrorSuccess) {
+            if (enhancedUI) {
+                hadEnhancedUI = CFBooleanGetValue(enhancedUI);
+                CFRelease(enhancedUI);
+
+                if (hadEnhancedUI) {
+                    AXUIElementSetAttributeValue(appElement, CFSTR("AXEnhancedUserInterface"), kCFBooleanFalse);
+                }
+            }
+        }
+    }
+
+    // Step 1: Set size first (prepares for potential cross-display move)
+    [self setSize:frame.size];
+    // Step 2: Set position (may move window to different display)
+    [self setTopLeft:frame.origin];
+    // Step 3: Set size again (ensures correct size on target display)
+    [self setSize:frame.size];
+
+    if (appElement && hadEnhancedUI) {
+        AXUIElementSetAttributeValue(appElement, CFSTR("AXEnhancedUserInterface"), kCFBooleanTrue);
+    }
+
+    if (appElement) {
+        CFRelease(appElement);
+    }
+}
+
 -(BOOL)pushButton:(CFStringRef)buttonId {
     BOOL worked = NO;
     AXUIElementRef button = NULL;
