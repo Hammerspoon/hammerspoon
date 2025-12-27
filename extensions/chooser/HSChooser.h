@@ -36,6 +36,7 @@
 @property(nonatomic) NSColor *subTextColor;
 
 @property(nonatomic, retain) NSFont *font;
+@property(nonatomic, retain) NSImage *defaultImage;
 
 // Size information we calculate for ourselves
 @property(nonatomic) NSRect winRect;

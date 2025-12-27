@@ -15,6 +15,7 @@
     if (self) {
         self.trackingArea = [[NSTrackingArea alloc] initWithRect:self.frame options:(NSTrackingActiveInKeyWindow|NSTrackingMouseMoved) owner:self userInfo:nil];
         [self addTrackingArea:self.trackingArea];
+        self.lastHoveredRow = -1;
     }
     return self;
 }
@@ -44,7 +45,8 @@
 
     [super mouseMoved:theEvent];
 
-    if (row != -1) {
+    if (row != -1 && row != self.lastHoveredRow) {
+        self.lastHoveredRow = row;
         [self selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:NO];
         [self scrollRowToVisible:row];
     }

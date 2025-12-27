@@ -58,6 +58,9 @@
             self.font = [NSFont fontWithName:self.fontName size:self.fontSize];
         }
 
+        // Cache the default placeholder image
+        self.defaultImage = [NSImage imageNamed:NSImageNameFollowLinkFreestandingTemplate];
+
         [self calculateRects];
 
         if (![self setupWindow]) {
@@ -360,7 +363,7 @@
     }
 
     cellView.shortcutText.stringValue = shortcutText ? shortcutText : @"??";
-    cellView.image.image = image ? image : [NSImage imageNamed:NSImageNameFollowLinkFreestandingTemplate];
+    cellView.image.image = image ? image : self.defaultImage;
 
     if (self.fgColor) {
         cellView.text.textColor = self.fgColor;
@@ -464,18 +467,19 @@
         // We do not have a query callback set, so we are doing the filtering
         if (queryString.length > 0) {
             NSMutableArray *filteredChoices = [[NSMutableArray alloc] init];
+            NSString *lowercaseQuery = [queryString lowercaseString];
 
             for (NSDictionary *choice in [self getChoicesWithOptions:NO]) {
                 NSString *text = [choice objectForKey:@"text"];
-                if (text && ![text isKindOfClass:[NSString class]]) text = [NSString stringWithFormat:@"%@", text] ;
-                if (!text) text = @"" ;
-                if ([[text lowercaseString] containsString:[queryString lowercaseString]]) {
-                    [filteredChoices addObject: choice];
+                if (text && ![text isKindOfClass:[NSString class]]) text = [NSString stringWithFormat:@"%@", text];
+                if (!text) text = @"";
+                if ([[text lowercaseString] containsString:lowercaseQuery]) {
+                    [filteredChoices addObject:choice];
                 } else if (self.searchSubText) {
                     NSString *subText = [choice objectForKey:@"subText"];
-                    if (subText && ![subText isKindOfClass:[NSString class]]) subText = [NSString stringWithFormat:@"%@", subText] ;
-                    if (!subText) subText = @"" ;
-                    if ([[subText lowercaseString] containsString:[queryString lowercaseString]]) {
+                    if (subText && ![subText isKindOfClass:[NSString class]]) subText = [NSString stringWithFormat:@"%@", subText];
+                    if (!subText) subText = @"";
+                    if ([[subText lowercaseString] containsString:lowercaseQuery]) {
                         [filteredChoices addObject:choice];
                     }
                 }
@@ -622,23 +626,23 @@
     _fgColor = fgColor;
     self.queryField.textColor = _fgColor;
 
-    for (int x = 0; x < [self.choicesTableView numberOfRows]; x++) {
-        NSTableCellView *cellView = [self.choicesTableView viewAtColumn:0 row:x makeIfNecessary:NO];
+    [self.choicesTableView enumerateAvailableRowViewsUsingBlock:^(__kindof NSTableRowView *rowView, NSInteger row) {
+        NSTableCellView *cellView = [rowView viewAtColumn:0];
         NSTextField *text = [cellView viewWithTag:1];
         NSTextField *shortcutText = [cellView viewWithTag:2];
         text.textColor = _fgColor;
         shortcutText.textColor = _fgColor;
-    }
+    }];
 }
 
 - (void)setSubTextColor:(NSColor *)subTextColor {
     _subTextColor = subTextColor;
 
-    for (int x = 0; x < [self.choicesTableView numberOfRows]; x++) {
-        NSTableCellView *cellView = [self.choicesTableView viewAtColumn:0 row:x makeIfNecessary:NO];
+    [self.choicesTableView enumerateAvailableRowViewsUsingBlock:^(__kindof NSTableRowView *rowView, NSInteger row) {
+        NSTableCellView *cellView = [rowView viewAtColumn:0];
         NSTextField *subText = [cellView viewWithTag:3];
         subText.textColor = _subTextColor;
-    }
+    }];
 }
 
 - (void)applyDarkSetting:(BOOL)beDark {

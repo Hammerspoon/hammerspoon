@@ -21,5 +21,6 @@
 
 @property (nonatomic, weak) id<HSChooserTableViewDelegate> extendedDelegate;
 @property (nonatomic, strong) NSTrackingArea *trackingArea;
+@property (nonatomic, assign) NSInteger lastHoveredRow;
 
 @end
