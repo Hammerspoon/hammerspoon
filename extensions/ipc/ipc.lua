@@ -39,6 +39,10 @@ local MSG_ID = {
 -- otherwise we'll have to deal with a potential race condition
 module.insidePrintInstances = {}
 
+-- Track instances that have already been warned about recursion
+-- to avoid flooding the console with warnings (warn once per instance)
+module.warnedRecursionInstances = {}
+
 module.print_enter = function(instance)
   val = module.insidePrintInstances[instance] or 0
   module.insidePrintInstances[instance] = val + 1
@@ -68,7 +72,12 @@ local printReplacement = function(...)
     for id,v in pairs(module.__registeredCLIInstances) do
         if v._cli.console and v.print and not v._cli.quietMode then
           if module.print_inside(id) then
-            log.w(string.format("Instance of [%s] already recursing, refusing request.", id))
+            -- Only warn once per instance to avoid flooding console/memory
+            if not module.warnedRecursionInstances[id] then
+              module.warnedRecursionInstances[id] = true
+              -- Use originalPrint to avoid triggering more recursion via log.w
+              originalPrint(string.format("[hs.ipc] Instance %s: recursion detected, future warnings suppressed", id))
+            end
           else
             module.print_enter(id)
             --            v.print(...)
@@ -421,6 +430,9 @@ module.__defaultHandler = function(_, msgID, msg)
         log.df("unregistering %s", msg)
         module.__registeredCLIInstances[msg]._cli.remote:delete()
         module.__registeredCLIInstances[msg] = nil
+        -- Clean up recursion warning tracking for this instance
+        module.warnedRecursionInstances[msg] = nil
+        module.insidePrintInstances[msg] = nil
     elseif msgID == MSG_ID.COMMAND or msgID == MSG_ID.QUERY then
         local instanceID, code = msg:match("^([%w-]*)\0(.*)$")
 --        print(msg, instanceID, code)
