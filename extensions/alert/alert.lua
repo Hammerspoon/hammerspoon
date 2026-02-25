@@ -32,6 +32,7 @@ module._visibleAlerts = {}
 ---    * textStyle   - an optional table, defaults to `nil`, specifying that a string message should be converted to an `hs.styledtext` object using the style elements specified in this table.  This table should conform to the key-value pairs as described in the documentation for the `hs.styledtext` module.  If this table does not contain a `font` key-value pair, one will be constructed from the `textFont` and `textSize` keys (or their defaults); likewise, if this table does not contain a `color` key-value pair, one will be constructed from the `textColor` key (or its default).
 ---    * padding     - the number of pixels to reserve around each side of the text and/or image, defaults to textSize/2
 ---    * atScreenEdge   - 0: screen center (default); 1: top edge; 2: bottom edge . Note when atScreenEdge>0, the latest alert will overlay above the previous ones if multiple alerts visible on same edge; and when atScreenEdge=0, latest alert will show below previous visible ones without overlap.
+---    * atScreenOffset - a table specifying x and y offset for atScreenEdge, defaults to x = 0, y = 0
 ---    * fadeInDuration  - a number in seconds specifying the fade in duration of the alert, defaults to 0.15
 ---    * fadeOutDuration - a number in seconds specifying the fade out duration of the alert, defaults to 0.15
 ---
@@ -45,6 +46,7 @@ module.defaultStyle = {
     textSize  = 27,
     radius = 27,
     atScreenEdge = 0,
+    atScreenOffset = { x = 0, y = 0 },
     fadeInDuration = 0.15,
     fadeOutDuration = 0.15,
     padding = nil,
@@ -156,13 +158,15 @@ local showAlert = function(message, image, style, screenObj, duration)
         end
     end
 
+    local offset = thisAlertStyle.atScreenOffset
+
     -- Use the size to set the position
-    drawingFrame.x = screenFrame.x + (screenFrame.w - drawingFrame.w) / 2
+    drawingFrame.x = screenFrame.x + ((screenFrame.w - drawingFrame.w) / 2) + offset.x
 
     if thisAlertStyle.atScreenEdge == 2 then
-        drawingFrame.y = screenFrame.y + screenFrame.h - drawingFrame.h
+        drawingFrame.y = screenFrame.y + screenFrame.h - drawingFrame.h - offset.y
     else
-        drawingFrame.y = absoluteTop
+        drawingFrame.y = absoluteTop + offset.y
     end
 
     table.insert(alertEntry.drawings, drawing.rectangle(drawingFrame)
