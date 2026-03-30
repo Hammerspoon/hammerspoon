@@ -806,6 +806,7 @@ static int eventtap_event_getButtonState(lua_State* L) {
 ///
 /// Notes:
 ///  * The properties are `CGEventField` values, as documented at https://developer.apple.com/library/mac/documentation/Carbon/Reference/QuartzEventServicesRef/index.html#//apple_ref/c/tdef/CGEventField
+///  * Integer values use `CGEventSetIntegerValueField` and number values use `CGEventSetDoubleValueField`.
 static int eventtap_event_setProperty(lua_State* L) {
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
     CGEventField field = (CGEventField)(luaL_checkinteger(L, 2));
@@ -820,9 +821,14 @@ static int eventtap_event_setProperty(lua_State* L) {
         (field == kCGTabletEventTangentialPressure)) {
         double value = luaL_checknumber(L, 3) ;
         CGEventSetDoubleValueField(event, field, value);
-    } else {
-        int64_t value = (int64_t)luaL_checkinteger(L, 3);
+    } else if (lua_isinteger(L, 3)) {
+        int64_t value = (int64_t)lua_tointeger(L, 3);
         CGEventSetIntegerValueField(event, field, value);
+    } else if (lua_isnumber(L, 3)) {
+        double value = lua_tonumber(L, 3) ;
+        CGEventSetDoubleValueField(event, field, value);
+    } else {
+        [LuaSkin logError:@"hs.eventtap.event:setProperty() - Invalid value type."];
     }
 
     lua_settop(L,1) ;
