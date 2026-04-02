@@ -793,6 +793,18 @@ static int eventtap_event_getButtonState(lua_State* L) {
     return 1;
 }
 
+// Undocumented event fields
+static const CGEventField kCGEventGestureHIDType = (CGEventField)110;
+static const CGEventField kCGEventGesturePhase = (CGEventField)132;
+static const CGEventField kCGEventGestureScrollY = (CGEventField)119;
+static const CGEventField kCGEventGestureSwipeMotion = (CGEventField)123;
+static const CGEventField kCGEventGestureSwipeProgress = (CGEventField)124;
+static const CGEventField kCGEventGestureSwipeVelocityX = (CGEventField)129;
+static const CGEventField kCGEventGestureSwipeVelocityY = (CGEventField)130;
+static const CGEventField kCGEventGestureZoomDeltaX = (CGEventField)139;
+static const CGEventField kCGEventScrollGestureFlagBits = (CGEventField)135;
+static const CGEventField kCGSEventTypeField = (CGEventField)55;
+
 /// hs.eventtap.event:setProperty(prop, value)
 /// Method
 /// Sets a property of the event
@@ -806,29 +818,28 @@ static int eventtap_event_getButtonState(lua_State* L) {
 ///
 /// Notes:
 ///  * The properties are `CGEventField` values, as documented at https://developer.apple.com/library/mac/documentation/Carbon/Reference/QuartzEventServicesRef/index.html#//apple_ref/c/tdef/CGEventField
-///  * Integer values use `CGEventSetIntegerValueField` and number values use `CGEventSetDoubleValueField`.
 static int eventtap_event_setProperty(lua_State* L) {
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
     CGEventField field = (CGEventField)(luaL_checkinteger(L, 2));
-    if ((field == kCGMouseEventPressure)                ||   // These fields use a double (floating point number)
+    if ((field == kCGEventGestureScrollY)               ||   // These fields use a double (floating point number)
+        (field == kCGEventGestureSwipeProgress)         ||
+        (field == kCGEventGestureSwipeVelocityX)        ||
+        (field == kCGEventGestureSwipeVelocityY)        ||
+        (field == kCGEventGestureZoomDeltaX)            ||
+        (field == kCGMouseEventPressure)                ||
         (field == kCGScrollWheelEventFixedPtDeltaAxis1) ||
         (field == kCGScrollWheelEventFixedPtDeltaAxis2) ||
         (field == kCGScrollWheelEventFixedPtDeltaAxis3) ||
         (field == kCGTabletEventPointPressure)          ||
-        (field == kCGTabletEventTiltX)                  ||
-        (field == kCGTabletEventTiltY)                  ||
         (field == kCGTabletEventRotation)               ||
-        (field == kCGTabletEventTangentialPressure)) {
+        (field == kCGTabletEventTangentialPressure)     ||
+        (field == kCGTabletEventTiltX)                  ||
+        (field == kCGTabletEventTiltY)) {
         double value = luaL_checknumber(L, 3) ;
         CGEventSetDoubleValueField(event, field, value);
-    } else if (lua_isinteger(L, 3)) {
-        int64_t value = (int64_t)lua_tointeger(L, 3);
-        CGEventSetIntegerValueField(event, field, value);
-    } else if (lua_isnumber(L, 3)) {
-        double value = lua_tonumber(L, 3) ;
-        CGEventSetDoubleValueField(event, field, value);
     } else {
-        [LuaSkin logError:@"hs.eventtap.event:setProperty() - Invalid value type."];
+        int64_t value = (int64_t)luaL_checkinteger(L, 3);
+        CGEventSetIntegerValueField(event, field, value);
     }
 
     lua_settop(L,1) ;
@@ -1415,6 +1426,15 @@ static void pushtypestable(lua_State* L) {
 ///  * The constants defined in this table are as follows:
 ///    (I) in the description indicates that this property is returned or set as an integer
 ///    (N) in the description indicates that this property is returned or set as a number (floating point)
+///   * eventGestureHIDType                                     -- (I) The HID gesture type
+///   * eventGesturePhase                                       -- (I) Gesture phase bitfield
+///   * eventGestureScrollY                                     -- (N) Scroll gesture Y coordinate
+///   * eventGestureSwipeMotion                                 -- (I) Swipe gesture motion direction
+///   * eventGestureSwipeProgress                               -- (N) Swipe gesture distance
+///   * eventGestureSwipeVelocityX                              -- (N) Swipe gesture X velocity
+///   * eventGestureSwipeVelocityY                              -- (N) Swipe gesture Y velocity
+///   * eventGestureZoomDeltaX                                  -- (N) Zoom gesture delta X
+///   * eventScrollGestureFlagBits                              -- (I) Gesture flags
 ///   * eventSourceGroupID                                      -- (I) The event source Unix effective GID.
 ///   * eventSourceStateID                                      -- (I) The event source state ID used to create this event.
 ///   * eventSourceUnixProcessID                                -- (I) The event source Unix process ID.
@@ -1422,6 +1442,7 @@ static void pushtypestable(lua_State* L) {
 ///   * eventSourceUserID                                       -- (I) The event source Unix effective UID.
 ///   * eventTargetProcessSerialNumber                          -- (I) The event target process serial number. The value is a 64-bit long word.
 ///   * eventTargetUnixProcessID                                -- (I) The event target Unix process ID.
+///   * eventTypeField                                          -- (I) The event type
 ///   * eventUnacceleratedPointerMovementX                      -- Undocumented, assumed Integer
 ///   * eventUnacceleratedPointerMovementY                      -- Undocumented, assumed Integer
 ///   * keyboardEventAutorepeat                                 -- (I) Non-zero when this is an autorepeat of a key-down, and zero otherwise.
@@ -1538,6 +1559,17 @@ static void pushpropertiestable(lua_State* L) {
     lua_pushinteger(L, kCGMouseEventWindowUnderMousePointerThatCanHandleThisEvent) ; lua_setfield(L, -2, "mouseEventWindowUnderMousePointerThatCanHandleThisEvent") ;
     lua_pushinteger(L, kCGEventUnacceleratedPointerMovementX) ;                      lua_setfield(L, -2, "eventUnacceleratedPointerMovementX") ;
     lua_pushinteger(L, kCGEventUnacceleratedPointerMovementY) ;                      lua_setfield(L, -2, "eventUnacceleratedPointerMovementY") ;
+
+    lua_pushinteger(L, kCGEventGestureHIDType) ;                                     lua_setfield(L, -2, "eventGestureHIDType") ;
+    lua_pushinteger(L, kCGEventGesturePhase) ;                                       lua_setfield(L, -2, "eventGesturePhase") ;
+    lua_pushinteger(L, kCGEventGestureScrollY) ;                                     lua_setfield(L, -2, "eventGestureScrollY") ;
+    lua_pushinteger(L, kCGEventGestureSwipeMotion) ;                                 lua_setfield(L, -2, "eventGestureSwipeMotion") ;
+    lua_pushinteger(L, kCGEventGestureSwipeProgress) ;                               lua_setfield(L, -2, "eventGestureSwipeProgress") ;
+    lua_pushinteger(L, kCGEventGestureSwipeVelocityX) ;                              lua_setfield(L, -2, "eventGestureSwipeVelocityX") ;
+    lua_pushinteger(L, kCGEventGestureSwipeVelocityY) ;                              lua_setfield(L, -2, "eventGestureSwipeVelocityY") ;
+    lua_pushinteger(L, kCGEventGestureZoomDeltaX) ;                                  lua_setfield(L, -2, "eventGestureZoomDeltaX") ;
+    lua_pushinteger(L, kCGEventScrollGestureFlagBits) ;                              lua_setfield(L, -2, "eventScrollGestureFlagBits") ;
+    lua_pushinteger(L, kCGSEventTypeField) ;                                         lua_setfield(L, -2, "eventTypeField") ;
 }
 
 /// hs.eventtap.event.rawFlagMasks[]
