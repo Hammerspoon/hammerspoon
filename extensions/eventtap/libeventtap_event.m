@@ -770,6 +770,27 @@ static int eventtap_event_getProperty(lua_State* L) {
     return 1;
 }
 
+/// hs.eventtap.event:getPropertyFloat(prop) -> number
+/// Method
+/// Gets a property of the event as a number
+///
+/// Parameters:
+///  * prop - A value taken from `hs.eventtap.event.properties`
+///
+/// Returns:
+///  * A number containing the value of the requested property
+///
+/// Notes:
+///  * This method is for undocumented properties. `getProperty` will automatically behave like `getPropertyFloat` for properties documented as being floating point.
+///  * The properties are `CGEventField` values, as documented at https://developer.apple.com/library/mac/documentation/Carbon/Reference/QuartzEventServicesRef/index.html#//apple_ref/c/tdef/CGEventField
+static int eventtap_event_getPropertyFloat(lua_State* L) {
+    CGEventRef   event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
+    CGEventField field = (CGEventField)(luaL_checkinteger(L, 2));
+
+    lua_pushnumber(L, CGEventGetDoubleValueField(event, field));
+    return 1;
+}
+
 /// hs.eventtap.event:getButtonState(button) -> bool
 /// Method
 /// Gets the state of a mouse button in the event
@@ -824,6 +845,30 @@ static int eventtap_event_setProperty(lua_State* L) {
         int64_t value = (int64_t)luaL_checkinteger(L, 3);
         CGEventSetIntegerValueField(event, field, value);
     }
+
+    lua_settop(L,1) ;
+    return 1;
+}
+
+/// hs.eventtap.event:setPropertyFloat(prop, value)
+/// Method
+/// Sets a property of the event as a float
+///
+/// Parameters:
+///  * prop - A value from `hs.eventtap.event.properties`
+///  * value - A number containing the value of the specified property
+///
+/// Returns:
+///  * The `hs.eventtap.event` object.
+///
+/// Notes:
+///  * This method is for undocumented properties. `setProperty` will automatically behave like `setPropertyFloat` for properties documented as being floating point.
+///  * The properties are `CGEventField` values, as documented at https://developer.apple.com/library/mac/documentation/Carbon/Reference/QuartzEventServicesRef/index.html#//apple_ref/c/tdef/CGEventField
+static int eventtap_event_setPropertyFloat(lua_State* L) {
+    CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
+    CGEventField field = (CGEventField)(luaL_checkinteger(L, 2));
+    double value = luaL_checknumber(L, 3) ;
+    CGEventSetDoubleValueField(event, field, value);
 
     lua_settop(L,1) ;
     return 1;
@@ -1623,7 +1668,9 @@ static const luaL_Reg eventtapevent_metalib[] = {
     {"getTouchDetails", eventtap_event_getTouchDetails},
     {"post",            eventtap_event_post},
     {"getProperty",     eventtap_event_getProperty},
+    {"getPropertyFloat",eventtap_event_getPropertyFloat},
     {"setProperty",     eventtap_event_setProperty},
+    {"setPropertyFloat",eventtap_event_setPropertyFloat},
     {"getButtonState",  eventtap_event_getButtonState},
     {"getRawEventData", eventtap_event_getRawEventData},
     {"getCharacters",   eventtap_event_getCharacters},
