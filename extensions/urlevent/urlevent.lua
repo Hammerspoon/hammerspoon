@@ -71,6 +71,9 @@ local function urlEventCallback(scheme, event, params, fullURL, senderPID)
             log.wf("Something called a " .. hsScheme .. ":// URL without an action")
             return
         end
+        -- Event names are matched case-insensitively (see hs.urlevent.bind()), so
+        -- normalise the incoming event name before looking up its callback
+        event = string.lower(event)
         if not callbacks[event] then
             log.wf("Received hs.urlevent event with no registered callback:"..event)
         else
@@ -103,8 +106,9 @@ urlevent.setCallback(urlEventCallback)
 ---   * senderPID - An integer containing the PID of the sending application, if available (otherwise -1)
 ---   * fullURL - A string containing the full, original URL
 ---  * Given the URL `hammerspoon://doThingA?value=1` The event name is `doThingA` and the callback's `params` argument will be a table containing `{["value"] = "1"}` and `fullURL` will be `hammerspoon://doThingA?value=1`
+---  * Event names are matched case-insensitively (i.e. binding `doThingA` will also match `hammerspoon://dothinga`), because macOS normalises the host portion of a URL to lowercase before it is delivered to Hammerspoon
 function urlevent.bind(eventName, callback)
-    callbacks[eventName] = callback
+    callbacks[string.lower(eventName)] = callback
 end
 
 --- hs.urlevent.openURL(url)
