@@ -24,5 +24,9 @@ static const char *USERDATA_TAG = "hs.streamdeck";
 #define USB_PID_STREAMDECK_MK2         0x0080
 #define USB_PID_STREAMDECK_PLUS        0x0084
 #define USB_PID_STREAMDECK_PEDAL       0x0086
+#define USB_PID_STREAMDECK_NEO         0x009A
+#define USB_PID_STREAMDECK_MODULE_6    0x00B8
+#define USB_PID_STREAMDECK_MODULE_15   0x00B9
+#define USB_PID_STREAMDECK_MODULE_32   0x00BA
 
 #endif /* streamdeck_h */
