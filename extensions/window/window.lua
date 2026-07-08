@@ -275,16 +275,20 @@ local function animate()
   local time = timer.secondsSinceEpoch()
   for id,anim in pairs(animations) do
     local r = quadOut(time,anim.time,anim.duration)
-    local f = {}
+    local win = anim.window
     if r>=1 then
-      f=anim.endFrame
       animations[id] = nil
+      -- final frame: use the AXEnhancedUserInterface-managed _setFrame() for pixel-correct placement
+      win:_setFrame(anim.endFrame)
     else
+      local f = {}
       for _,k in pairs{'x','y','w','h'} do
         f[k] = anim.startFrame[k] + (anim.endFrame[k]-anim.startFrame[k])*r
       end
+      -- intermediate frames: plain size,position,size resize *without* toggling AXEnhancedUserInterface;
+      -- toggling it on every animation tick corrupts the window geometry on mixed-scale displays (#3852)
+      win:_setSize(f) win:_setTopLeft(f) win:_setSize(f)
     end
-    anim.window:_setFrame(f)
   end
   if not next(animations) then animTimer:setNextTrigger(DISTANT_FUTURE) end
 end
