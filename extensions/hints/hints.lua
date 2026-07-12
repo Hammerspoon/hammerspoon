@@ -11,6 +11,7 @@ local modal_hotkey = hotkey.modal
 --- Variable
 --- This controls the set of characters that will be used for window hints. They must be characters found in hs.keycodes.map
 --- The default is the letters A-Z. Note that if `hs.hints.style` is set to "vimperator", this variable will be ignored.
+--- If any of these characters are digits, the equivalent numeric keypad keys (`pad0`-`pad9`) will also select those hints.
 hints.hintChars = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"}
 
 -- vimperator mode requires to use full set of alphabet to represent applications.
@@ -194,6 +195,10 @@ function hints.setupModal()
 
   for _, c in ipairs(hintChars) do
     k:bind({}, c, function() hints.processChar(c) end)
+    -- Also accept the numeric keypad equivalent when a hint char is a digit
+    if c:match("^%d$") then
+      k:bind({}, "pad"..c, function() hints.processChar(c) end)
+    end
   end
   return k
 end
