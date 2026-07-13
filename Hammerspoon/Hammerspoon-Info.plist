@@ -214,6 +214,10 @@
 	<string>Hammerspoon needs to send events to automate applications.</string>
 	<key>NSAppleScriptEnabled</key>
 	<true/>
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>Some Hammerspoon extensions (such as hs.calendar) require full access to your calendars.</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>Some Hammerspoon extensions (such as hs.calendar) require access to your calendars.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Some Hammerspoon extensions require access to the camera.</string>
 	<key>NSHumanReadableCopyright</key>
