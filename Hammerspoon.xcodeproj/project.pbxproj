@@ -105,6 +105,19 @@
 		4F5560A2279F6A0300B91FD8 /* HSStreamDeckDeviceMk2.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F5560A0279F6A0300B91FD8 /* HSStreamDeckDeviceMk2.m */; };
 		4F5B6E6B1E9E86BB003FC580 /* Hammerspoon.sdef in Resources */ = {isa = PBXBuildFile; fileRef = 4F5B6E6A1E9E86BB003FC580 /* Hammerspoon.sdef */; };
 		4F5B6E6E1E9E87CE003FC580 /* HSAppleScript.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F5B6E6D1E9E87CE003FC580 /* HSAppleScript.m */; };
+		4F61CD8B2B32F58200407260 /* Hammertime.docc in Sources */ = {isa = PBXBuildFile; fileRef = 4F61CD8A2B32F58200407260 /* Hammertime.docc */; };
+		4F61CD912B32F58300407260 /* Hammertime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F61CD872B32F58000407260 /* Hammertime.framework */; };
+		4F61CD982B32F58400407260 /* HammertimeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F61CD972B32F58400407260 /* HammertimeTests.swift */; };
+		4F61CD992B32F58400407260 /* Hammertime.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F61CD892B32F58200407260 /* Hammertime.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4F61CD9C2B32F58400407260 /* Hammertime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F61CD872B32F58000407260 /* Hammertime.framework */; };
+		4F61CD9D2B32F58400407260 /* Hammertime.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 4F61CD872B32F58000407260 /* Hammertime.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		4F61CDA92B32F8A500407260 /* Math.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F61CDA82B32F8A500407260 /* Math.swift */; };
+		4F61CDAC2B32FE2500407260 /* Hammertime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F61CD872B32F58000407260 /* Hammertime.framework */; };
+		4F61CDB22B330C2200407260 /* Base64.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F61CDB12B330C2200407260 /* Base64.swift */; };
+		4F61CDB32B33102400407260 /* Hammertime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F61CD872B32F58000407260 /* Hammertime.framework */; };
+		4F61CDB92B3332C100407260 /* Camera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F61CDB82B3332C100407260 /* Camera.swift */; };
+		4F61CDBD2B334D7900407260 /* Hammertime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F61CD872B32F58000407260 /* Hammertime.framework */; };
+		4F61CDC32B33B8AE00407260 /* Globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F61CDC22B33B8AE00407260 /* Globals.swift */; };
 		4F6653E6238C36F100DEE120 /* HSStreamDeckDeviceOriginal.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6653E4238C36F100DEE120 /* HSStreamDeckDeviceOriginal.h */; };
 		4F6653E7238C36F100DEE120 /* HSStreamDeckDeviceOriginal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F6653E5238C36F100DEE120 /* HSStreamDeckDeviceOriginal.m */; };
 		4F6653EA238C6B6600DEE120 /* HSStreamDeckDeviceMini.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6653E8238C6B6600DEE120 /* HSStreamDeckDeviceMini.h */; };
@@ -770,6 +783,55 @@
 			remoteGlobalIDString = 4F5134541C2F315C00EFD6D4;
 			remoteInfo = chooser;
 		};
+		4F61CD922B32F58300407260 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9445CA0319083251002568BB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4F61CD862B32F58000407260;
+			remoteInfo = Hammertime;
+		};
+		4F61CD942B32F58400407260 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9445CA0319083251002568BB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9445CA0A19083251002568BB;
+			remoteInfo = Hammerspoon;
+		};
+		4F61CD9A2B32F58400407260 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9445CA0319083251002568BB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4F61CD862B32F58000407260;
+			remoteInfo = Hammertime;
+		};
+		4F61CDAA2B32FE1C00407260 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9445CA0319083251002568BB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4F61CD862B32F58000407260;
+			remoteInfo = Hammertime;
+		};
+		4F61CDAE2B32FE2600407260 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9445CA0319083251002568BB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4F61CD862B32F58000407260;
+			remoteInfo = Hammertime;
+		};
+		4F61CDB52B33102500407260 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9445CA0319083251002568BB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4F61CD862B32F58000407260;
+			remoteInfo = Hammertime;
+		};
+		4F61CDBF2B334D7A00407260 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9445CA0319083251002568BB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4F61CD862B32F58000407260;
+			remoteInfo = Hammertime;
+		};
 		4F6B3EA91B73D70100B2A4DE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 9445CA0319083251002568BB /* Project object */;
@@ -1298,6 +1360,7 @@
 			dstSubfolderSpec = 10;
 			files = (
 				4FB852362735B02400462DD0 /* LuaSkin.framework in Embed Frameworks */,
+				4F61CD9D2B32F58400407260 /* Hammertime.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1727,6 +1790,15 @@
 		4F5B6E6A1E9E86BB003FC580 /* Hammerspoon.sdef */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Hammerspoon.sdef; sourceTree = "<group>"; };
 		4F5B6E6C1E9E87CE003FC580 /* HSAppleScript.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HSAppleScript.h; sourceTree = "<group>"; };
 		4F5B6E6D1E9E87CE003FC580 /* HSAppleScript.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSAppleScript.m; sourceTree = "<group>"; };
+		4F61CD872B32F58000407260 /* Hammertime.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Hammertime.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		4F61CD892B32F58200407260 /* Hammertime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Hammertime.h; sourceTree = "<group>"; };
+		4F61CD8A2B32F58200407260 /* Hammertime.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = Hammertime.docc; sourceTree = "<group>"; };
+		4F61CD902B32F58200407260 /* HammertimeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HammertimeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		4F61CD972B32F58400407260 /* HammertimeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HammertimeTests.swift; sourceTree = "<group>"; };
+		4F61CDA82B32F8A500407260 /* Math.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Math.swift; sourceTree = "<group>"; };
+		4F61CDB12B330C2200407260 /* Base64.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Base64.swift; sourceTree = "<group>"; };
+		4F61CDB82B3332C100407260 /* Camera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.swift; sourceTree = "<group>"; };
+		4F61CDC22B33B8AE00407260 /* Globals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Globals.swift; sourceTree = "<group>"; };
 		4F64D8BD1B724C4B00FC4C65 /* alert.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = alert.lua; path = extensions/alert/alert.lua; sourceTree = "<group>"; };
 		4F6653E4238C36F100DEE120 /* HSStreamDeckDeviceOriginal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = HSStreamDeckDeviceOriginal.h; path = extensions/streamdeck/HSStreamDeckDeviceOriginal.h; sourceTree = "<group>"; };
 		4F6653E5238C36F100DEE120 /* HSStreamDeckDeviceOriginal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = HSStreamDeckDeviceOriginal.m; path = extensions/streamdeck/HSStreamDeckDeviceOriginal.m; sourceTree = "<group>"; };
@@ -2319,6 +2391,21 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		4F61CD842B32F58000407260 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4F61CD8D2B32F58200407260 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4F61CD912B32F58300407260 /* Hammertime.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4F6B3EA11B73D6D300B2A4DE /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -2428,6 +2515,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4FB8528B2735B3E900462DD0 /* LuaSkin.framework in Frameworks */,
+				4F61CDB32B33102400407260 /* Hammertime.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2517,6 +2605,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4FB852672735B33A00462DD0 /* LuaSkin.framework in Frameworks */,
+				4F61CDAC2B32FE2500407260 /* Hammertime.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2687,6 +2776,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4FF0611E274AA7A200FB15D6 /* LuaSkin.framework in Frameworks */,
+				4F61CDBD2B334D7900407260 /* Hammertime.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2705,6 +2795,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4FB852382735B15200462DD0 /* LuaSkin.framework in Frameworks */,
+				4F61CD9C2B32F58400407260 /* Hammertime.framework in Frameworks */,
 				394FD223913AE68B92126D37 /* libPods-Hammerspoon.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3222,6 +3313,27 @@
 				4F68B52F227C2DD70076C4F8 /* HSChooserVerticallyCenteringTextFieldCell.m */,
 			);
 			name = chooser;
+			sourceTree = "<group>";
+		};
+		4F61CD882B32F58200407260 /* Hammertime */ = {
+			isa = PBXGroup;
+			children = (
+				4F61CD892B32F58200407260 /* Hammertime.h */,
+				4F61CD8A2B32F58200407260 /* Hammertime.docc */,
+				4F61CDA82B32F8A500407260 /* Math.swift */,
+				4F61CDB12B330C2200407260 /* Base64.swift */,
+				4F61CDB82B3332C100407260 /* Camera.swift */,
+				4F61CDC22B33B8AE00407260 /* Globals.swift */,
+			);
+			path = Hammertime;
+			sourceTree = "<group>";
+		};
+		4F61CD962B32F58400407260 /* HammertimeTests */ = {
+			isa = PBXGroup;
+			children = (
+				4F61CD972B32F58400407260 /* HammertimeTests.swift */,
+			);
+			path = HammertimeTests;
 			sourceTree = "<group>";
 		};
 		4F64D8BC1B724C3A00FC4C65 /* alert */ = {
@@ -3989,6 +4101,8 @@
 				4F766E561C48F789007B9D24 /* scripts */,
 				D02F95251A00221C00E28BB2 /* Hammerspoon Tests */,
 				4F20B52A1C1F1C5B00F52437 /* Hammerspoon UI Tests */,
+				4F61CD882B32F58200407260 /* Hammertime */,
+				4F61CD962B32F58400407260 /* HammertimeTests */,
 				9445CA0D19083251002568BB /* Frameworks */,
 				9445CA0C19083251002568BB /* Products */,
 				0024EE4F07CEC6C274F32AB6 /* Pods */,
@@ -4094,6 +4208,8 @@
 				4FCA05CA27678B100089A5FC /* libmarkdown.dylib */,
 				22C9154327A108F000E650A2 /* librazer.dylib */,
 				D6C32CCF27DDD47F001AA22E /* libspaces.dylib */,
+				4F61CD872B32F58000407260 /* Hammertime.framework */,
+				4F61CD902B32F58200407260 /* HammertimeTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -4566,6 +4682,14 @@
 				4F0F08091DC0DAAA00082B73 /* HSChooserRootView.h in Headers */,
 				4F68B530227C2DD70076C4F8 /* HSChooserVerticallyCenteringTextFieldCell.h in Headers */,
 				4F3D9D031C3302CB0082E864 /* HSChooser.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4F61CD822B32F58000407260 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4F61CD992B32F58400407260 /* Hammertime.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5476,6 +5600,43 @@
 			productReference = 4F51345E1C2F315C00EFD6D4 /* libchooser.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
+		4F61CD862B32F58000407260 /* Hammertime */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4F61CDA42B32F58500407260 /* Build configuration list for PBXNativeTarget "Hammertime" */;
+			buildPhases = (
+				4F61CD822B32F58000407260 /* Headers */,
+				4F61CD832B32F58000407260 /* Sources */,
+				4F61CD842B32F58000407260 /* Frameworks */,
+				4F61CD852B32F58000407260 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Hammertime;
+			productName = Hammertime;
+			productReference = 4F61CD872B32F58000407260 /* Hammertime.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		4F61CD8F2B32F58200407260 /* HammertimeTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4F61CDA52B32F58500407260 /* Build configuration list for PBXNativeTarget "HammertimeTests" */;
+			buildPhases = (
+				4F61CD8C2B32F58200407260 /* Sources */,
+				4F61CD8D2B32F58200407260 /* Frameworks */,
+				4F61CD8E2B32F58200407260 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				4F61CD932B32F58300407260 /* PBXTargetDependency */,
+				4F61CD952B32F58400407260 /* PBXTargetDependency */,
+			);
+			name = HammertimeTests;
+			productName = HammertimeTests;
+			productReference = 4F61CD902B32F58200407260 /* HammertimeTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		4F6B3E9E1B73D6D300B2A4DE /* json */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4F6B3EA51B73D6D300B2A4DE /* Build configuration list for PBXNativeTarget "json" */;
@@ -5708,6 +5869,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				4F61CDB62B33102500407260 /* PBXTargetDependency */,
 			);
 			name = base64;
 			productName = alert;
@@ -5895,6 +6057,8 @@
 			buildRules = (
 			);
 			dependencies = (
+				4F61CDAB2B32FE1C00407260 /* PBXTargetDependency */,
+				4F61CDAF2B32FE2600407260 /* PBXTargetDependency */,
 			);
 			name = math;
 			productName = alert;
@@ -6253,6 +6417,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				4F61CDC02B334D7A00407260 /* PBXTargetDependency */,
 			);
 			name = camera;
 			productName = alert;
@@ -6392,6 +6557,7 @@
 				4F70EEDE1B726D730025A7B3 /* PBXTargetDependency */,
 				4FBE2D181B72699100407788 /* PBXTargetDependency */,
 				4FBE2D021B72624A00407788 /* PBXTargetDependency */,
+				4F61CD9B2B32F58400407260 /* PBXTargetDependency */,
 			);
 			name = Hammerspoon;
 			productName = Hammerspoon;
@@ -6848,11 +7014,20 @@
 			isa = PBXProject;
 			attributes = {
 				CLASSPREFIX = HS;
+				DefaultBuildSystemTypeForWorkspace = Latest;
+				LastSwiftUpdateCheck = 1510;
 				LastUpgradeCheck = 1420;
 				ORGANIZATIONNAME = Hammerspoon;
 				TargetAttributes = {
 					4F20B5281C1F1C5B00F52437 = {
 						CreatedOnToolsVersion = 7.2;
+						TestTargetID = 9445CA0A19083251002568BB;
+					};
+					4F61CD862B32F58000407260 = {
+						CreatedOnToolsVersion = 15.1;
+					};
+					4F61CD8F2B32F58200407260 = {
+						CreatedOnToolsVersion = 15.1;
 						TestTargetID = 9445CA0A19083251002568BB;
 					};
 					4FD0AC081B74BACD00A82496 = {
@@ -6981,6 +7156,8 @@
 				4FD0AB8C1B74AE1900A82496 /* wifi */,
 				4FD0AB971B74AE2800A82496 /* wifiwatcher */,
 				4FD0ABB11B74AF4E00A82496 /* window */,
+				4F61CD862B32F58000407260 /* Hammertime */,
+				4F61CD8F2B32F58200407260 /* HammertimeTests */,
 			);
 		};
 /* End PBXProject section */
@@ -6991,6 +7168,20 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F20B5341C1F225300F52437 /* init.lua in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4F61CD852B32F58000407260 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4F61CD8E2B32F58200407260 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7378,6 +7569,26 @@
 				4F3D9D0C1C34773E0082E864 /* HSChooserTableView.m in Sources */,
 				4F0676081C32C0B30088C57C /* HSChooserCell.m in Sources */,
 				4F51345F1C2F317800EFD6D4 /* libchooser.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4F61CD832B32F58000407260 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4F61CDB92B3332C100407260 /* Camera.swift in Sources */,
+				4F61CD8B2B32F58200407260 /* Hammertime.docc in Sources */,
+				4F61CDB22B330C2200407260 /* Base64.swift in Sources */,
+				4F61CDC32B33B8AE00407260 /* Globals.swift in Sources */,
+				4F61CDA92B32F8A500407260 /* Math.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4F61CD8C2B32F58200407260 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4F61CD982B32F58400407260 /* HammertimeTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -8145,6 +8356,41 @@
 			target = 4F5134541C2F315C00EFD6D4 /* chooser */;
 			targetProxy = 4F5134611C2F31A000EFD6D4 /* PBXContainerItemProxy */;
 		};
+		4F61CD932B32F58300407260 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4F61CD862B32F58000407260 /* Hammertime */;
+			targetProxy = 4F61CD922B32F58300407260 /* PBXContainerItemProxy */;
+		};
+		4F61CD952B32F58400407260 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9445CA0A19083251002568BB /* Hammerspoon */;
+			targetProxy = 4F61CD942B32F58400407260 /* PBXContainerItemProxy */;
+		};
+		4F61CD9B2B32F58400407260 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4F61CD862B32F58000407260 /* Hammertime */;
+			targetProxy = 4F61CD9A2B32F58400407260 /* PBXContainerItemProxy */;
+		};
+		4F61CDAB2B32FE1C00407260 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4F61CD862B32F58000407260 /* Hammertime */;
+			targetProxy = 4F61CDAA2B32FE1C00407260 /* PBXContainerItemProxy */;
+		};
+		4F61CDAF2B32FE2600407260 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4F61CD862B32F58000407260 /* Hammertime */;
+			targetProxy = 4F61CDAE2B32FE2600407260 /* PBXContainerItemProxy */;
+		};
+		4F61CDB62B33102500407260 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4F61CD862B32F58000407260 /* Hammertime */;
+			targetProxy = 4F61CDB52B33102500407260 /* PBXContainerItemProxy */;
+		};
+		4F61CDC02B334D7A00407260 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4F61CD862B32F58000407260 /* Hammertime */;
+			targetProxy = 4F61CDBF2B334D7A00407260 /* PBXContainerItemProxy */;
+		};
 		4F6B3EAA1B73D70100B2A4DE /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 4F6B3E9E1B73D6D300B2A4DE /* json */;
@@ -8743,6 +8989,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F7F3B7B272DE98800E05732 /* Hammerspoon-Profile.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -9705,6 +9952,469 @@
 			};
 			name = Release;
 		};
+		4F61CD9E2B32F58500407260 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = "";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2023 Hammerspoon. All rights reserved.";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.2;
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = org.hammerspoon.Hammertime;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		4F61CD9F2B32F58500407260 /* Profile */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = "";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2023 Hammerspoon. All rights reserved.";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.2;
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = org.hammerspoon.Hammertime;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Profile;
+		};
+		4F61CDA02B32F58500407260 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = "";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2023 Hammerspoon. All rights reserved.";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.2;
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = org.hammerspoon.Hammertime;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		4F61CDA12B32F58500407260 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = VQCYSNZB89;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.2;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = org.hammerspoon.HammertimeTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Hammerspoon.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Hammerspoon";
+			};
+			name = Debug;
+		};
+		4F61CDA22B32F58500407260 /* Profile */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = VQCYSNZB89;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.2;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = org.hammerspoon.HammertimeTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Hammerspoon.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Hammerspoon";
+			};
+			name = Profile;
+		};
+		4F61CDA32B32F58500407260 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = VQCYSNZB89;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.2;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = org.hammerspoon.HammertimeTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Hammerspoon.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Hammerspoon";
+			};
+			name = Release;
+		};
 		4F6B3EA61B73D6D300B2A4DE /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
@@ -10525,6 +11235,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F7F3B7A272DE83500E05732 /* Hammerspoon-Debug.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -10536,6 +11247,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F7F3B7C272DE99200E05732 /* Hammerspoon-Release.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -11258,6 +11970,26 @@
 				4F51345C1C2F315C00EFD6D4 /* Debug */,
 				4F04549C20F0EE7D00699F29 /* Profile */,
 				4F51345D1C2F315C00EFD6D4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		4F61CDA42B32F58500407260 /* Build configuration list for PBXNativeTarget "Hammertime" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4F61CD9E2B32F58500407260 /* Debug */,
+				4F61CD9F2B32F58500407260 /* Profile */,
+				4F61CDA02B32F58500407260 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		4F61CDA52B32F58500407260 /* Build configuration list for PBXNativeTarget "HammertimeTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4F61CDA12B32F58500407260 /* Debug */,
+				4F61CDA22B32F58500407260 /* Profile */,
+				4F61CDA32B32F58500407260 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
