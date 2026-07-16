@@ -155,7 +155,7 @@ static int eventtap_keyStrokes(lua_State* L) {
 ///  * An event tap object
 ///
 /// Notes:
-///  * If you specify the argument `types` as the special table {"all"[, events to ignore]}, then *all* events (except those you optionally list *after* the "all" string) will trigger a callback, even events which are not defined in the [Quartz Event Reference](https://developer.apple.com/library/mac/documentation/Carbon/Reference/QuartzEventServicesRef/Reference/reference.html).
+///  * If you specify the argument `types` as the special table {"all"[, events to ignore]}, then *all* events (except those you optionally list *after* the "all" string) will trigger a callback, even events which are not defined in the [Quartz Event Reference](https://developer.apple.com/documentation/coregraphics/quartz-event-services).
 static int eventtap_new(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
 
