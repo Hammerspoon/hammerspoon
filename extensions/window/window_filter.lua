@@ -995,7 +995,7 @@ function Window:emitEndChain()
   for wf in pairs(activeInstances) do
     if wf.pending[self] then
       emit(self,wf,windowfilter.windowRejected)
-      if wf.hasWindow then
+      if not next(wf.windows) then
         emit(self,wf,windowfilter.hasNoWindows) -- emit pseudo-event
         wf.hasWindow=nil
       end
