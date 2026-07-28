@@ -94,13 +94,29 @@ jobs:
       - name: Send notification (Push)
         if: ${{ always() && github.event_name == 'push' && github.repository == 'hammerspoon/hammerspoon' }}
         env:
+          CI_WEBHOOK_SECRET: ${{ secrets.CI_WEBHOOK_SECRET }}
+          CI_WEBHOOK_URL: ${{ secrets.CI_WEBHOOK_URL }}
+          COMPARE_URL: ${{ github.event.compare }}
           AUTHOR_NAME: ${{ github.event.head_commit.author.name }}
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+          TEST_RESULT: ${{ steps.test.outputs.test_result }}
         run: |
-          /usr/bin/curl -H "X-CI-WebHook: true" -H "Content-Type: application/json" -d '{"secret": "${{ secrets.CI_WEBHOOK_SECRET }}", "repository": "hammerspoon", "workflow": "CI (Push)", "message": "CI for ${{ github.event.compare }} ('"$AUTHOR_NAME"'):\n  * ${{ toJSON(github.event.head_commit.message)}}\n  * ${{ steps.test.outputs.test_result }}"}' "${{ secrets.CI_WEBHOOK_URL }}"
+          MESSAGE=$(printf 'CI for %s (%s):\n  * %s\n  * %s' "$COMPARE_URL" "$AUTHOR_NAME" "$COMMIT_MESSAGE" "$TEST_RESULT")
+          jq -n --arg secret "$CI_WEBHOOK_SECRET" --arg message "$MESSAGE" \
+            '{secret: $secret, repository: "hammerspoon", workflow: "CI (Push)", message: $message}' \
+            | /usr/bin/curl -H "X-CI-WebHook: true" -H "Content-Type: application/json" -d @- "$CI_WEBHOOK_URL"
 
       - name: Send notification (PR)
         if: ${{ always() && github.event_name == 'pull_request' && github.repository == 'hammerspoon/hammerspoon' && env.CI_WEBHOOK_URL != '' }}
         env:
           CI_WEBHOOK_URL: ${{ secrets.CI_WEBHOOK_URL }}
+          CI_WEBHOOK_SECRET: ${{ secrets.CI_WEBHOOK_SECRET }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          PR_ACTOR: ${{ github.actor }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          TEST_RESULT: ${{ steps.test.outputs.test_result }}
         run: |
-          /usr/bin/curl -H "X-CI-WebHook: true" -H "Content-Type: application/json" -d '{"secret": "${{ secrets.CI_WEBHOOK_SECRET }}", "repository": "hammerspoon", "workflow": "CI (PR)", "message": "CI for ${{ github.event.pull_request.html_url }} (${{ github.actor }})\n  * ${{ github.event.pull_request.title }}\n  * ${{ steps.test.outputs.test_result }}"}' "${{ secrets.CI_WEBHOOK_URL }}"
+          MESSAGE=$(printf 'CI for %s (%s)\n  * %s\n  * %s' "$PR_URL" "$PR_ACTOR" "$PR_TITLE" "$TEST_RESULT")
+          jq -n --arg secret "$CI_WEBHOOK_SECRET" --arg message "$MESSAGE" \
+            '{secret: $secret, repository: "hammerspoon", workflow: "CI (PR)", message: $message}' \
+            | /usr/bin/curl -H "X-CI-WebHook: true" -H "Content-Type: application/json" -d @- "$CI_WEBHOOK_URL"
