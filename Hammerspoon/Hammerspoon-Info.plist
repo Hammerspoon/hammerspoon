@@ -214,6 +214,8 @@
 	<string>Hammerspoon needs to send events to automate applications.</string>
 	<key>NSAppleScriptEnabled</key>
 	<true/>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Some Hammerspoon configurations require access to Bluetooth (for example, to connect and disconnect Bluetooth devices).</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Some Hammerspoon extensions require access to the camera.</string>
 	<key>NSHumanReadableCopyright</key>
