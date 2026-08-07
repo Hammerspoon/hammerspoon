@@ -68,7 +68,7 @@ local printReplacement = function(...)
     for id,v in pairs(module.__registeredCLIInstances) do
         if v._cli.console and v.print and not v._cli.quietMode then
           if module.print_inside(id) then
-            log.w(string.format("Instance of [%s] already recursing, refusing request.", id))
+            originalPrint(string.format("Instance of [%s] already recursing, refusing request.", id))
           else
             module.print_enter(id)
             --            v.print(...)
