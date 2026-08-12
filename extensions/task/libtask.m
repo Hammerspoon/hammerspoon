@@ -951,7 +951,7 @@ int luaopen_hs_libtask(lua_State* L) {
             if (notLastGasp) {
                 [_skin pushLuaRef:refTable ref:userData->selfRef];
             } else {
-                lua_pushnil(L) ;
+                lua_pushnil(_L) ;
             }
             [_skin pushNSObject:stdOutArg];
             [_skin pushNSObject:stdErrArg];
