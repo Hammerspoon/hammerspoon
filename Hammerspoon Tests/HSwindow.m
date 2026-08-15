@@ -109,4 +109,8 @@
     SKIP_IN_TRAVIS()
     [self luaTestWithCheckAndTimeOut:5 setupCode:@"testFullscreenTwoSetup()" checkCode:@"testFullscreenTwoResult()"];
 }
+
+- (void)testFilterIsWindowAllowedUntracked {
+    RUN_LUA_TEST()
+}
 @end
