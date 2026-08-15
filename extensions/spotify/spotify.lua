@@ -8,6 +8,8 @@ local alert = require "hs.alert"
 local as = require "hs.applescript"
 local app = require "hs.application"
 
+local spotifyBundleID = "com.spotify.client"
+
 --- hs.spotify.state_paused
 --- Constant
 --- Returned by `hs.spotify.getPlaybackState()` to indicates Spotify is paused
@@ -219,7 +221,7 @@ end
 --- Returns:
 ---  * A boolean value indicating whether the Spotify application is running.
 function spotify.isRunning()
-  return app.get("Spotify") ~= nil
+  return #app.applicationsForBundleID(spotifyBundleID) > 0
 end
 
 --- hs.spotify.isPlaying()
