@@ -43,7 +43,13 @@ local getDockExitTemplates = function()
     -- make a copy since preferredLanguages uses ls.makeConstantsTable for "friendly" display in console
     localesToSearch = table.move(localesToSearch, 1, #localesToSearch, 1, {})
     table.insert(localesToSearch, host.locale.current())
-    local path   = application.applicationsForBundleID("com.apple.dock")[1]:path() .. "/Contents/Resources"
+    -- pathForBundleID is documented as returning nil on failure but currently returns an empty
+    -- string; handle both, so a missing Dock bundle fails here rather than obscurely on the read below
+    local dockPath = application.pathForBundleID("com.apple.dock")
+    if not dockPath or #dockPath == 0 then
+        error("hs.spaces: unable to locate the Dock application bundle (com.apple.dock)",0)
+    end
+    local path   = dockPath .. "/Contents/Resources"
 
     local locale = ""
     while #localesToSearch > 0 do
@@ -57,7 +63,9 @@ local getDockExitTemplates = function()
 
     if #locale == 0 then locale = "en" end -- fallback to english
 
-    local contents = plist.read(path .. "/" .. locale .. ".lproj/Accessibility.strings")
+    local stringsFile = path .. "/" .. locale .. ".lproj/Accessibility.strings"
+    local contents = plist.read(stringsFile)
+    if not contents then error("hs.spaces: unable to read Dock accessibility strings from "..stringsFile,0) end
     AXExitToDesktop           = "^" .. contents.AXExitToDesktop:gsub("%%@", "(.-)") .. "$"
     AXExitToFullscreenDesktop = "^" .. contents.AXExitToFullscreenDesktop:gsub("%%@", "(.-)") .. "$"
 end
