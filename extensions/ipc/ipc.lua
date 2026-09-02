@@ -66,9 +66,13 @@ local originalPrint = print
 local printReplacement = function(...)
     originalPrint(...)
     for id,v in pairs(module.__registeredCLIInstances) do
-        if v._cli.console and v.print and not v._cli.quietMode then
+        if v._cli.console and v._cli.console ~= "none" and v.print and not v._cli.quietMode then
           if module.print_inside(id) then
-            log.w(string.format("Instance of [%s] already recursing, refusing request.", id))
+            -- Do not use log.w() here: hs.logger formats its output with hs.printf,
+            -- which calls the *global* print -- i.e. this function. The warning would
+            -- re-enter printReplacement with the recursion counter still raised, trip
+            -- this guard again, and loop until Hammerspoon dies. Print directly.
+            originalPrint(string.format("%s: Instance of [%s] already recursing, refusing request.", USERDATA_TAG, id))
           else
             module.print_enter(id)
             --            v.print(...)
