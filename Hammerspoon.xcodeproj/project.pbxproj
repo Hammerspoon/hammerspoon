@@ -557,6 +557,13 @@
 		949CDC001990759B00906CCE /* ConsoleWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 949CDBFF1990759B00906CCE /* ConsoleWindow.xib */; };
 		94A1E5481993AC5C003AEB26 /* MJFileUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 94A1E5471993AC5C003AEB26 /* MJFileUtils.m */; };
 		B8524F32201A896000844F3D /* libhid.m in Sources */ = {isa = PBXBuildFile; fileRef = B8524F25201A875600844F3D /* libhid.m */; };
+		BB620577305633B10098593C /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FB852342735B02400462DD0 /* LuaSkin.framework */; };
+		BB620579305633B10098593C /* IOHIDEventData.h in Headers */ = {isa = PBXBuildFile; fileRef = 22652B3B251C3913000FF14D /* IOHIDEventData.h */; };
+		BB62057A305633B10098593C /* eventtap_event.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FD0ABEA1B74B36000A82496 /* eventtap_event.h */; };
+		BB62057B305633B10098593C /* IOHIDEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = BB62056D305613DC0098593C /* IOHIDEvent.h */; };
+		BB62057D305633B10098593C /* IOHIDEventTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 22652B3C251C3914000FF14D /* IOHIDEventTypes.h */; };
+		BB620583305633EF0098593C /* libeventtapiohidevent.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = BB620582305633B10098593C /* libeventtapiohidevent.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		BB620586305639680098593C /* libeventtap_iohidevent.m in Sources */ = {isa = PBXBuildFile; fileRef = BB62056F30562A430098593C /* libeventtap_iohidevent.m */; };
 		CE139CB028B24B6500743C90 /* HShttp.m in Sources */ = {isa = PBXBuildFile; fileRef = CE139CAF28B24B6500743C90 /* HShttp.m */; };
 		CE139CB128B24DAC00743C90 /* http.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4F4CB4421B73AFD2000EA9B6 /* http.lua */; };
 		CE139CB328B2539500743C90 /* test_http.lua in Resources */ = {isa = PBXBuildFile; fileRef = CE139CB228B2539500743C90 /* test_http.lua */; };
@@ -1113,6 +1120,13 @@
 			remoteGlobalIDString = B8524F28201A88CD00844F3D;
 			remoteInfo = hid;
 		};
+		BB6205843056382E0098593C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9445CA0319083251002568BB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BB620571305633B10098593C;
+			remoteInfo = eventtapiohidevent;
+		};
 		D02F952A1A00221C00E28BB2 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 9445CA0319083251002568BB /* Project object */;
@@ -1350,6 +1364,7 @@
 			dstPath = hs;
 			dstSubfolderSpec = 10;
 			files = (
+				BB620583305633EF0098593C /* libeventtapiohidevent.dylib in Copy Extension Dylibs */,
 				D6C32CD627DDD811001AA22E /* libspaces.dylib in Copy Extension Dylibs */,
 				22C9154E27A1095200E650A2 /* librazer.dylib in Copy Extension Dylibs */,
 				4FCA05CD27678B410089A5FC /* libmarkdown.dylib in Copy Extension Dylibs */,
@@ -2022,6 +2037,9 @@
 		B8524F24201A875600844F3D /* hid.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = hid.lua; path = extensions/hid/hid.lua; sourceTree = "<group>"; };
 		B8524F25201A875600844F3D /* libhid.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libhid.m; path = extensions/hid/libhid.m; sourceTree = "<group>"; };
 		B8524F31201A88CD00844F3D /* libhid.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libhid.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		BB62056D305613DC0098593C /* IOHIDEvent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IOHIDEvent.h; path = extensions/eventtap/IOHIDEvent.h; sourceTree = "<group>"; };
+		BB62056F30562A430098593C /* libeventtap_iohidevent.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = libeventtap_iohidevent.m; path = extensions/eventtap/libeventtap_iohidevent.m; sourceTree = "<group>"; };
+		BB620582305633B10098593C /* libeventtapiohidevent.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libeventtapiohidevent.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		CE139CAF28B24B6500743C90 /* HShttp.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HShttp.m; sourceTree = "<group>"; };
 		CE139CB228B2539500743C90 /* test_http.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_http.lua; path = extensions/http/test_http.lua; sourceTree = "<group>"; };
 		D02F95241A00221C00E28BB2 /* Hammerspoon Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Hammerspoon Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -2714,6 +2732,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				4FB852732735B36E00462DD0 /* LuaSkin.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BB620576305633B10098593C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BB620577305633B10098593C /* LuaSkin.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3804,8 +3830,10 @@
 		4FD0ABE81B74B34E00A82496 /* eventtapevent */ = {
 			isa = PBXGroup;
 			children = (
+				BB62056D305613DC0098593C /* IOHIDEvent.h */,
 				22652B3F251C391E000FF14D /* gestures */,
 				4FD0ABE91B74B36000A82496 /* libeventtap_event.m */,
+				BB62056F30562A430098593C /* libeventtap_iohidevent.m */,
 				4FD0ABEA1B74B36000A82496 /* eventtap_event.h */,
 			);
 			name = eventtapevent;
@@ -4094,6 +4122,7 @@
 				4FCA05CA27678B100089A5FC /* libmarkdown.dylib */,
 				22C9154327A108F000E650A2 /* librazer.dylib */,
 				D6C32CCF27DDD47F001AA22E /* libspaces.dylib */,
+				BB620582305633B10098593C /* libeventtapiohidevent.dylib */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -4910,6 +4939,17 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BB620578305633B10098593C /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BB620579305633B10098593C /* IOHIDEventData.h in Headers */,
+				BB62057A305633B10098593C /* eventtap_event.h in Headers */,
+				BB62057B305633B10098593C /* IOHIDEvent.h in Headers */,
+				BB62057D305633B10098593C /* IOHIDEventTypes.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6299,6 +6339,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				BB6205853056382E0098593C /* PBXTargetDependency */,
 				D6C32CD527DDD78F001AA22E /* PBXTargetDependency */,
 				22C9154D27A1094400E650A2 /* PBXTargetDependency */,
 				4FCA05CC27678B330089A5FC /* PBXTargetDependency */,
@@ -6413,6 +6454,23 @@
 			name = hid;
 			productName = alert;
 			productReference = B8524F31201A88CD00844F3D /* libhid.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+		BB620571305633B10098593C /* eventtapiohidevent */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BB62057E305633B10098593C /* Build configuration list for PBXNativeTarget "eventtapiohidevent" */;
+			buildPhases = (
+				BB620572305633B10098593C /* Sources */,
+				BB620576305633B10098593C /* Frameworks */,
+				BB620578305633B10098593C /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = eventtapiohidevent;
+			productName = alert;
+			productReference = BB620582305633B10098593C /* libeventtapiohidevent.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
 		D02F95231A00221C00E28BB2 /* Hammerspoon Tests */ = {
@@ -6914,6 +6972,7 @@
 				D6F310D41BDF0E1700045CCD /* drawing_color */,
 				4FD0ABCD1B74B2C500A82496 /* eventtap */,
 				4FD0ABD81B74B2FA00A82496 /* eventtapevent */,
+				BB620571305633B10098593C /* eventtapiohidevent */,
 				4F4CB3C21B738F1E000EA9B6 /* fs */,
 				4F29C2331C29E0A300B8A69D /* fsvolume */,
 				D6E164D31F4C262300B85D8A /* fsxattr */,
@@ -7804,6 +7863,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		BB620572305633B10098593C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BB620586305639680098593C /* libeventtap_iohidevent.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D02F95201A00221C00E28BB2 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -8389,6 +8456,11 @@
 			isa = PBXTargetDependency;
 			target = B8524F28201A88CD00844F3D /* hid */;
 			targetProxy = B8524F33201A89BF00844F3D /* PBXContainerItemProxy */;
+		};
+		BB6205853056382E0098593C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = BB620571305633B10098593C /* eventtapiohidevent */;
+			targetProxy = BB6205843056382E0098593C /* PBXContainerItemProxy */;
 		};
 		D02F952B1A00221C00E28BB2 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -10559,6 +10631,30 @@
 			};
 			name = Release;
 		};
+		BB62057F305633B10098593C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		BB620580305633B10098593C /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Profile;
+		};
+		BB620581305633B10098593C /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		D02F952C1A00221C00E28BB2 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -11758,6 +11854,16 @@
 				B8524F2F201A88CD00844F3D /* Debug */,
 				4F0454AB20F0EE7D00699F29 /* Profile */,
 				B8524F30201A88CD00844F3D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		BB62057E305633B10098593C /* Build configuration list for PBXNativeTarget "eventtapiohidevent" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BB62057F305633B10098593C /* Debug */,
+				BB620580305633B10098593C /* Profile */,
+				BB620581305633B10098593C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
