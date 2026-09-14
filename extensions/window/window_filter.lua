@@ -284,6 +284,7 @@ function WF:isWindowAllowed(theWindow)
       if wid==id then win=w break end
     end
   end
+  local saved
   if not win then
     --    hs.assert(not global.watcher,'window not being tracked')
     self.log.d('window is not being tracked')
@@ -301,13 +302,18 @@ function WF:isWindowAllowed(theWindow)
     end
     if not global.watcher then
       --temporarily fill in the necessary data
+      saved={focused=global.focused,active=global.active}
       local frontapp = application.frontmostApplication()
       local frontwin = frontapp and frontapp:focusedWindow()
       if frontwin and frontwin:id()==id then global.focused=win else global.focused=nil end
-      if frontapp:pid()==theWindow:application():pid() then global.active=win.app else global.active=nil end
+      if frontapp and frontapp:pid()==pid then global.active=win.app else global.active=nil end
     end
   end
-  return isWindowAllowed(self,win)
+  if not saved then return isWindowAllowed(self,win) end
+  local ok,allowed=pcall(isWindowAllowed,self,win)
+  global.focused,global.active=saved.focused,saved.active
+  if not ok then error(allowed,0) end
+  return allowed
 end
 
 --- hs.window.filter:isAppAllowed(appname) -> boolean

@@ -221,3 +221,14 @@ function testFullscreenTwoResult()
 
   return success()
 end
+
+function testFilterIsWindowAllowedUntracked()
+  hs.openConsole()
+  local win = hs.window.focusedWindow()
+  assertIsUserdataOfType("hs.window", win)
+  hs.window.filter.new(false):isWindowAllowed(win)
+  local ok = pcall(function() return hs.window.filter.new():getWindows() end)
+  assertTrue(ok)
+
+  return success()
+end
