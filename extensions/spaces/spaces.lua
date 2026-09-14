@@ -43,7 +43,9 @@ local getDockExitTemplates = function()
     -- make a copy since preferredLanguages uses ls.makeConstantsTable for "friendly" display in console
     localesToSearch = table.move(localesToSearch, 1, #localesToSearch, 1, {})
     table.insert(localesToSearch, host.locale.current())
-    local path   = application.applicationsForBundleID("com.apple.dock")[1]:path() .. "/Contents/Resources"
+    local dockPath = application.pathForBundleID("com.apple.dock")
+    if not dockPath or #dockPath == 0 then dockPath = "/System/Library/CoreServices/Dock.app" end
+    local path   = dockPath .. "/Contents/Resources"
 
     local locale = ""
     while #localesToSearch > 0 do
@@ -57,13 +59,17 @@ local getDockExitTemplates = function()
 
     if #locale == 0 then locale = "en" end -- fallback to english
 
-    local contents = plist.read(path .. "/" .. locale .. ".lproj/Accessibility.strings")
+    local stringsFile = path .. "/" .. locale .. ".lproj/Accessibility.strings"
+    local contents = plist.read(stringsFile)
+    if not (contents and contents.AXExitToDesktop and contents.AXExitToFullscreenDesktop) then
+        error("unable to read Dock accessibility strings from " .. stringsFile)
+    end
     AXExitToDesktop           = "^" .. contents.AXExitToDesktop:gsub("%%@", "(.-)") .. "$"
     AXExitToFullscreenDesktop = "^" .. contents.AXExitToFullscreenDesktop:gsub("%%@", "(.-)") .. "$"
 end
 
-local localeChange_identifier = host.locale.registerCallback(getDockExitTemplates)
 getDockExitTemplates() -- set initial values
+local localeChange_identifier = host.locale.registerCallback(getDockExitTemplates)
 
 local spacesNameFromButtonName = function(name)
     return name:match(AXExitToFullscreenDesktop) or name:match(AXExitToDesktop) or name

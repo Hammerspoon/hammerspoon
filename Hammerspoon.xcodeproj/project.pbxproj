@@ -312,6 +312,8 @@
 		4FDD8E8D1C8C8BF200085D7A /* HScoresetup.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDD8E8C1C8C8BF200085D7A /* HScoresetup.m */; };
 		4FDD8E8F1C8DED1C00085D7A /* HSappfinder.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDD8E8E1C8DED1C00085D7A /* HSappfinder.m */; };
 		4FDD8E911C8DEE3700085D7A /* test_appfinder.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4FDD8E901C8DEE3600085D7A /* test_appfinder.lua */; };
+		0594D81E186FAAD9ABFF98C8 /* HSspaces.m in Sources */ = {isa = PBXBuildFile; fileRef = 669ACF936283BE6A387BFF06 /* HSspaces.m */; };
+		EF01157D9EE45CE85BD199E8 /* test_spaces.lua in Resources */ = {isa = PBXBuildFile; fileRef = D4750D83948FD58280209CFC /* test_spaces.lua */; };
 		4FDD9DCD1ED30DEA008F14D3 /* libplist.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDD9DC21ED30DA2008F14D3 /* libplist.m */; };
 		4FDE05A31B72987B00E9E8EE /* libbattery.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDE05A21B72987B00E9E8EE /* libbattery.m */; };
 		4FDE05B11B7298AD00E9E8EE /* libbattery_watcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDE05B01B7298AD00E9E8EE /* libbattery_watcher.m */; };
@@ -1926,6 +1928,8 @@
 		4FDD8E8C1C8C8BF200085D7A /* HScoresetup.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HScoresetup.m; sourceTree = "<group>"; };
 		4FDD8E8E1C8DED1C00085D7A /* HSappfinder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSappfinder.m; sourceTree = "<group>"; };
 		4FDD8E901C8DEE3600085D7A /* test_appfinder.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_appfinder.lua; path = extensions/appfinder/test_appfinder.lua; sourceTree = "<group>"; };
+		669ACF936283BE6A387BFF06 /* HSspaces.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSspaces.m; sourceTree = "<group>"; };
+		D4750D83948FD58280209CFC /* test_spaces.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_spaces.lua; path = extensions/spaces/test_spaces.lua; sourceTree = "<group>"; };
 		4FDD9DC11ED30DA2008F14D3 /* plist.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = plist.lua; path = extensions/plist/plist.lua; sourceTree = "<group>"; };
 		4FDD9DC21ED30DA2008F14D3 /* libplist.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = libplist.m; path = extensions/plist/libplist.m; sourceTree = "<group>"; };
 		4FDD9DCC1ED30DC9008F14D3 /* libplist.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libplist.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -3675,6 +3679,7 @@
 				D6C32CD027DDD68E001AA22E /* libspaces.m */,
 				D6C32CD127DDD68E001AA22E /* private.h */,
 				4FD0AB211B74856600A82496 /* spaces.lua */,
+				D4750D83948FD58280209CFC /* test_spaces.lua */,
 				4FD0AB231B74857D00A82496 /* libspaces_watcher.m */,
 			);
 			name = spaces;
@@ -4225,6 +4230,7 @@
 				4FDD8E4B1C6E4FBB00085D7A /* HSscreen.m */,
 				22A6626125FC087000AA329E /* HSserial.m */,
 				4CD64AA81C6F15F400EB6E39 /* HSsocket.m */,
+				669ACF936283BE6A387BFF06 /* HSspaces.m */,
 				4FB74B3A2049A9A600B08851 /* HStask.m */,
 				4FDD8E871C8AE3ED00085D7A /* HSTestCase.h */,
 				4FDD8E881C8AE3ED00085D7A /* HSTestCase.m */,
@@ -7028,6 +7034,7 @@
 				4CD64AAB1C6F168700EB6E39 /* test_socket.lua in Resources */,
 				4FFFA01225D89BAF00D2997C /* test_mouse.lua in Resources */,
 				4FDD8E911C8DEE3700085D7A /* test_appfinder.lua in Resources */,
+				EF01157D9EE45CE85BD199E8 /* test_spaces.lua in Resources */,
 				4F3042FF21D4DEE300769310 /* test_inspect.lua in Resources */,
 				4F40EC441CCD126F006342D7 /* test_distributednotifications.lua in Resources */,
 				4F8779D3200CD63F00E9DB42 /* test_window.lua in Resources */,
@@ -7810,6 +7817,7 @@
 			files = (
 				4FFF9FB525D89B3B00D2997C /* HSmouse.m in Sources */,
 				4FDD8E8F1C8DED1C00085D7A /* HSappfinder.m in Sources */,
+				0594D81E186FAAD9ABFF98C8 /* HSspaces.m in Sources */,
 				CE139CB028B24B6500743C90 /* HShttp.m in Sources */,
 				6AE181321D39C8F10097211C /* HSnoises.m in Sources */,
 				4FCC52CE1E1527EF007F93D0 /* HSbrightness.m in Sources */,
