@@ -189,24 +189,31 @@ static int socketudp_connect(lua_State *L) {
     return 1;
 }
 
-/// hs.socket.udp:listen(port) -> self or nil
+/// hs.socket.udp:listen(port[, interface]) -> self or nil
 /// Method
 /// Binds an unconnected socket to a port for listening.
 ///
 /// Parameters:
 ///  * `port` - A port number [0-65535]. Ports [1-1023] are privileged. Port 0 allows the OS to select any available port.
+///  * `interface` - An optional string containing the interface to listen on.
 ///
 /// Returns:
 ///  * The [`hs.socket.udp`](#new) object, or `nil` if an error occurred.
 ///
+/// Notes:
+///  * The interface may be given as a name (e.g. `"en1"` or `"lo0"`) or as the corresponding IP address (e.g. `"192.168.4.35"`). The special strings `"localhost"` and `"loopback"` accept packets from this machine only. `hs.network.interfaces()` lists the ones on your machine.
+///  * With no interface the socket listens on every interface, which means anything that can reach your machine can reach the socket. Bind to `"loopback"` if the socket is only meant to be talked to locally.
+///
 static int socketudp_listen(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER|LS_TINTEGER, LS_TBREAK];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER|LS_TINTEGER, LS_TSTRING|LS_TNIL|LS_TOPTIONAL, LS_TBREAK];
     HSAsyncUdpSocket* asyncUdpSocket = getUserData(L, 1);
     UInt16 thePort = [[skin toNSObjectAtIndex:2] unsignedShortValue];
+    // nil means every interface, which is what bindToPort:error: does
+    NSString *theInterface = (lua_type(L, 3) == LUA_TSTRING) ? [skin toNSObjectAtIndex:3] : nil;
     NSError *err;
 
-    if (![asyncUdpSocket bindToPort:thePort error:&err]) {
+    if (![asyncUdpSocket bindToPort:thePort interface:theInterface error:&err]) {
         [LuaSkin logError:[NSString stringWithFormat:@"Unable to bind port: %@",
                            [err localizedDescription]]];
         lua_pushnil(L);

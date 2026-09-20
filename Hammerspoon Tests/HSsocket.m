@@ -47,6 +47,18 @@
     RUN_LUA_TEST()
 }
 
+- (void)testTcpListenerSocketInterfaceAttributes {
+    RUN_LUA_TEST()
+}
+
+- (void)testTcpListenerSocketBadInterface {
+    RUN_LUA_TEST()
+}
+
+- (void)testTcpListenerSocketInterfaceConnect {
+    RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(2)
+}
+
 - (void)testUdpConnect {
     SKIP_IN_TRAVIS()
     RUN_LUA_TEST()
@@ -142,6 +154,14 @@
 }
 
 - (void)testUdpListenerSocketAttributes {
+    RUN_LUA_TEST()
+}
+
+- (void)testUdpListenerSocketInterfaceAttributes {
+    RUN_LUA_TEST()
+}
+
+- (void)testUdpListenerSocketBadInterface {
     RUN_LUA_TEST()
 }
 
