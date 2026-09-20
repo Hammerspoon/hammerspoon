@@ -73,6 +73,52 @@ function testTcpUnixListenerSocketAttributes()
   return success()
 end
 
+-- listening on a single interface
+function testTcpListenerSocketInterfaceAttributes()
+  local server = hs.socket.server(port, "loopback", print)
+
+  local info = server:info()
+
+  assertIsEqual("SERVER", info.userData)
+  assertIsEqual(port, info.localPort)
+  assertIsEqual("127.0.0.1", info.localHost) -- rather than 0.0.0.0 for every interface
+
+  return success()
+end
+
+function testTcpListenerSocketBadInterface()
+  local sock = hs.socket.new()
+
+  assertIsNil(sock:listen(port, "not_an_interface"))
+  assertIsEqual("", sock:info().userData)
+
+  -- Unix domain sockets aren't bound to an interface, so one is ignored
+  assertIsUserdataOfType("hs.socket", hs.socket.server(sockfile, "loopback"))
+
+  return success()
+end
+
+function testTcpListenerSocketInterfaceConnectValues()
+  if (type(serverLocalHost) == "string" and serverLocalHost == "127.0.0.1" and
+      type(serverReadData) == "string" and serverReadData == "Hi from client\n") then
+    return success()
+  else
+    return "Waiting for success..."
+  end
+end
+
+function testTcpListenerSocketInterfaceConnect()
+  local function serverCallback(data) serverReadData = data end
+
+  server = hs.socket.server(port, "loopback", serverCallback)
+  client = hs.socket.new():connect("localhost", port, function()
+    serverLocalHost = server:info().localHost
+    client:write("Hi from client\n", function() server:read("\n") end)
+  end)
+
+  return success()
+end
+
 -- reusing client and server sockets
 function testTcpDisconnectAndReuseValues()
   if (type(serverLocalPort) == "number" and serverLocalPort == port and

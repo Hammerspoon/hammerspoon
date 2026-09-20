@@ -294,26 +294,34 @@ static int socket_connect(lua_State *L) {
     return 1;
 }
 
-/// hs.socket:listen(port|path) -> self or nil
+/// hs.socket:listen(port|path[, interface]) -> self or nil
 /// Method
 /// Binds an unconnected socket to either a port or path (Unix domain socket) for listening.
 ///
 /// Parameters:
 ///  * `port` - A port number [0-65535]. Ports [1-1023] are privileged. Port 0 allows the OS to select any available port.
 ///  * `path` - A string containing the path to the Unix domain socket.
+///  * `interface` - An optional string containing the interface to listen on. Only meaningful when listening on a port.
 ///
 /// Returns:
 ///  * The [`hs.socket`](#new) object, or `nil` if an error occurred.
 ///
+/// Notes:
+///  * The interface may be given as a name (e.g. `"en1"` or `"lo0"`) or as the corresponding IP address (e.g. `"192.168.4.34"`). The special strings `"localhost"` and `"loopback"` accept connections from this machine only. `hs.network.interfaces()` lists the ones on your machine.
+///  * With no interface the socket listens on every interface, which means anything that can reach your machine can reach the socket. Bind to `"loopback"` if the socket is only meant to be talked to locally.
+///
 static int socket_listen(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER|LS_TINTEGER|LS_TSTRING, LS_TBREAK];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER|LS_TINTEGER|LS_TSTRING, LS_TSTRING|LS_TNIL|LS_TOPTIONAL, LS_TBREAK];
     HSAsyncTcpSocket* asyncSocket = getUserData(L, 1);
     NSError *err;
 
+    // nil means every interface, which is what acceptOnPort:error: does
+    NSString *theInterface = (lua_type(L, 3) == LUA_TSTRING) ? [skin toNSObjectAtIndex:3] : nil;
+
     if (lua_type(L, 2) == LUA_TNUMBER) {
         UInt16 thePort = [[skin toNSObjectAtIndex:2] unsignedShortValue];
-        if ([asyncSocket acceptOnPort:thePort error:&err]) {
+        if ([asyncSocket acceptOnInterface:theInterface port:thePort error:&err]) {
             asyncSocket.userData = SERVER;
         } else {
             [LuaSkin logError:[NSString stringWithFormat:@"Unable to bind port: %@",
@@ -322,6 +330,9 @@ static int socket_listen(lua_State *L) {
             return 1;
         }
     } else {
+        if (theInterface) {
+            [LuaSkin logWarn:@"hs.socket:listen() ignoring interface: Unix domain sockets are not bound to one"];
+        }
         NSString *thePath = [skin toNSObjectAtIndex:2];
         thePath = [thePath stringByExpandingTildeInPath];
         NSURL *acceptURL = [NSURL URLWithString:thePath];

@@ -187,38 +187,52 @@ module.udp.timeout = -1
 ---
 module.udp.parseAddress = module.parseAddress
 
---- hs.socket.server(port | path [, fn]) -> hs.socket object
+--- hs.socket.server(port | path [, interface][, fn]) -> hs.socket object
 --- Constructor
 --- Creates a TCP socket, and binds it to either a port or path (Unix domain socket) for listening.
 ---
 --- Parameters:
 ---  * `port` - A port number [0-65535]. Ports [1-1023] are privileged. Port 0 allows the OS to select any available port.
 ---  * `path` - A string containing the path to the Unix domain socket.
+---  * `interface` - An optional string containing the interface to listen on, as described in [`hs.socket:listen`](#listen). Only meaningful when listening on a port.
 ---  * `fn` - An optional [callback function](#setCallback) for reading data from the socket, settable here for convenience.
 ---
 --- Returns:
 ---  * An [`hs.socket`](#new) object.
 ---
-module.server = function(port, callback)
+--- Notes:
+---  * Without an interface the socket listens on every interface. `hs.socket.server(9001, "loopback", fn)` restricts it to connections from this machine.
+---
+module.server = function(port, interface, callback)
+  if type(interface) == "function" then
+    interface, callback = nil, interface
+  end
   local sock = module.new(callback)
-  sock:listen(port)
+  sock:listen(port, interface)
   return sock
 end
 
---- hs.socket.udp.server(port[, fn]) -> hs.socket.udp object
+--- hs.socket.udp.server(port[, interface][, fn]) -> hs.socket.udp object
 --- Constructor
 --- Creates a UDP socket, and binds it to a port for listening.
 ---
 --- Parameters:
 ---  * `port` - A port number [0-65535]. Ports [1-1023] are privileged. Port 0 allows the OS to select any available port.
+---  * `interface` - An optional string containing the interface to listen on, as described in [`hs.socket.udp:listen`](#listen).
 ---  * `fn` - An optional [callback function](#setCallback) for reading data from the socket, settable here for convenience.
 ---
 --- Returns:
 ---  * An [`hs.socket.udp`](#new) object.
 ---
-module.udp.server = function(port, callback)
+--- Notes:
+---  * Without an interface the socket listens on every interface. `hs.socket.udp.server(9001, "loopback", fn)` restricts it to packets from this machine.
+---
+module.udp.server = function(port, interface, callback)
+  if type(interface) == "function" then
+    interface, callback = nil, interface
+  end
   local sock = module.udp.new(callback)
-  sock:listen(port)
+  sock:listen(port, interface)
   return sock
 end
 

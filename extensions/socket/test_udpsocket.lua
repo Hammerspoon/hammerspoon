@@ -40,6 +40,27 @@ function testUdpListenerSocketAttributes()
   return success()
 end
 
+function testUdpListenerSocketInterfaceAttributes()
+  local server = hs.socket.udp.server(port, "loopback", print)
+
+  local info = server:info()
+
+  assertIsEqual(port, info.localPort)
+  assertIsEqual("127.0.0.1", info.localHost) -- rather than 0.0.0.0 for every interface
+  assertIsEqual("SERVER", info.userData)
+  assertFalse(info.isConnected)
+  return success()
+end
+
+function testUdpListenerSocketBadInterface()
+  local sock = hs.socket.udp.new()
+
+  assertIsNil(sock:listen(port, "not_an_interface"))
+  assertIsEqual("", sock:info().userData)
+
+  return success()
+end
+
 function testUdpConnect()
   local server = hs.socket.udp.server(port)
   local client1 = hs.socket.udp.new():connect("localhost", port)
