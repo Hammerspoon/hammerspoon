@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C0DECAFF2026100500000001 /* HScaffeinate.m in Sources */ = {isa = PBXBuildFile; fileRef = C0DECAFF2026100500000002 /* HScaffeinate.m */; };
 		220B882A27F8F954006C0B2B /* test_image.lua in Resources */ = {isa = PBXBuildFile; fileRef = 220B882927F8F954006C0B2B /* test_image.lua */; };
 		220B882C27F8F9A3006C0B2B /* HSimage.m in Sources */ = {isa = PBXBuildFile; fileRef = 220B882B27F8F9A3006C0B2B /* HSimage.m */; };
 		220E0B1A29B07EFA003B0BBD /* HSStreamDeckDevicePedal.h in Headers */ = {isa = PBXBuildFile; fileRef = 220E0B1829B07EFA003B0BBD /* HSStreamDeckDevicePedal.h */; };
@@ -1580,6 +1581,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		C0DECAFF2026100500000002 /* HScaffeinate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HScaffeinate.m; sourceTree = "<group>"; };
 		220B882927F8F954006C0B2B /* test_image.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_image.lua; path = extensions/image/test_image.lua; sourceTree = "<group>"; };
 		220B882B27F8F9A3006C0B2B /* HSimage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSimage.m; sourceTree = "<group>"; };
 		220E0B1829B07EFA003B0BBD /* HSStreamDeckDevicePedal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSStreamDeckDevicePedal.h; path = extensions/streamdeck/HSStreamDeckDevicePedal.h; sourceTree = "<group>"; };
@@ -4203,6 +4205,7 @@
 		D02F95251A00221C00E28BB2 /* Hammerspoon Tests */ = {
 			isa = PBXGroup;
 			children = (
+				C0DECAFF2026100500000002 /* HScaffeinate.m */,
 				220B882B27F8F9A3006C0B2B /* HSimage.m */,
 				4FDD8E511C83612C00085D7A /* HSalert.m */,
 				4FDD8E8E1C8DED1C00085D7A /* HSappfinder.m */,
@@ -7808,6 +7811,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C0DECAFF2026100500000001 /* HScaffeinate.m in Sources */,
 				4FFF9FB525D89B3B00D2997C /* HSmouse.m in Sources */,
 				4FDD8E8F1C8DED1C00085D7A /* HSappfinder.m in Sources */,
 				CE139CB028B24B6500743C90 /* HShttp.m in Sources */,

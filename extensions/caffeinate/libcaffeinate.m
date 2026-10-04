@@ -308,7 +308,7 @@ static int caffeinate_currentAssertions(lua_State *L) {
 
     CFDictionaryRef assertions = NULL;
     IOReturn result = IOPMCopyAssertionsByProcess(&assertions);
-    if (result != kIOReturnSuccess) {
+    if (result != kIOReturnSuccess || assertions == NULL) {
         [skin pushNSObject:@{}];
         return 1;
     }
