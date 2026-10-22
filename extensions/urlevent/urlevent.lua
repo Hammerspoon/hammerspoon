@@ -6,6 +6,8 @@
 ---
 --- You can also choose to make Hammerspoon the default for `http://` and `https://` URLs, which lets you route the URLs in your Lua code
 ---
+--- This extension can also open URLs in other applications: `hs.urlevent.openURL()` opens a URL with the system's default handler for its scheme, and `hs.urlevent.openURLWithBundle()` opens a URL with a specific application.
+---
 --- Given a URL such as `hammerspoon://someEventToHandle?someParam=things&otherParam=stuff`, in the literal, RFC1808 sense of the URL, `someEventToHandle` is the hostname (or net_loc) of the URL, but given that these are not network resources, we consider `someEventToHandle` to be the name of the event. No path should be specified in the URL - it should consist purely of a hostname and, optionally, query parameters.
 ---
 --- See also `hs.ipc` for a command line IPC mechanism that is likely more appropriate for shell scripts or command line use. Unlike `hs.ipc`, `hs.urlevent` is not able to return any data to its caller.
@@ -111,7 +113,7 @@ function urlevent.bind(eventName, callback)
     callbacks[string.lower(eventName)] = callback
 end
 
---- hs.urlevent.openURL(url)
+--- hs.urlevent.openURL(url) -> boolean
 --- Function
 --- Opens a URL with the default application
 ---
