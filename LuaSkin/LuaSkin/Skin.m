@@ -114,11 +114,11 @@ static NSString *getCallerFileName(void) {
 @interface LuaSkin (conversionSupport)
 
 // internal methods for pushNSObject
-- (int)pushNSObject:(id)obj     withOptions:(NSUInteger)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen ;
+- (int)pushNSObject:(id)obj     withOptions:(NSUInteger)options alreadySeenObjects:(NSMapTable *)alreadySeen ;
 - (int)pushNSNumber:(id)obj     withOptions:(NSUInteger)options ;
-- (int)pushNSArray:(id)obj      withOptions:(NSUInteger)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen ;
-- (int)pushNSSet:(id)obj        withOptions:(NSUInteger)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen ;
-- (int)pushNSDictionary:(id)obj withOptions:(NSUInteger)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen ;
+- (int)pushNSArray:(id)obj      withOptions:(NSUInteger)options alreadySeenObjects:(NSMapTable *)alreadySeen ;
+- (int)pushNSSet:(id)obj        withOptions:(NSUInteger)options alreadySeenObjects:(NSMapTable *)alreadySeen ;
+- (int)pushNSDictionary:(id)obj withOptions:(NSUInteger)options alreadySeenObjects:(NSMapTable *)alreadySeen ;
 - (int)pushNSValue:(id)obj      withOptions:(NSUInteger)options ;
 
 // internal methods for toNSObjectAtIndex
@@ -834,12 +834,15 @@ nextarg:
 - (int)pushNSObject:(id)obj { return [self pushNSObject:obj withOptions:LS_NSNone] ; }
 
 - (int)pushNSObject:(id)obj withOptions:(NSUInteger)options {
-    NSMutableDictionary *alreadySeen = [[NSMutableDictionary alloc] init] ;
+    // Keyed by object identity (and retaining the keys), so distinct containers with equal contents are not
+    // mistaken for one another and temporary objects cannot be deallocated and have their address reused
+    NSMapTable *alreadySeen = [NSMapTable mapTableWithKeyOptions:(NSPointerFunctionsOptions)(NSPointerFunctionsStrongMemory | NSPointerFunctionsObjectPointerPersonality)
+                                                    valueOptions:NSPointerFunctionsStrongMemory] ;
 
     int results = [self pushNSObject:obj withOptions:options alreadySeenObjects:alreadySeen];
 
     for (id entry in alreadySeen) {
-        luaL_unref(self.L, LUA_REGISTRYINDEX, [alreadySeen[entry] intValue]) ;
+        luaL_unref(self.L, LUA_REGISTRYINDEX, [[alreadySeen objectForKey:entry] intValue]) ;
     }
     return results ;
 }
@@ -1246,14 +1249,14 @@ nextarg:
 
 #pragma mark - conversionSupport extensions to LuaSkin class
 
-- (int)pushNSObject:(id)obj withOptions:(NSUInteger)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
+- (int)pushNSObject:(id)obj withOptions:(NSUInteger)options alreadySeenObjects:(NSMapTable *)alreadySeen {
     // Ensure our Lua stack is large enough for the number of items being pushed
     [self growStack:2 withMessage:"pushNSObject"];
 
     if (obj) {
 // NOTE: We catch self-referential loops, do we also need a recursive depth?  Will crash at depth of 512...
-        if (alreadySeen[obj]) {
-            lua_rawgeti(self.L, LUA_REGISTRYINDEX, [alreadySeen[obj] intValue]) ;
+        if ([alreadySeen objectForKey:obj]) {
+            lua_rawgeti(self.L, LUA_REGISTRYINDEX, [[alreadySeen objectForKey:obj] intValue]) ;
             return 1 ;
         }
 
@@ -1427,7 +1430,7 @@ nextarg:
     return 1;
 }
 
-- (int)pushNSArray:(id)obj withOptions:(NSUInteger)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
+- (int)pushNSArray:(id)obj withOptions:(NSUInteger)options alreadySeenObjects:(NSMapTable *)alreadySeen {
     if ((options & LS_WithObjectWrapper) == LS_WithObjectWrapper) {
         void** valuePtr = lua_newuserdata(self.L, sizeof(NSObject *)) ;
         *valuePtr = (__bridge_retained void *)obj ;
@@ -1440,8 +1443,10 @@ nextarg:
         lua_pushboolean(self.L, ((options & LS_OW_WithArrayConversion) == LS_OW_WithArrayConversion)) ;
         lua_setfield(self.L, -2, "arrayAutoConversion") ;
         lua_setuservalue(self.L, -2) ;
-        lua_pushvalue(self.L, -1) ;
-        alreadySeen[obj] = @(luaL_ref(self.L, LUA_REGISTRYINDEX)) ;
+        if ([obj count] > 0) { // see below for why empty containers aren't recorded
+            lua_pushvalue(self.L, -1) ;
+            [alreadySeen setObject:@(luaL_ref(self.L, LUA_REGISTRYINDEX)) forKey:obj] ;
+        }
     } else {
         NSArray* list = obj;
 
@@ -1449,8 +1454,12 @@ nextarg:
         [self growStack:2 withMessage:"pushNSArray"];
 
         lua_newtable(self.L);
-        alreadySeen[obj] = @(luaL_ref(self.L, LUA_REGISTRYINDEX)) ;
-        lua_rawgeti(self.L, LUA_REGISTRYINDEX, [alreadySeen[obj] intValue]) ; // put it back on the stack
+        // Empty containers can't be part of a cycle, and Foundation shares one instance for every empty immutable
+        // array/dictionary (e.g. each {} or [] from NSJSONSerialization), so they are never recorded as seen
+        if ([obj count] > 0) {
+            [alreadySeen setObject:@(luaL_ref(self.L, LUA_REGISTRYINDEX)) forKey:obj] ;
+            lua_rawgeti(self.L, LUA_REGISTRYINDEX, [[alreadySeen objectForKey:obj] intValue]) ; // put it back on the stack
+        }
         for (id item in list) {
             int results = [self pushNSObject:item withOptions:options alreadySeenObjects:alreadySeen];
     // NOTE: This isn't a true representation of the intent of LS_NSIgnoreUnknownTypes as it will actually put `nil`
@@ -1462,15 +1471,17 @@ nextarg:
     return 1 ;
 }
 
-- (int)pushNSSet:(id)obj withOptions:(NSUInteger)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
+- (int)pushNSSet:(id)obj withOptions:(NSUInteger)options alreadySeenObjects:(NSMapTable *)alreadySeen {
     NSSet* list = obj;
 
     // Ensure our Lua stack is large enough for the number of items being pushed
     [self growStack:2 withMessage:"pushNSSet"];
 
     lua_newtable(self.L);
-    alreadySeen[obj] = @(luaL_ref(self.L, LUA_REGISTRYINDEX)) ;
-    lua_rawgeti(self.L, LUA_REGISTRYINDEX, [alreadySeen[obj] intValue]) ; // put it back on the stack
+    if ([list count] > 0) { // see pushNSArray: for why empty containers aren't recorded
+        [alreadySeen setObject:@(luaL_ref(self.L, LUA_REGISTRYINDEX)) forKey:obj] ;
+        lua_rawgeti(self.L, LUA_REGISTRYINDEX, [[alreadySeen objectForKey:obj] intValue]) ; // put it back on the stack
+    }
     for (id item in list) {
         int results = [self pushNSObject:item withOptions:options alreadySeenObjects:alreadySeen];
 // NOTE: Since an NSSet is unordered anyways, we're opting for simply disregarding ignored items
@@ -1480,7 +1491,7 @@ nextarg:
     return 1 ;
 }
 
-- (int)pushNSDictionary:(id)obj withOptions:(NSUInteger)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
+- (int)pushNSDictionary:(id)obj withOptions:(NSUInteger)options alreadySeenObjects:(NSMapTable *)alreadySeen {
     if ((options & LS_WithObjectWrapper) == LS_WithObjectWrapper) {
         void** valuePtr = lua_newuserdata(self.L, sizeof(NSObject *)) ;
         *valuePtr = (__bridge_retained void *)obj ;
@@ -1493,8 +1504,10 @@ nextarg:
         lua_pushboolean(self.L, ((options & LS_OW_WithArrayConversion) == LS_OW_WithArrayConversion)) ;
         lua_setfield(self.L, -2, "arrayAutoConversion") ;
         lua_setuservalue(self.L, -2) ;
-        lua_pushvalue(self.L, -1) ;
-        alreadySeen[obj] = @(luaL_ref(self.L, LUA_REGISTRYINDEX)) ;
+        if ([obj count] > 0) { // see below for why empty containers aren't recorded
+            lua_pushvalue(self.L, -1) ;
+            [alreadySeen setObject:@(luaL_ref(self.L, LUA_REGISTRYINDEX)) forKey:obj] ;
+        }
     } else {
         NSArray *keys   = [obj allKeys];
         NSArray *values = [obj allValues];
@@ -1503,8 +1516,12 @@ nextarg:
         [self growStack:2 withMessage:"pushNSDictionary"];
 
         lua_newtable(self.L);
-        alreadySeen[obj] = @(luaL_ref(self.L, LUA_REGISTRYINDEX)) ;
-        lua_rawgeti(self.L, LUA_REGISTRYINDEX, [alreadySeen[obj] intValue]) ; // put it back on the stack
+        // Empty containers can't be part of a cycle, and Foundation shares one instance for every empty immutable
+        // array/dictionary (e.g. each {} or [] from NSJSONSerialization), so they are never recorded as seen
+        if ([obj count] > 0) {
+            [alreadySeen setObject:@(luaL_ref(self.L, LUA_REGISTRYINDEX)) forKey:obj] ;
+            lua_rawgeti(self.L, LUA_REGISTRYINDEX, [[alreadySeen objectForKey:obj] intValue]) ; // put it back on the stack
+        }
         for (unsigned long i = 0; i < [keys count]; i++) {
             int result = [self pushNSObject:keys[i] withOptions:options alreadySeenObjects:alreadySeen];
             if (result > 0) {

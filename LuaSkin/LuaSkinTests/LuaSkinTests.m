@@ -652,6 +652,55 @@ static int pushTestUserData(lua_State *L, id object) {
 
 }
 
+- (void)testPushNSObjectDoesNotAliasEqualContainers {
+    lua_State *L = self.skin.L;
+
+    // Distinct containers with equal contents must become distinct Lua tables. Empty immutable containers
+    // (literals, and everything NSJSONSerialization returns for {} and []) are usually one shared instance.
+    NSDictionary *distinct = @{
+        @"emptyDictA"        : [NSMutableDictionary dictionary],
+        @"emptyDictB"        : [NSMutableDictionary dictionary],
+        @"emptyLiteralDictA" : @{},
+        @"emptyLiteralDictB" : @{},
+        @"emptyArrayA"       : @[],
+        @"emptyArrayB"       : @[],
+        @"dictA"             : [NSMutableDictionary dictionaryWithObject:@1 forKey:@"a"],
+        @"dictB"             : [NSMutableDictionary dictionaryWithObject:@1 forKey:@"a"],
+        @"arrayA"            : [NSMutableArray arrayWithObject:@1],
+        @"arrayB"            : [NSMutableArray arrayWithObject:@1],
+    };
+    NSData *json = [@"{\"emptyJSONDictA\":{},\"emptyJSONDictB\":{},\"emptyJSONArrayA\":[],\"emptyJSONArrayB\":[]}" dataUsingEncoding:NSUTF8StringEncoding];
+    NSError *error = nil;
+    id decoded = [NSJSONSerialization JSONObjectWithData:json options:NSJSONReadingFragmentsAllowed error:&error];
+    XCTAssertNil(error);
+
+    NSArray *cases = @[
+        @[distinct, @[@"emptyDict", @"emptyLiteralDict", @"emptyArray", @"dict", @"array"]],
+        @[decoded, @[@"emptyJSONDict", @"emptyJSONArray"]],
+    ];
+    for (NSArray *testCase in cases) {
+        [self.skin pushNSObject:testCase[0]];
+        XCTAssertEqual(LUA_TTABLE, lua_type(L, -1));
+        for (NSString *name in testCase[1]) {
+            lua_getfield(L, -1, [[name stringByAppendingString:@"A"] UTF8String]);
+            lua_getfield(L, -2, [[name stringByAppendingString:@"B"] UTF8String]);
+            XCTAssertEqual(LUA_TTABLE, lua_type(L, -1));
+            XCTAssertEqual(LUA_TTABLE, lua_type(L, -2));
+            XCTAssertFalse(lua_rawequal(L, -1, -2), @"%@A and %@B were pushed as the same Lua table", name, name);
+            lua_pop(L, 2);
+        }
+        lua_pop(L, 1);
+    }
+
+    // The same container referenced twice should still be pushed as a single Lua table
+    NSMutableArray *shared = [NSMutableArray arrayWithObject:@1];
+    [self.skin pushNSObject:@{@"x" : shared, @"y" : shared}];
+    lua_getfield(L, -1, "x");
+    lua_getfield(L, -2, "y");
+    XCTAssertTrue(lua_rawequal(L, -1, -2));
+    lua_pop(L, 3);
+}
+
 - (void)testPushStructInNSValue {
 
     // Push NSRect in NSValue
