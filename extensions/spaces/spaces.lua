@@ -7,7 +7,7 @@
 ---
 --- It should be noted that while the functions provided by this module have worked for some time in third party applications and in a previous experimental module that has received limited testing over the last few years, they do utilize some private APIs which means that Apple could change them at any time.
 ---
---- The functions which allow you to create new spaes, remove spaces, and jump to a specific space utilize `hs.axuielement` and perform accessibility actions through the Dock application to manipulate Mission Control. Because we are essentially directing the Dock to perform User Interactions, there is some visual feedback which we cannot entirely suppress. You can minimize, but not entirely remove, this by enabling "Reduce motion" in System Preferences -> Accessibility -> Display.
+--- The functions which allow you to create new spaes, remove spaces, and jump to a specific space utilize `hs.axuielement` and perform accessibility actions through the Dock application (the WindowManager application on macOS 27 and later) to manipulate Mission Control. Because we are essentially directing the Dock to perform User Interactions, there is some visual feedback which we cannot entirely suppress. You can minimize, but not entirely remove, this by enabling "Reduce motion" in System Preferences -> Accessibility -> Display.
 ---
 --- It is recommended that you also enable "Displays have separate Spaces" in System Preferences -> Mission Control.
 ---
@@ -65,9 +65,16 @@ end
 local localeChange_identifier = host.locale.registerCallback(getDockExitTemplates)
 getDockExitTemplates() -- set initial values
 
+-- macOS 27 moved Mission Control into WindowManager, which doesn't ship these strings and always uses its built-in
+-- English defaults for them, whatever the user's language
+local AXExitToDesktopDefault           = "^exit to (.-)$"
+local AXExitToFullscreenDesktopDefault = "^exit to full screen (.-)$"
+
 local spacesNameFromButtonName = function(name)
-    return name:match(AXExitToFullscreenDesktop) or name:match(AXExitToDesktop) or name
+    return name:match(AXExitToFullscreenDesktop) or name:match(AXExitToDesktop)
+        or name:match(AXExitToFullscreenDesktopDefault) or name:match(AXExitToDesktopDefault) or name
 end
+module._spacesNameFromButtonName = spacesNameFromButtonName -- exposed for the test suite only
 
 -- now onto the rest of the local functions
 local _dockElement
@@ -80,36 +87,59 @@ local getDockElement = function()
     return _dockElement
 end
 
-local _missionControlGroup
-local getMissionControlGroup = function()
-    if not (_missionControlGroup and _missionControlGroup:isValid()) then
-        _missionControlGroup = nil
-        local dockElement = getDockElement()
-        for _,v in ipairs(dockElement) do
-            if v.AXIdentifier == "mc" then
-                _missionControlGroup = v
-                break
-            end
+local _windowManagerElement
+local getWindowManagerElement = function()
+    if not (_windowManagerElement and _windowManagerElement:isValid()) then
+        _windowManagerElement = nil
+        local windowManagerApp = application.applicationsForBundleID("com.apple.WindowManager")[1]
+        if windowManagerApp then
+            _windowManagerElement = axuielement.applicationElement(windowManagerApp)
         end
     end
-    return _missionControlGroup
+    return _windowManagerElement
+end
+
+local childWithIdentifier = function(element, identifier)
+    for _, v in ipairs(element:attributeValue("AXChildren") or {}) do
+        if v.AXIdentifier == identifier then return v end
+    end
+end
+
+-- Returns the element whose children are the `mc.display` groups of the Mission Control display, or nil if
+-- Mission Control is not showing or has not been populated yet.
+--
+-- Up to macOS 26 this is the Dock's `mc` group. macOS 27 moved the tree into the WindowManager process
+-- (com.apple.WindowManager), where the `mc.display` groups are direct children of the application element;
+-- the Dock still shows an `mc` group while Mission Control is visible, but it is an empty stub.
+local missionControlGroupFrom = function(dockElement, windowManagerElement)
+    local dockGroup = childWithIdentifier(dockElement, "mc")
+    if not dockGroup then return nil end
+    if childWithIdentifier(dockGroup, "mc.display") then return dockGroup end
+    if windowManagerElement and childWithIdentifier(windowManagerElement, "mc.display") then
+        return windowManagerElement
+    end
+    return nil
+end
+module._missionControlGroupFrom = missionControlGroupFrom -- exposed for the test suite only
+
+local getMissionControlGroup = function()
+    return missionControlGroupFrom(getDockElement(), getWindowManagerElement())
+end
+
+-- The Dock exposes its `mc` group only while Mission Control is visible, on every macOS release so far.
+local missionControlIsShowing = function()
+    return childWithIdentifier(getDockElement(), "mc") ~= nil
 end
 
 local openMissionControl = function()
-    local missionControlGroup = getMissionControlGroup()
-    if not missionControlGroup then module.toggleMissionControl() end
+    if not missionControlIsShowing() then module.toggleMissionControl() end
 end
 
 local closeMissionControl = function()
-    local missionControlGroup = getMissionControlGroup()
-    if missionControlGroup then module.toggleMissionControl() end
+    if missionControlIsShowing() then module.toggleMissionControl() end
 end
 
-local findSpacesSubgroup = function(targetIdentifier, screenID)
-    local missionControlGroup, initialTime = nil, os.time()
-    while not missionControlGroup and (os.time() - initialTime) < 2 do
-        missionControlGroup = getMissionControlGroup()
-    end
+local spacesSubgroupFrom = function(missionControlGroup, targetIdentifier, screenID)
     if not missionControlGroup then
         return nil, "unable to get Mission Control data from the Dock"
     end
@@ -149,6 +179,17 @@ local findSpacesSubgroup = function(targetIdentifier, screenID)
     end
     return targetChild
 end
+module._spacesSubgroupFrom = spacesSubgroupFrom -- exposed for the test suite only
+
+local findSpacesSubgroup = function(targetIdentifier, screenID)
+    -- retry the whole lookup: when Mission Control is reopened right after being closed, macOS 27's WindowManager
+    -- can briefly expose a partial tree (only some `mc.display` groups, or one without its `mc.spaces` group yet)
+    local targetChild, errMsg, initialTime = nil, nil, os.time()
+    repeat
+        targetChild, errMsg = spacesSubgroupFrom(getMissionControlGroup(), targetIdentifier, screenID)
+    until targetChild or (os.time() - initialTime) >= 2
+    return targetChild, errMsg
+end
 
 local waitForMissionControl = function()
     -- delay to make sure Mission Control has stabilized
@@ -162,7 +203,7 @@ end
 
 --- hs.spaces.data_missionControlAXUIElementData(callback) -> None
 --- Function
---- Generate a table containing the results of `hs.axuielement.buildTree` on the Mission Control Accessibility group of the Dock.
+--- Generate a table containing the results of `hs.axuielement.buildTree` on the Mission Control Accessibility group of the Dock (on macOS 27 and later, on the WindowManager application, which now hosts that tree).
 ---
 --- Parameters:
 ---  * `callback` - a callback function that should expect a table as the results. The table will be formatted as described in the documentation for `hs.axuielement.buildTree`.
