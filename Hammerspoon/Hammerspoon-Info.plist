@@ -214,6 +214,10 @@
 	<string>Hammerspoon needs to send events to automate applications.</string>
 	<key>NSAppleScriptEnabled</key>
 	<true/>
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>Some Hammerspoon extensions and user scripts require access to your calendars.</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>Some Hammerspoon extensions and user scripts require access to your calendars.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Some Hammerspoon extensions require access to the camera.</string>
 	<key>NSHumanReadableCopyright</key>
@@ -226,6 +230,10 @@
 	<string>Some Hammerspoon extensions (such as hs.noises) require access to the microphone.</string>
 	<key>NSPrincipalClass</key>
 	<string>SentryCrashExceptionApplication</string>
+	<key>NSRemindersFullAccessUsageDescription</key>
+	<string>Some Hammerspoon extensions and user scripts require access to your reminders.</string>
+	<key>NSRemindersUsageDescription</key>
+	<string>Some Hammerspoon extensions and user scripts require access to your reminders.</string>
 	<key>NSServices</key>
 	<array>
 		<dict>
