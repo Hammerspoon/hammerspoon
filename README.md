@@ -8,6 +8,10 @@
 
 Discord: [Click to join](https://discord.gg/vxchqkRbkR)
 
+# IMPORTANT NOTE
+
+Hammerspoon v1 is currently unmaintained. See [https://github.com/Hammerspoon/hammerspoon/issues/3916](this issue) for more details.
+
 ## What is Hammerspoon?
 
 This is a tool for powerful automation of OS X. At its core, Hammerspoon is just a bridge between the operating system and a Lua scripting engine.
