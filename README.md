@@ -10,7 +10,7 @@ Discord: [Click to join](https://discord.gg/vxchqkRbkR)
 
 # IMPORTANT NOTE
 
-Hammerspoon v1 is currently unmaintained. See [https://github.com/Hammerspoon/hammerspoon/issues/3916](this issue) for more details.
+Hammerspoon v1 is currently unmaintained. See https://github.com/Hammerspoon/hammerspoon/issues/3916 for more details.
 
 ## What is Hammerspoon?
 
