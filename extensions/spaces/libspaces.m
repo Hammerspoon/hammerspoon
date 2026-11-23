@@ -1,6 +1,12 @@
 @import Cocoa ;
 @import LuaSkin ;
 
+#import <mach-o/dyld.h>
+#import <mach-o/loader.h>
+#import <mach-o/nlist.h>
+#import <stdint.h>
+#import <string.h>
+
 #import "private.h"
 
 static const char * const USERDATA_TAG = "hs.spaces" ;
@@ -9,6 +15,87 @@ static LSRefTable refTable = LUA_NOREF;
 static NSRegularExpression *regEx_UUID ;
 
 static int g_connection ;
+
+typedef int64_t (*SLSPerformAsyncWMOperationFn)(void *operation) ;
+static SLSPerformAsyncWMOperationFn g_performAsyncWMOperation = NULL ;
+
+@interface NSObject (HSSpacesBridgedMoveOperation)
+- (instancetype)initWithWindows:(NSArray *)windows spaceID:(uint64_t)spaceID ;
+@end
+
+static const char * const SKYLIGHT_PATH = "/System/Library/PrivateFrameworks/SkyLight.framework/Versions/A/SkyLight" ;
+static const char * const ASYNC_MOVE_SYMBOL = "__ZL54SLSPerformAsynchronousBridgedWindowManagementOperationP47SLSAsynchronousBridgedWindowManagementOperation" ;
+
+static struct mach_header_64 *spaces_findImageHeader(const char *targetName, intptr_t *slideOut) {
+    uint32_t imageCount = _dyld_image_count() ;
+    for (uint32_t i = 0 ; i < imageCount ; ++i) {
+        const char *imageName = _dyld_get_image_name(i) ;
+        if (imageName && strcmp(imageName, targetName) == 0) {
+            *slideOut = _dyld_get_image_vmaddr_slide(i) ;
+            return (struct mach_header_64 *)_dyld_get_image_header(i) ;
+        }
+    }
+    return NULL ;
+}
+
+static struct segment_command_64 *spaces_findLinkeditSegment(struct mach_header_64 *header) {
+    uint8_t *cursor = (uint8_t *)header + sizeof(struct mach_header_64) ;
+    for (uint32_t i = 0 ; i < header->ncmds ; ++i) {
+        struct load_command *command = (struct load_command *)cursor ;
+        if (command->cmd == LC_SEGMENT_64) {
+            struct segment_command_64 *segment = (struct segment_command_64 *)command ;
+            if (strncmp(segment->segname, SEG_LINKEDIT, sizeof(segment->segname)) == 0) return segment ;
+        }
+        cursor += command->cmdsize ;
+    }
+    return NULL ;
+}
+
+static struct symtab_command *spaces_findSymtabCommand(struct mach_header_64 *header) {
+    uint8_t *cursor = (uint8_t *)header + sizeof(struct mach_header_64) ;
+    for (uint32_t i = 0 ; i < header->ncmds ; ++i) {
+        struct load_command *command = (struct load_command *)cursor ;
+        if (command->cmd == LC_SYMTAB) return (struct symtab_command *)command ;
+        cursor += command->cmdsize ;
+    }
+    return NULL ;
+}
+
+static void *spaces_findLocalMachOSymbol(const char *imagePath, const char *symbolName) {
+    intptr_t slide = 0 ;
+    struct mach_header_64 *header = spaces_findImageHeader(imagePath, &slide) ;
+    if (!header) return NULL ;
+
+    struct segment_command_64 *linkedit = spaces_findLinkeditSegment(header) ;
+    struct symtab_command *symtab = spaces_findSymtabCommand(header) ;
+    if (!linkedit || !symtab) return NULL ;
+
+    uintptr_t linkeditBase = (uintptr_t)slide + (uintptr_t)linkedit->vmaddr - (uintptr_t)linkedit->fileoff ;
+    const char *strings = (const char *)(linkeditBase + symtab->stroff) ;
+    const struct nlist_64 *symbols = (const struct nlist_64 *)(linkeditBase + symtab->symoff) ;
+
+    for (uint32_t i = 0 ; i < symtab->nsyms ; ++i) {
+        if (symbols[i].n_un.n_strx == 0) continue ;
+        const char *name = strings + symbols[i].n_un.n_strx ;
+        if (strcmp(name, symbolName) == 0) {
+            return (void *)((uintptr_t)slide + (uintptr_t)symbols[i].n_value) ;
+        }
+    }
+    return NULL ;
+}
+
+static BOOL spaces_moveWindowsWithBridgedOperation(NSArray *windows, uint64_t sid) {
+    if (!g_performAsyncWMOperation) return NO ;
+
+    Class cls = NSClassFromString(@"SLSBridgedMoveWindowsToManagedSpaceOperation") ;
+    if (!cls || ![cls instancesRespondToSelector:@selector(initWithWindows:spaceID:)]) return NO ;
+
+    id operation = [[cls alloc] initWithWindows:windows spaceID:sid] ;
+    if (!operation) return NO ;
+
+    g_performAsyncWMOperation((__bridge void *)operation) ;
+    return YES ;
+}
 
 #pragma mark - Support Functions and Classes
 
@@ -153,6 +240,7 @@ static int spaces_windowsForSpace(lua_State *L) { // NOTE: wrapped in init.lua
 ///
 /// Notes:
 ///  * a window can only be moved from a user space to another user space -- you cannot move the window of a full screen (or tiled) application to another space. you also cannot move a window *to* the same space as a full screen application unless `force` is set to true and even then it works for floating windows only.
+///  * on macOS versions which provide the bridged WindowServer operation, the move is asynchronous; `true` means the operation was successfully submitted, not that WindowServer has already completed it.
 static int spaces_moveWindowToSpace(lua_State *L) { // NOTE: wrapped in init.lua
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TNUMBER | LS_TINTEGER, LS_TNUMBER | LS_TINTEGER, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
@@ -180,8 +268,17 @@ static int spaces_moveWindowToSpace(lua_State *L) { // NOTE: wrapped in init.lua
                 return 2 ;
             }
 
+// Prefer the bridged WindowServer move operation when the private symbol is available.
+// Fall back to the existing implementations on systems where it is absent.
+            if (g_performAsyncWMOperation) {
+                if (!spaces_moveWindowsWithBridgedOperation(windows, sid)) {
+                    lua_pushnil(L) ;
+                    lua_pushstring(L, "unable to create bridged window-to-space operation") ;
+                    CFRelease(spacesList) ;
+                    return 2 ;
+                }
 // https://github.com/koekeishiya/yabai/commit/98bbdbd1363f27d35f09338cded0de1ec010d830
-            if (workspace_is_macos_sonoma14_5_or_newer()) {
+            } else if (workspace_is_macos_sonoma14_5_or_newer()) {
                 SLSSpaceSetCompatID(g_connection, sid, 0x79616265);
                 SLSSetWindowListWorkspace(g_connection, &wid, 1, 0x79616265);
                 SLSSpaceSetCompatID(g_connection, sid, 0x0);
@@ -279,6 +376,8 @@ int luaopen_hs_libspaces(lua_State* L) {
     refTable = [skin registerLibrary:USERDATA_TAG functions:moduleLib metaFunctions:nil] ; // or module_metaLib
 
     g_connection = SLSMainConnectionID() ;
+
+    g_performAsyncWMOperation = (SLSPerformAsyncWMOperationFn)spaces_findLocalMachOSymbol(SKYLIGHT_PATH, ASYNC_MOVE_SYMBOL) ;
 
     NSError *error = nil ;
     regEx_UUID = [NSRegularExpression regularExpressionWithPattern:@"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
