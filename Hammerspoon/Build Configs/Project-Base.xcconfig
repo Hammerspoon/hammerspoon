@@ -19,7 +19,7 @@ ONLY_ACTIVE_ARCH = YES
 // Debug Information Format
 DEBUG_INFORMATION_FORMAT = dwarf-with-dsym
 // Other Warning Flags
-WARNING_CFLAGS = -Wno-cstring-format-directive -Wno-padded -Wno-objc-missing-property-synthesis -Wno-auto-import -Wno-gnu-statement-expression -Wno-reserved-id-macro -Wno-gnu-zero-variadic-macro-arguments -Wno-objc-messaging-id -Wno-declaration-after-statement -Wno-deprecated-non-prototype -Wno-reserved-identifier
+WARNING_CFLAGS = -Wno-cstring-format-directive -Wno-padded -Wno-objc-missing-property-synthesis -Wno-auto-import -Wno-gnu-statement-expression -Wno-reserved-id-macro -Wno-gnu-zero-variadic-macro-arguments -Wno-objc-messaging-id -Wno-declaration-after-statement -Wno-deprecated-non-prototype -Wno-reserved-identifier -Wno-extra-semi-stmt -Wno-quoted-include-in-framework-header -Wno-implicit-void-ptr-cast -Wno-implicit-int-enum-cast -Wno-jump-misses-init
 // Other Linker Flags
 OTHER_LDFLAGS = -undefined dynamic_lookup
 // Enable Testability
