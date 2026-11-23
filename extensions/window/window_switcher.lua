@@ -234,11 +234,18 @@ local function modsPressed()
   return mods>0 and mods ~= 65536 -- caps lock
 end
 
-local function show(self,dir)
-  local windows,drawings,ui=self.windows,self.drawings,self.ui
+local function show(self,dir,inspace)
+  local wis=inspace or false -- default as false for compatibility
+  local windows=wis and self.windowsInCurrentSpace or self.windows
+  local drawings,ui=,self.drawings,self.ui
   if not windows then
-    windows=self.wf:getWindows(windowfilter.sortByFocusedLast)
-    self.windows=windows
+    if wis then
+      windows=self.wfs:getWindows(windowfilter.sortByFocusedLast)
+      self.windowsInCurrentSpace=windows
+    else
+      windows=self.wf:getWindows(windowfilter.sortByFocusedLast)
+      self.windows=windows
+    end
   end
   local nwindows=#windows or 0
   if nwindows==0 then exit(self) self.log.i('no windows') return end
@@ -308,6 +315,32 @@ function switcher:next() return show(self,1) end
 --- Notes:
 ---  * the switcher will be dismissed (and the selected window focused) when all modifier keys are released
 function switcher:previous() return show(self,-1) end
+--- hs.window.switcher:nextInCurrentSpace()
+--- Method
+--- Shows the switcher instance (if not yet visible) and selects the next window in current space
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * the switcher will be dismissed (and the selected window focused) when all modifier keys are released
+function switcher:nextInCurrentSpace() return show(self,1,true) end
+--- hs.window.switcher:previousInCurrentSpace()
+--- Method
+--- Shows the switcher instance (if not yet visible) and selects the previous window in current space
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * the switcher will be dismissed (and the selected window focused) when all modifier keys are released
+function switcher:previousInCurrentSpace() return show(self,-1,true) end
 
 local defaultSwitcher
 local function makeDefault()
@@ -341,6 +374,32 @@ function switcher.nextWindow() return show(defaultSwitcher or makeDefault(),1) e
 --- Notes:
 ---  * the switcher will be dismissed (and the selected window focused) when all modifier keys are released
 function switcher.previousWindow() return show(defaultSwitcher or makeDefault(),-1) end
+--- hs.window.switcher.nextWindowInCurrentSpace()
+--- Function
+--- Shows the switcher (if not yet visible) and selects the next window in current space
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * the switcher will be dismissed (and the selected window focused) when all modifier keys are released
+function switcher.nextWindowInCurrentSpace() return show(defaultSwitcher or makeDefault(),1,true) end
+--- hs.window.switcher.previousWindowInCurrentSpace()
+--- Function
+--- Shows the switcher (if not yet visible) and selects the previous window in current space
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * the switcher will be dismissed (and the selected window focused) when all modifier keys are released
+function switcher.previousWindowInCurrentSpace() return show(defaultSwitcher or makeDefault(),-1,true) end
 
 local function gc(self)
   self.log.i('windowswitcher instance deleted')
@@ -413,8 +472,10 @@ function switcher.new(wf,uiPrefs,logname,loglevel)
   local self = setmetatable({drawings={}},{__index=switcher,__gc=gc})
   self.log=logname and logger.new(logname,loglevel) or log
   self.setLogLevel=self.log.setLogLevel self.getLogLevel=self.log.getLogLevel
-  if wf==nil then self.log.i('new windowswitcher instance, using default windowfilter') self.wf=windowfilter.default
-  else self.log.i('new windowswitcher instance using windowfilter instance') self.wf=windowfilter.new(wf) end
+  if wf==nil then self.log.i('new windowswitcher instance, using default windowfilter')
+    self.wf=windowfilter.default self.wfs=windowfilter.defaultCurrentSpace
+  else self.log.i('new windowswitcher instance using windowfilter instance')
+    self.wf=windowfilter.new(wf) self.wfs=windowfilter.copy(self.wf):setCurrentSpace(true) end
   --uiPrefs
   self.ui=setmetatable({},{
     __newindex=function(_,k,v)rawset(self.ui,k,getColor(v)) return not inUiPrefs and setUiPrefs(self)end,
