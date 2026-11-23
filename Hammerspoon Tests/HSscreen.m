@@ -67,6 +67,18 @@
     RUN_LUA_TEST()
 }
 
+- (void)testRetainedScreenFrameAfterDockChange {
+    RUN_LUA_TEST()
+}
+
+- (void)testRetainedScreenFramesAfterDisplayChange {
+    RUN_LUA_TEST()
+}
+
+- (void)testRetainedScreenFramesAfterDisconnect {
+    RUN_LUA_TEST()
+}
+
 - (void)testFromUnitRect {
     RUN_LUA_TEST()
 }

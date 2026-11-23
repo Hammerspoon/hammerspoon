@@ -179,6 +179,9 @@ function screenObject:position()
     if s:id()==id then return p.x,p.y end
   end
 end
+
+local getScreenFrame
+
 --- hs.screen:fullFrame() -> hs.geometry rect
 --- Method
 --- Returns the screen frame, including the dock and menu.
@@ -189,10 +192,7 @@ end
 --- Returns:
 ---  * an hs.geometry rect describing this screen's frame in absolute coordinates
 function screenObject:fullFrame()
-  local primary_screen = screen.allScreens()[1]
-  local f = self:_frame()
-  f.y = primary_screen:_frame().h - f.h - f.y
-  return geometry(f)
+  return getScreenFrame(self, "_frame")
 end
 
 --- hs.screen:frame() -> hs.geometry rect
@@ -205,8 +205,22 @@ end
 --- Returns:
 ---  * an hs.geometry rect describing this screen's "usable" frame (i.e. without the dock and menu bar) in absolute coordinates
 function screenObject:frame()
-  local primary_screen = screen.allScreens()[1]
-  local f = self:_visibleframe()
+  return getScreenFrame(self, "_visibleframe")
+end
+
+getScreenFrame = function(self, method)
+  local screens = screen.allScreens()
+  local primary_screen = screens[1]
+  local id = self:id()
+  -- Retained NSScreen objects can have stale bounds after the configuration changes.
+  -- Keep the stored bounds if the display is no longer connected.
+  for _, current in ipairs(screens) do
+    if current:id() == id then
+      self = current
+      break
+    end
+  end
+  local f = self[method](self)
   f.y = primary_screen:_frame().h - f.h - f.y
   return geometry(f)
 end

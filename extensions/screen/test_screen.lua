@@ -1,6 +1,8 @@
 hs.screen = require("hs.screen")
 hs.geometry = require("hs.geometry")
 
+local createTestContext
+
 function testMainScreen()
   local screen = hs.screen.mainScreen()
   assertIsUserdataOfType("hs.screen", screen)
@@ -120,6 +122,77 @@ function testFromUnitRect()
   local unitFrame = primary:fromUnitRect(hs.geometry.unitrect(0, 0, 1, 1))
 
   assertIsEqual(frame, unitFrame)
+
+  return success()
+end
+
+function testRetainedScreenFrameAfterDockChange()
+  -- Arrange
+  local context = createTestContext()
+  local savedScreen = context.laptop
+
+  context.withScreens(function()
+    assertIsEqual(hs.geometry(0, 33, 1728, 1084), savedScreen:frame())
+
+    -- Act
+    context.screens = {
+      context.createScreen(1, {0, 0, 1728, 1117}, {0, 116, 1728, 968}),
+      context.external,
+    }
+    local frame = savedScreen:frame()
+
+    -- Assert
+    assertIsEqual(hs.geometry(0, 33, 1728, 968), frame)
+    assertIsEqual(frame, savedScreen:fromUnitRect(hs.geometry.unitrect(0, 0, 1, 1)))
+  end)
+
+  return success()
+end
+
+function testRetainedScreenFramesAfterDisplayChange()
+  -- Arrange
+  local context = createTestContext()
+  local savedLaptop = context.laptop
+  local savedExternal = context.external
+
+  context.withScreens(function()
+    assertIsEqual(hs.geometry(1728, 37, 1920, 1080), savedExternal:fullFrame())
+
+    -- Act: change the primary display, resolution, and layout.
+    context.screens = {
+      context.createScreen(2, {0, 0, 2560, 1440}, {0, 80, 2560, 1336}),
+      context.createScreen(1, {-1728, 1440, 1728, 1117}, {-1728, 1440, 1728, 1084}),
+    }
+    local externalFrame = savedExternal:fullFrame()
+    local laptopFrame = savedLaptop:fullFrame()
+    local externalVisibleFrame = savedExternal:frame()
+    local laptopVisibleFrame = savedLaptop:frame()
+
+    -- Assert
+    assertIsEqual(hs.geometry(0, 0, 2560, 1440), externalFrame)
+    assertIsEqual(hs.geometry(-1728, -1117, 1728, 1117), laptopFrame)
+    assertIsEqual(hs.geometry(0, 24, 2560, 1336), externalVisibleFrame)
+    assertIsEqual(hs.geometry(-1728, -1084, 1728, 1084), laptopVisibleFrame)
+  end)
+
+  return success()
+end
+
+function testRetainedScreenFramesAfterDisconnect()
+  -- Arrange
+  local context = createTestContext()
+  local savedScreen = context.external
+
+  context.withScreens(function()
+    -- Act
+    context.screens = {context.laptop}
+    local frame = savedScreen:fullFrame()
+    local visibleFrame = savedScreen:frame()
+
+    -- Assert: preserve the saved bounds when the display is unavailable.
+    assertIsEqual(hs.geometry(1728, 37, 1920, 1080), frame)
+    assertIsEqual(hs.geometry(1728, 61, 1920, 1056), visibleFrame)
+  end)
 
   return success()
 end
@@ -338,4 +411,33 @@ function testToUnitRect()
   assertIsEqual(unitRect.h, 1.0)
 
   return success()
+end
+
+createTestContext = function()
+  local context = {}
+
+  context.createScreen = function(id, frame, visibleFrame)
+    return setmetatable({
+      id = function() return id end,
+      _frame = function()
+        return {x = frame[1], y = frame[2], w = frame[3], h = frame[4]}
+      end,
+      _visibleframe = function()
+        return {x = visibleFrame[1], y = visibleFrame[2], w = visibleFrame[3], h = visibleFrame[4]}
+      end,
+    }, {__index = hs.getObjectMetatable("hs.screen")})
+  end
+
+  context.withScreens = function(callback)
+    local allScreens = hs.screen.allScreens
+    hs.screen.allScreens = function() return context.screens end
+    local ok, err = xpcall(callback, debug.traceback)
+    hs.screen.allScreens = allScreens
+    if not ok then error(err, 0) end
+  end
+
+  context.laptop = context.createScreen(1, {0, 0, 1728, 1117}, {0, 0, 1728, 1084})
+  context.external = context.createScreen(2, {1728, 0, 1920, 1080}, {1728, 0, 1920, 1056})
+  context.screens = {context.laptop, context.external}
+  return context
 end
