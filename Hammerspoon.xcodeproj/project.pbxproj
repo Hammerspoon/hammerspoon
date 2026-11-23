@@ -301,6 +301,8 @@
 		4FD0AC2B1B74C62200A82496 /* MYAnonymousIdentity.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FD0AC271B74C62200A82496 /* MYAnonymousIdentity.m */; };
 		4FDD8E4A1C6E4FA100085D7A /* test_screen.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4FDD8E491C6E4FA100085D7A /* test_screen.lua */; };
 		4FDD8E4C1C6E4FBB00085D7A /* HSscreen.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDD8E4B1C6E4FBB00085D7A /* HSscreen.m */; };
+		5A9C0D1E2F30415263748503 /* test_spaces.lua in Resources */ = {isa = PBXBuildFile; fileRef = 5A9C0D1E2F30415263748501 /* test_spaces.lua */; };
+		5A9C0D1E2F30415263748504 /* HSspaces.m in Sources */ = {isa = PBXBuildFile; fileRef = 5A9C0D1E2F30415263748502 /* HSspaces.m */; };
 		4FDD8E4E1C834C8100085D7A /* HSbase64.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDD8E4D1C834C8100085D7A /* HSbase64.m */; };
 		4FDD8E501C834C9400085D7A /* test_base64.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4FDD8E4F1C834C9400085D7A /* test_base64.lua */; };
 		4FDD8E521C83612D00085D7A /* HSalert.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDD8E511C83612C00085D7A /* HSalert.m */; };
@@ -1914,6 +1916,8 @@
 		4FD427CB2621E7F000E8D95F /* update_version_build_numbers.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = update_version_build_numbers.sh; path = scripts/update_version_build_numbers.sh; sourceTree = "<group>"; };
 		4FDD8E491C6E4FA100085D7A /* test_screen.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_screen.lua; path = extensions/screen/test_screen.lua; sourceTree = "<group>"; };
 		4FDD8E4B1C6E4FBB00085D7A /* HSscreen.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSscreen.m; sourceTree = "<group>"; };
+		5A9C0D1E2F30415263748501 /* test_spaces.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_spaces.lua; path = extensions/spaces/test_spaces.lua; sourceTree = "<group>"; };
+		5A9C0D1E2F30415263748502 /* HSspaces.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSspaces.m; sourceTree = "<group>"; };
 		4FDD8E4D1C834C8100085D7A /* HSbase64.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSbase64.m; sourceTree = "<group>"; };
 		4FDD8E4F1C834C9400085D7A /* test_base64.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_base64.lua; path = extensions/base64/test_base64.lua; sourceTree = "<group>"; };
 		4FDD8E511C83612C00085D7A /* HSalert.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSalert.m; sourceTree = "<group>"; };
@@ -3676,6 +3680,7 @@
 				D6C32CD127DDD68E001AA22E /* private.h */,
 				4FD0AB211B74856600A82496 /* spaces.lua */,
 				4FD0AB231B74857D00A82496 /* libspaces_watcher.m */,
+				5A9C0D1E2F30415263748501 /* test_spaces.lua */,
 			);
 			name = spaces;
 			sourceTree = "<group>";
@@ -4224,6 +4229,7 @@
 				D02F95281A00221C00E28BB2 /* HSrequire_all.m */,
 				4FDD8E4B1C6E4FBB00085D7A /* HSscreen.m */,
 				22A6626125FC087000AA329E /* HSserial.m */,
+				5A9C0D1E2F30415263748502 /* HSspaces.m */,
 				4CD64AA81C6F15F400EB6E39 /* HSsocket.m */,
 				4FB74B3A2049A9A600B08851 /* HStask.m */,
 				4FDD8E871C8AE3ED00085D7A /* HSTestCase.h */,
@@ -7023,6 +7029,7 @@
 				2273893624860C0E003EBC68 /* test_websocket.lua in Resources */,
 				4FCBAFD923B1152F007BA1D0 /* test_math.lua in Resources */,
 				4FDD8E4A1C6E4FA100085D7A /* test_screen.lua in Resources */,
+				5A9C0D1E2F30415263748503 /* test_spaces.lua in Resources */,
 				6AE181341D39C9570097211C /* test_noises.lua in Resources */,
 				4CB349EF1C7F74AD006F0DE0 /* test_javascript.lua in Resources */,
 				4CD64AAB1C6F168700EB6E39 /* test_socket.lua in Resources */,
@@ -7819,6 +7826,7 @@
 				4F8779D1200CD51200E9DB42 /* HSwindow.m in Sources */,
 				4FDD8E8D1C8C8BF200085D7A /* HScoresetup.m in Sources */,
 				4FDD8E4C1C6E4FBB00085D7A /* HSscreen.m in Sources */,
+				5A9C0D1E2F30415263748504 /* HSspaces.m in Sources */,
 				4F7BB9D626447C640077A926 /* HShotkey.m in Sources */,
 				4F2C0C7321BB4A04008F32C1 /* HSinspect.m in Sources */,
 				4FEE39D91F0A697400935F90 /* HScrash.m in Sources */,
