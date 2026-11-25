@@ -436,6 +436,22 @@ static int application_hide(lua_State* L) {
     return 1;
 }
 
+/// hs.application.hideOtherApplications() -> nil
+/// Function
+/// Hides all applications other than the frontmost one.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * None
+static int application_hideotherapplications(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TBREAK];
+    [[NSWorkspace sharedWorkspace] hideOtherApplications];
+    return 0;
+}
+
 /// hs.application:kill()
 /// Method
 /// Tries to terminate the app gracefully.
@@ -1267,6 +1283,7 @@ static const luaL_Reg moduleLib[] = {
     {"defaultAppForUTI", application_bundleForUTI},
     {"launchOrFocus", application_launchorfocus},
     {"launchOrFocusByBundleID", application_launchorfocusbybundleID},
+    {"hideOtherApplications", application_hideotherapplications},
 
     {NULL, NULL}
 };
