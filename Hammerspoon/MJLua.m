@@ -707,6 +707,32 @@ static int core_appleScript(lua_State* L) {
     return 1;
 }
 
+/// hs.allowShortcuts([state]) -> bool
+/// Function
+/// Set or display whether or not the "Execute Lua" action in the macOS Shortcuts app is allowed to run Lua code in Hammerspoon.
+///
+/// Parameters:
+///  * state - an optional boolean which will set whether or not the Shortcuts "Execute Lua" action is allowed.
+///
+/// Returns:
+///  * A boolean, `true` if the Shortcuts "Execute Lua" action is (or has just been) allowed, otherwise `false`.
+///
+/// Notes:
+///  * The Shortcuts "Execute Lua" action is allowed by default.
+///  * Any shortcut that uses this action can run arbitrary Lua code with all of the permissions granted to Hammerspoon (such as Accessibility). If you do not use this action, consider calling `hs.allowShortcuts(false)`.
+///  * This setting is stored in Hammerspoon's preferences, so it persists across restarts and config reloads.
+static int core_shortcuts(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];
+
+    if (lua_isboolean(L, 1)) {
+        [[NSUserDefaults standardUserDefaults] setBool:lua_toboolean(L, 1) forKey:HSShortcutsEnabledKey];
+    }
+
+    lua_pushboolean(L, [[NSUserDefaults standardUserDefaults] boolForKey:HSShortcutsEnabledKey]) ;
+    return 1;
+}
+
 /// hs.openConsoleOnDockClick([state]) -> bool
 /// Function
 /// Set or display whether or not the Console window will open when the Hammerspoon dock icon is clicked
@@ -827,6 +853,7 @@ static luaL_Reg corelib[] = {
     {"updateAvailable", updateAvailable},
     {"canCheckForUpdates", canCheckForUpdates},
     {"allowAppleScript", core_appleScript},
+    {"allowShortcuts", core_shortcuts},
     {"reload", core_reload},
     {"focus", core_focus},
     {"accessibilityState", core_accessibilityState},

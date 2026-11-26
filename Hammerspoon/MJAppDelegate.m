@@ -328,6 +328,7 @@
                          HSAutoLoadExtensions: @YES,
                          HSUploadCrashDataKey: @YES,
                          HSAppleScriptEnabledKey: @NO,
+                         HSShortcutsEnabledKey: @YES,
                          HSOpenConsoleOnDockClickKey: @YES,
                          HSPreferencesDarkModeKey: @NO,
                          HSConsoleDarkModeKey: @NO,

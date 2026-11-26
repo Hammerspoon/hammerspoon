@@ -5,6 +5,7 @@
 #define HSAutoLoadExtensions         @"HSAutoLoadExtensions"
 #define HSUploadCrashDataKey         @"HSUploadCrashData"
 #define HSAppleScriptEnabledKey      @"HSAppleScriptEnabledKey"
+#define HSShortcutsEnabledKey        @"HSShortcutsEnabledKey"
 #define HSOpenConsoleOnDockClickKey  @"HSOpenConsoleOnDockClickKey"
 #define HSConsoleDarkModeKey         @"HSConsoleDarkModeKey"
 #define HSPreferencesDarkModeKey     @"HSPreferencesDarkModeKey"

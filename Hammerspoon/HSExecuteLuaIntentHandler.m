@@ -7,9 +7,16 @@
 //
 
 #import "HSExecuteLuaIntentHandler.h"
+#import "variables.h"
 
 @implementation HSExecuteLuaIntentHandler
 -(void)handleExecuteLua:(HSExecuteLuaIntent *)intent completion:(void (^)(HSExecuteLuaIntentResponse * _Nonnull))completion {
+    if (![[NSUserDefaults standardUserDefaults] boolForKey:HSShortcutsEnabledKey]) {
+        NSLog(@"HSExecuteLuaIntent refused: disabled with hs.allowShortcuts(false)");
+        completion([HSExecuteLuaIntentResponse failureIntentResponseWithError:@"Running Lua from Shortcuts is disabled in Hammerspoon. Enable it with hs.allowShortcuts(true)"]);
+        return;
+    }
+
     LuaSkin *skin = [LuaSkin sharedWithState:nil];
 
     if (!intent.source) {
