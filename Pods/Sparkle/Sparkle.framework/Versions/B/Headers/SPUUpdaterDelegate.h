@@ -66,7 +66,7 @@ SU_EXPORT extern NSString *const SUSystemProfilerPreferredLanguageKey;
 /**
  Provides delegation methods to control the behavior of an `SPUUpdater` object.
  */
-@protocol SPUUpdaterDelegate <NSObject>
+NS_SWIFT_UI_ACTOR @protocol SPUUpdaterDelegate <NSObject>
 @optional
 
 /**
@@ -108,7 +108,7 @@ SU_EXPORT extern NSString *const SUSystemProfilerPreferredLanguageKey;
  This feature was added in Sparkle 2.
  
  @return The set of channel names the updater is allowed to find new updates in. An empty set is the default behavior,
-         which means the updater will only look for updates in the default channel.
+         which means the updater will only look for updates in the default channel. The default channel is always included in the allowed set.
  */
 - (NSSet<NSString *> *)allowedChannelsForUpdater:(SPUUpdater *)updater;
 
@@ -137,7 +137,11 @@ SU_EXPORT extern NSString *const SUSystemProfilerPreferredLanguageKey;
 /**
  Returns whether Sparkle should prompt the user about checking for new updates automatically.
  
- Use this to override the default behavior.
+ Use this to override the default behavior, which is to prompt for permission to check for updates on second app launch
+ (if SUEnableAutomaticChecks is not specified).
+ 
+ This method is not called if SUEnableAutomaticChecks is defined in Info.plist or
+ if the user has responded to a permission prompt before.
  
  @param updater The updater instance.
  @return @c YES if the updater should prompt for permission to check for new updates automatically, otherwise @c NO
@@ -382,7 +386,7 @@ SU_EXPORT extern NSString *const SUSystemProfilerPreferredLanguageKey;
  @param updater The updater instance.
  @return The custom version comparator or @c nil if you don't want to be delegated this task.
  */
-- (nullable id<SUVersionComparison>)versionComparatorForUpdater:(SPUUpdater *)updater;
+- (nullable id<SUVersionComparison>)versionComparatorForUpdater:(SPUUpdater *)updater __deprecated_msg("Custom version comparators are deprecated because they are incompatible with how the system compares different versions of an app.");
 
 /**
  Called when a background update will be scheduled after a delay.
@@ -417,16 +421,21 @@ SU_EXPORT extern NSString *const SUSystemProfilerPreferredLanguageKey;
 /**
  Called when an update is scheduled to be silently installed on quit after downloading the update automatically.
  
- If the updater is given responsibility, it can later remind the user an update is available if they have not terminated the application for a long time.
+ If you want to intercept this method without taking control of installing the update, return @c NO.
+ This will let future update cycles to run and allow Sparkle to present the update to the user later if certain conditions are met.
+ For example, critical updates will be presented to the user right away. Other updates may be presented later if the user hasn't terminated the application
+ for a long time (defined by `SUScheduledImpatientCheckInterval`).
  
- Also if the updater is given responsibility and the update item is marked critical, the new update will be presented to the user immediately after.
+ If you want to take control of installing the update, return @c YES.
+ This stalls the current update cycle and prevents future update cycles from running. When the opportunity arrives, you can invoke `immediateInstallHandler` to
+ install the update and relaunch the application without any UI interaction shown.
  
- Even if the @c immediateInstallHandler is not invoked, the installer will attempt to install the update on termination.
+ In either case Sparkle will always attempt to install the update when the app terminates.
  
  @param updater The updater instance.
  @param item The appcast item corresponding to the update that is proposed to be installed.
- @param immediateInstallHandler The install handler for the delegate to immediately install the update. No UI interaction will be shown and the application will be relaunched after installation. This handler can only be used if @c YES is returned and the delegate handles installing the update. For Sparkle 2.3 onwards, this handler can be invoked multiple times in case the application cancels the termination request.
- @return @c YES if the delegate will handle installing the update or @c NO if the updater should be given responsibility.
+ @param immediateInstallHandler The install handler to immediately install the update and relaunch the application. This handler can only be used if @c YES is returned. For Sparkle 2.3 onwards, this handler can be invoked multiple times in case the application cancels the termination request.
+ @return @c YES if you will handle installing the update using `immediateInstallHandler` or @c NO to allow Sparkle's update scheduler to continue running.
  */
 - (BOOL)updater:(SPUUpdater *)updater willInstallUpdateOnQuit:(SUAppcastItem *)item immediateInstallationBlock:(void (^)(void))immediateInstallHandler;
 

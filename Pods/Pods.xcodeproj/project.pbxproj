@@ -2155,6 +2155,7 @@
 		E5346F08C801418EE5D8865A8DA80D23 /* SentryInternalSerializable.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = SentryInternalSerializable.h; path = Sources/Sentry/include/SentryInternalSerializable.h; sourceTree = "<group>"; };
 		E561C36E80F2AB36A7A52C3D9236F760 /* MIKMIDIMappingGenerator.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = MIKMIDIMappingGenerator.m; path = Source/MIKMIDIMappingGenerator.m; sourceTree = "<group>"; };
 		E568BCD9B5F61BB842F2BE5281CB9F27 /* SentryBaseIntegration.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = SentryBaseIntegration.h; path = Sources/Sentry/include/HybridPublic/SentryBaseIntegration.h; sourceTree = "<group>"; };
+		E59E989D9F78B88E78882B0CBD88CF6C /* SPUAppcastSigningValidationStatus.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = SPUAppcastSigningValidationStatus.h; path = Sparkle.framework/Versions/B/Headers/SPUAppcastSigningValidationStatus.h; sourceTree = "<group>"; };
 		E6023683FB50F867D68B6A5A0C2778AD /* PrivateSentrySDKOnly.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = PrivateSentrySDKOnly.m; path = Sources/Sentry/PrivateSentrySDKOnly.m; sourceTree = "<group>"; };
 		E6086857AE4642BBC4787C78C287E073 /* DDFileLogger+Internal.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = "DDFileLogger+Internal.h"; path = "Sources/CocoaLumberjack/DDFileLogger+Internal.h"; sourceTree = "<group>"; };
 		E81FC29C83D18A980D23CF2D8A344796 /* ORSSerialPort.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = ORSSerialPort.release.xcconfig; sourceTree = "<group>"; };
@@ -2401,6 +2402,7 @@
 			isa = PBXGroup;
 			children = (
 				65D00577B3CE8BA54A60FBDDFBBDC706 /* Sparkle.h */,
+				E59E989D9F78B88E78882B0CBD88CF6C /* SPUAppcastSigningValidationStatus.h */,
 				4C7E0F1F6C625C241616E69C7138742D /* SPUDownloadData.h */,
 				56E4030B5363D8465250A7D6A7E485C5 /* SPUStandardUpdaterController.h */,
 				0645AFA5C4861E9A81F7D6E33B5F3B58 /* SPUStandardUserDriver.h */,

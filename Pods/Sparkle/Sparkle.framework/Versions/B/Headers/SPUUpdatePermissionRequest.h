@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  This class represents information needed to make a permission request for checking updates.
  */
-SU_EXPORT @interface SPUUpdatePermissionRequest : NSObject<NSSecureCoding>
+SU_EXPORT NS_SWIFT_SENDABLE @interface SPUUpdatePermissionRequest : NSObject<NSSecureCoding>
 
 /**
  Initializes a new update permission request instance.

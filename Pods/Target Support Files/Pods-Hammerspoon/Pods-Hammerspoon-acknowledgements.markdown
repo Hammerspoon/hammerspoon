@@ -231,7 +231,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 --
 
-sais.c and sais.c, from sais-lite (2010/08/07) <https://sites.google.com/site/yuta256/sais>:
+sais.c and sais.h, from sais-lite (2010/08/07) <https://sites.google.com/site/yuta256/sais>:
 
 The sais-lite copyright is as follows:
 

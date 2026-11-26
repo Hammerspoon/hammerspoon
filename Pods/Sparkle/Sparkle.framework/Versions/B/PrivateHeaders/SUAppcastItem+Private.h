@@ -26,12 +26,22 @@ NS_ASSUME_NONNULL_BEGIN
  This initializer method is intended to be marked "private" and discouraged from public usage.
  This method is available however. Talk to us to describe your use case and if you need to construct appcast items yourself.
  */
-- (nullable instancetype)initWithDictionary:(NSDictionary *)dict relativeToURL:(NSURL * _Nullable)appcastURL stateResolver:(SPUAppcastItemStateResolver *)stateResolver failureReason:(NSString * _Nullable __autoreleasing *_Nullable)error;
+- (nullable instancetype)initWithDictionary:(NSDictionary *)dict relativeToURL:(NSURL * _Nullable)appcastURL stateResolver:(SPUAppcastItemStateResolver *)stateResolver signingValidationStatus:(SPUAppcastSigningValidationStatus)signingValidationStatus failureReason:(NSString * _Nullable __autoreleasing *_Nullable)error;
 
 /**
- The EdDSA and DSA signatures along with their statuses.
+ The EdDSA and DSA signatures of the update along with their statuses.
  */
 @property (readonly, nonatomic, nullable) SUSignatures *signatures;
+
+/**
+ The EdDSA signature of the external release notes along with its status.
+ */
+@property (readonly, nonatomic, nullable) SUSignatures *releaseNotesSignatures;
+
+/**
+ The expected content length of the release notes file.
+ */
+@property (readonly, nonatomic) uint64_t releaseNotesContentLength;
 
 @end
 

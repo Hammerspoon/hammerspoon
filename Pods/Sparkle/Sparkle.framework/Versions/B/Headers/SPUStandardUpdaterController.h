@@ -37,8 +37,10 @@ NS_ASSUME_NONNULL_BEGIN
  It also allows hooking up the updater's and user driver's delegates.
  
  If you need more control over what bundle you want to update, or you want to provide a custom user interface (via `SPUUserDriver`), please use `SPUUpdater` directly instead.
+ 
+ This class must be used on the main thread.
   */
-SU_EXPORT @interface SPUStandardUpdaterController : NSObject
+SU_EXPORT NS_SWIFT_UI_ACTOR @interface SPUStandardUpdaterController : NSObject
 {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wobjc-interface-ivars"
@@ -79,6 +81,8 @@ SU_EXPORT @interface SPUStandardUpdaterController : NSObject
  Create a new `SPUStandardUpdaterController` programmatically.
  
  The updater is started automatically. See `-startUpdater`  for more information.
+ 
+ Note the `updaterDelegate` and `userDriverDelegate` are weakly referenced, so you are responsible for keeping them alive.
  */
 - (instancetype)initWithUpdaterDelegate:(nullable id<SPUUpdaterDelegate>)updaterDelegate userDriverDelegate:(nullable id<SPUStandardUserDriverDelegate>)userDriverDelegate;
 
@@ -87,6 +91,8 @@ SU_EXPORT @interface SPUStandardUpdaterController : NSObject
  
  You can specify whether or not you want to start the updater immediately.
  If you do not start the updater, you must invoke `-startUpdater` at a later time to start it.
+ 
+ Note the `updaterDelegate` and `userDriverDelegate` are weakly referenced, so you are responsible for keeping them alive.
  */
 - (instancetype)initWithStartingUpdater:(BOOL)startUpdater updaterDelegate:(nullable id<SPUUpdaterDelegate>)updaterDelegate userDriverDelegate:(nullable id<SPUStandardUserDriverDelegate>)userDriverDelegate;
 

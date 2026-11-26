@@ -188,6 +188,22 @@ SU_EXPORT @protocol SPUStandardUserDriverDelegate <NSObject>
  */
 - (void)standardUserDriverWillFinishUpdateSession;
 
+/**
+ Called before the standard user driver shows plain-text or markdown release notes text to the user.
+ 
+ The delegate has the opportunity to return a new attributed string for the release notes text that will be shown to the user.
+ The `bundleDisplayVersion` and `bundleVersion` are supplied in case they're useful for creating a new attributed string.
+ 
+ This method will not be invoked for HTML release notes. It is only applicable to plain-text and markdown release notes.
+ 
+ @param releaseNotesAttributedString The release notes text that the standard user driver wants to show to the user.
+ @param update The new update the release notes will be shown for.
+ @param bundleDisplayVersion The current display version  (or `CFBundleShortVersionString`)  of the bundle that is being updated.
+ @param bundleVersion The current version   (or `CFBundleVersion`) of the bundle that is being updated.
+ @return A new attributed string for the release notes text to show, or @c nil if the `releaseNotesAttributedString` should still be used.
+ */
+- (NSAttributedString * _Nullable)standardUserDriverWillShowReleaseNotesText:(NSAttributedString *)releaseNotesAttributedString forUpdate:(SUAppcastItem *)update withBundleDisplayVersion:(NSString *)bundleDisplayVersion bundleVersion:(NSString *)bundleVersion;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -15,9 +15,11 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wquoted-include-in-framework-header"
 #import "SUExport.h"
+#import "SPUAppcastSigningValidationStatus.h"
 #pragma clang diagnostic pop
 #else
 #import <Sparkle/SUExport.h>
+#import <Sparkle/SPUAppcastSigningValidationStatus.h>
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -27,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  The appcast representing a collection of `SUAppcastItem` items in the feed.
  */
-SU_EXPORT @interface SUAppcast : NSObject
+SU_EXPORT NS_SWIFT_SENDABLE @interface SUAppcast : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -37,6 +39,13 @@ SU_EXPORT @interface SUAppcast : NSObject
  These `SUAppcastItem` items are in the same order as specified in the appcast XML feed and are thus not sorted by version.
  */
 @property (readonly, nonatomic, copy) NSArray<SUAppcastItem *> *items;
+
+/**
+ The appcast signing validation status.
+ 
+ Please see documentation of @c SPUAppcastSigningValidationStatus values for more information.
+ */
+@property (nonatomic, readonly) SPUAppcastSigningValidationStatus signingValidationStatus;
 
 @end
 

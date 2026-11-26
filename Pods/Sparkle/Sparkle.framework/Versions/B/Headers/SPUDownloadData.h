@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * A class for containing downloaded data along with some information about it.
  */
-SU_EXPORT @interface SPUDownloadData : NSObject <NSSecureCoding>
+SU_EXPORT NS_SWIFT_SENDABLE @interface SPUDownloadData : NSObject <NSSecureCoding>
 
 /**
  * The raw data that was downloaded.

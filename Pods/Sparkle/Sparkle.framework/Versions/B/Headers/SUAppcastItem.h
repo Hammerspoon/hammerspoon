@@ -16,9 +16,11 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wquoted-include-in-framework-header"
 #import "SUExport.h"
+#import "SPUAppcastSigningValidationStatus.h"
 #pragma clang diagnostic pop
 #else
 #import <Sparkle/SUExport.h>
+#import <Sparkle/SPUAppcastSigningValidationStatus.h>
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -34,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
  Extended documentation and examples on using appcast item features are available at:
  https://sparkle-project.org/documentation/publishing/
  */
-SU_EXPORT @interface SUAppcastItem : NSObject<NSSecureCoding>
+SU_EXPORT NS_SWIFT_SENDABLE @interface SUAppcastItem : NSObject<NSSecureCoding>
 
 /**
  The version of the update item.
@@ -200,6 +202,24 @@ SU_EXPORT @interface SUAppcastItem : NSObject<NSSecureCoding>
 @property (nonatomic, readonly) BOOL minimumOperatingSystemVersionIsOK;
 
 /**
+ This update will be ignored if the application's version precedes this update's minimum version.
+ 
+ This application's version corresponds to the bundle's @c CFBundleVersion
+ 
+ The minimum update version is extracted from the @c <sparkle:minimumUpdateVersion> element.
+ 
+ Use `minimumUpdateVersionIsOK` property to test if the current bundle passes this requirement.
+ 
+ Old applications must be using Sparkle 2.9 or later, otherwise this property will be ignored.
+ */
+@property (nonatomic, copy, readonly, nullable) NSString *minimumUpdateVersion;
+
+/**
+ Indicates whether or not the current bundle passes the `minimumUpdateVersion` requirement.
+ */
+@property (nonatomic, readonly) BOOL minimumUpdateVersionIsOK;
+
+/**
  The required maximum system operating version string for this update if provided.
  
  A maximum system operating version requirement should only be made in unusual scenarios.
@@ -220,6 +240,22 @@ SU_EXPORT @interface SUAppcastItem : NSObject<NSSecureCoding>
 @property (nonatomic, readonly) BOOL maximumOperatingSystemVersionIsOK;
 
 /**
+ The required hardware requirements for this update if provided.
+ 
+ Example: @c arm64
+ 
+ Use `arm64HardwareRequirementIsOK` property to test if the current running system passes the @c arm64 requirement.
+ 
+ This is extracted from the @c <sparkle:hardwareRequirements> element, which is a comma-delimited list of hardware requirements.
+ */
+@property (nonatomic, copy, readonly) NSSet<NSString *> *hardwareRequirements;
+
+/**
+ Indicates whether or not the current running system passes the arm64 requirement if specified in the `hardwareRequirements` requirement.
+ */
+@property (nonatomic, readonly) BOOL arm64HardwareRequirementIsOK;
+
+/**
  The channel the update item is on if provided.
  
  An update item may specify a custom channel name (such as @c beta) that can only be found by updaters that filter for that channel.
@@ -235,8 +271,7 @@ SU_EXPORT @interface SUAppcastItem : NSObject<NSSecureCoding>
  
  This may be:
  - @c application - indicates this is a regular application update.
- - @c package - indicates this is a guided package installer update.
- - @c interactive-package - indicates this is an interactive package installer update (deprecated; use "package" instead)
+ - @c package - indicates this is a package installer update.
  
  This is extracted from the @c sparkle:installationType attribute in the @c <enclosure> element.
  
@@ -249,6 +284,13 @@ SU_EXPORT @interface SUAppcastItem : NSObject<NSSecureCoding>
  Old applications must be using Sparkle 1.26 or later to support downloading bare package updates (`pkg` or `mpkg`) that are not additionally archived inside of a @c zip or other archive format.
  */
 @property (nonatomic, copy, readonly) NSString *installationType;
+
+/**
+ The appcast signing validation status that this appcast item came from.
+ 
+ Please see documentation of @c SPUAppcastSigningValidationStatus values for more information.
+ */
+@property (readonly, nonatomic) SPUAppcastSigningValidationStatus signingValidationStatus;
 
 /**
  The phased rollout interval of the update item in seconds if provided.

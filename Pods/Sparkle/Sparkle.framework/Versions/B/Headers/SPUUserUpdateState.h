@@ -62,7 +62,7 @@ typedef NS_ENUM(NSInteger, SPUUserUpdateStage) {
 /**
  This represents the user's current update state.
  */
-SU_EXPORT @interface SPUUserUpdateState : NSObject
+SU_EXPORT NS_SWIFT_SENDABLE @interface SPUUserUpdateState : NSObject<NSSecureCoding>
 
 - (instancetype)init NS_UNAVAILABLE;
 
