@@ -326,7 +326,7 @@
                          MJShowDockIconKey: @NO,
                          MJShowMenuIconKey: @YES,
                          HSAutoLoadExtensions: @YES,
-                         HSUploadCrashDataKey: @YES,
+                         HSUploadCrashDataKey: @NO,
                          HSAppleScriptEnabledKey: @NO,
                          HSOpenConsoleOnDockClickKey: @YES,
                          HSPreferencesDarkModeKey: @NO,
