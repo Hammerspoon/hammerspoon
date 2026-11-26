@@ -109,5 +109,9 @@ static int verifyShutdown(lua_State *L) {
     RUN_LUA_TEST()
 }
 
+- (void)testAllowShortcuts {
+    RUN_LUA_TEST()
+}
+
 // FIXME: Quite a few things here are untested, like opening About/Console/Prefs windows, because I'm not yet sure how to test them
 @end

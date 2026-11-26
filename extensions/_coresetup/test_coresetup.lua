@@ -153,3 +153,16 @@ function testMenuIcon()
 
   return success()
 end
+
+function testAllowShortcuts()
+  local orig = hs.allowShortcuts()
+  assertIsBoolean(orig)
+
+  assertIsEqual(orig, hs.allowShortcuts(orig))
+  assertIsEqual(not orig, hs.allowShortcuts(not orig))
+
+  -- Be nice and put it back
+  hs.allowShortcuts(orig)
+
+  return success()
+end
