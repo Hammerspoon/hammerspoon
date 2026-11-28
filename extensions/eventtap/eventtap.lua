@@ -32,6 +32,7 @@
 
 local module   = require("hs.libeventtap")
 module.event   = require("hs.libeventtapevent")
+module.iohidevent = require("hs.libeventtapiohidevent")
 local fnutils  = require("hs.fnutils")
 local keycodes = require("hs.keycodes")
 local timer    = require("hs.timer")

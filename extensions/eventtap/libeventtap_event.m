@@ -3,6 +3,7 @@
 #import "eventtap_event.h"
 #import "HSuicore.h"
 #include "IOHIDEventTypes.h"
+#include "IOHIDEvent.h"
 @import IOKit.hidsystem ;
 
 #define FLAGS_TAG "hs.eventtap.event.flags"
@@ -285,6 +286,18 @@ static int eventtap_event_asData(lua_State* L) {
     if (data) {
         LuaSkin *skin = [LuaSkin sharedWithState:L] ;
         [skin pushNSObject:(__bridge_transfer NSData *)data] ;
+    } else {
+        lua_pushnil(L) ;
+    }
+    return 1 ;
+}
+
+static int eventtap_event_getIOHIDEvent(lua_State* L) {
+    CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
+    IOHIDEventRef ioHidEvent = CGEventCopyIOHIDEvent(event);
+    if (ioHidEvent) {
+        new_eventtap_iohidevent(L, ioHidEvent);
+        CFRelease(ioHidEvent);
     } else {
         lua_pushnil(L) ;
     }
@@ -1628,6 +1641,7 @@ static const luaL_Reg eventtapevent_metalib[] = {
     {"getRawEventData", eventtap_event_getRawEventData},
     {"getCharacters",   eventtap_event_getCharacters},
     {"systemKey",       eventtap_event_systemKey},
+    {"getIOHIDEvent",   eventtap_event_getIOHIDEvent},
     {"__tostring",      userdata_tostring},
     {"__gc",            eventtap_event_gc},
     {NULL,              NULL}
